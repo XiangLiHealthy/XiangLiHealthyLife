@@ -1,0 +1,34 @@
+# define a root build directory base on the platform
+# if without a SRC_BASE defined, just use local src directory 
+ifeq ($(SRC_BASE), )
+	BUILDDIR = $(MOD_SRC_DIR)
+	OBJDIR = $(MOD_SRC_DIR)
+	LIBDIR = $(MOD_SRC_DIR)
+	BINDIR = $(MOD_SRC_DIR)
+else
+	ifeq ($(DEBUG_SYMBLES), TRUE)
+		BUILDDIR = $(SRC_BASE)/build/debug
+	else 
+		BUILDDIR = $(SRC_BASE)/build/release
+	endif
+
+	OBJDIR = $(BUILDDIR)/obj/$(MOULD)
+	LIBDIR = $(BUILDDIR)/lib 
+	BINDIR = $(BUILDDIR)/bin 
+endif 
+
+
+ifeq ($(MAKELEVEL), 0) # 不知道怎么修改MAKELEVEL,就写成1了,本来是0
+	all : msg
+else 
+	all : lib bin 
+endif 
+
+lib : $(OBJDIR) $(SRC_LIB)
+
+bin : $(OBJDIR) $(SRC_BIN)
+
+$(OBJDIR) : 
+	@echo " MKDIR $(notdir $@)..."
+	mkdir -p $@
+

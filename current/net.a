@@ -1,0 +1,594 @@
+!<arch>
+//                                              84        `
+epoll_demultiplexer.cpp/
+listen_handler.cpp/
+reactor_impl.cpp/
+socket_handler.cpp/
+
+/0              0           0     0     644     1853      `
+#include<vector>
+#include<sys/epoll.h>
+#include<iostream>
+#include<errno.h>
+#include<unistd.h>
+#include<string.h>
+#include<assert.h>
+#include"stdio.h"
+
+#include"epoll_demultiplexer.h"
+
+EpollDemultiplexer::EpollDemultiplexer() : _max_fd(0) {
+	_epoll_fd = epoll_create(1024);
+}
+
+EpollDemultiplexer::~EpollDemultiplexer(){
+	close(_epoll_fd);
+}
+
+int EpollDemultiplexer::wait_event(std::map<int, EventHandler*>& handlers, int timeout){
+	std::vector<struct epoll_event> events(_max_fd);
+	int num = epoll_wait(_epoll_fd, &events[0], _max_fd, timeout);
+	if (num < 0){
+		std::cout<<"epoll wait error :"<<strerror(errno)<<std::endl;
+		return num;
+	}
+
+	for (int i = 0; i < num; i++){
+		Handle handle = events[i].data.fd;
+		if ( (EPOLLHUP | EPOLLERR) & events[i].events ) {
+			assert( NULL != handlers[handle]);
+			(handlers[handle])->handle_error();
+
+		}
+		else{
+			if ( (EPOLLIN) & events[i].events){
+				assert(handlers[handle] != NULL);
+				(handlers[handle])->handle_read();
+
+			}
+
+			if ( EPOLLOUT & events[i].events) {
+				(handlers[handle])->handle_write();
+			}
+		}
+
+	}
+
+	return num;
+}
+
+int EpollDemultiplexer::regist(Handle handle, Event evt){
+	struct epoll_event ev;
+	ev.data.fd = handle;
+	if (evt & WriteEvent){
+		ev.events |= EPOLLIN;
+	}
+
+	if (evt & WriteEvent) {
+		ev.events |= EPOLLOUT;
+	}
+	ev.events |= EPOLLET;//水平触发模式更加简单
+
+	if (epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, handle, &ev) != 0){
+		if (ENOENT == errno){
+			if (epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, handle, &ev) != 0){
+				std::cerr <<"epoll add error"<< errno <<std::endl;
+				return -errno;
+			}
+		}
+	}
+
+	++_max_fd;
+
+	return 0;
+}
+
+int EpollDemultiplexer::remove(Handle handle) {
+	struct epoll_event ev;
+	if (epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, handle, &ev) != 0){
+		std::cerr <<"epoll_del error"<<strerror(errno)<<std::endl;
+		return -errno;
+	}
+
+	--_max_fd;
+	return 0;
+}
+
+
+
+/25             0           0     0     644     1059      `
+#include "listen_handler.h" 
+#include <unistd.h> 
+#include <sys/socket.h> 
+#include <stdio.h> 
+#include <new> 
+#include <assert.h> 
+#include "event_handler.h" 
+#include "reactor.h" 
+#include "socket_handler.h"
+#include<iostream>
+#include<arpa/inet.h>
+#include<errno.h>
+#include<string.h>
+
+ListenHandler::ListenHandler(Handle fd) : _listen_fd(fd) { 
+// do nothing 
+} 
+ListenHandler::~ListenHandler() { 
+close(_listen_fd); 
+} 
+void ListenHandler::handle_read() { 
+	printf("ListenHandler::handle_read()\n");
+
+	struct sockaddr_in client_addr;
+	socklen_t len = sizeof(sockaddr);
+
+	int fd = accept(_listen_fd,(sockaddr*) &client_addr, &len); 
+
+	printf("接受连接ip:%s\n", inet_ntoa(client_addr.sin_addr) );
+
+	EventHandler* h = new (std::nothrow)SocketHandler(fd); 
+	assert(h != NULL); 
+	Reactor& r = Reactor::get_instance(); 
+	
+	r.regist(h, ReadEvent); 
+} 
+void ListenHandler::handle_write() { 
+// do nothing 
+} 
+void ListenHandler::handle_error() { 
+// do nothing 
+	printf("监听套接字出错:%s,进程退出!\n", strerror(errno));
+	
+	close(_listen_fd);
+}
+
+
+
+raw_data.cpp/   0           0     0     644     1646      `
+#include"raw_data.h"
+#include<stdlib.h>
+#include<stdio.h>
+#include<string.h>
+#include<unistd.h>
+#include<errno.h>
+
+RawData::RawData(int nSize) {
+
+	m_byData = NULL;//初始内存可能被初始化为0xfdfd fdfd
+	clear();
+
+	m_byData = (byte*)malloc(nSize + 1);
+	m_nSize = nSize;
+
+}
+
+RawData::~RawData() {
+	clear();
+}
+
+/****************************************************************************
+ *清理内存
+ ***************************************************************************/ 
+void RawData::clear() {
+	if( NULL != m_byData) {
+		delete[] m_byData;
+		m_byData = 0;
+	}
+
+	m_nSize = 0;
+	m_nPos = 0;
+	m_hSock = NULL;
+}
+
+
+int RawData::append(byte* byData, int nLen) {
+	printf("%s: %x, %d \n", __PRETTY_FUNCTION__, byData, nLen);
+
+	//判断参数指针和数据缓冲是否有效 
+	if (NULL == byData || NULL == m_byData) {
+		printf("发现空指针! \n");
+		return -1;
+	}
+
+
+	//判断数据缓冲的长度是否还够
+	if(nLen > m_nSize - m_nPos) {
+		printf("添加的数据过长:srcLen = %d, bufLen = %d \n", nLen, m_nSize - m_nPos);
+		return -1;
+	}
+
+
+	//将数据拷贝到缓冲区
+	memcpy(m_byData + m_nPos, byData, nLen);
+	m_nPos += nLen;
+
+
+	return 0;
+}
+
+int RawData::getNeedLen() {
+	return m_nSize - m_nPos;
+}
+
+const byte* RawData:: getData() {
+	return m_byData;
+}
+
+int RawData::getLength() {
+	return m_nSize;
+}
+
+void RawData::setHandle(Handle hSock) {
+	m_hSock = hSock;
+}
+
+Handle RawData::getHandle( ) {
+	return m_hSock;
+}
+
+
+int RawData:: SendMsg(const byte* pbyData, int nLen) {
+	int nRet = write(m_hSock, (char*)pbyData, nLen);
+	if ( nRet < nLen) {
+		printf("数据发送失败:%s \n", strerror(errno));
+		return -1;
+	}
+
+	return 0;
+}
+reactor.cpp/    0           0     0     644     635       `
+#include"event.h"
+#include"reactor.h"
+#include<assert.h>
+#include<new>
+
+Reactor Reactor::reactor;
+
+
+
+Reactor::Reactor(){
+	_reactor_impl = new (std::nothrow)ReactorImpl();
+	assert(NULL != _reactor_impl);
+}
+
+Reactor::~Reactor(){
+	if(NULL != _reactor_impl){
+		delete _reactor_impl;
+		_reactor_impl = NULL;
+	}
+}
+
+Reactor& Reactor::get_instance(){
+	return reactor;
+}
+
+int Reactor::regist(EventHandler* handler, Event evt){
+	return _reactor_impl->regist(handler, evt);
+}
+
+void Reactor::remove(EventHandler* handler){
+	return _reactor_impl->remove(handler);
+}
+
+void Reactor::dispatch(int timeout){
+	return _reactor_impl->dispatch(timeout);
+}
+
+/45             0           0     0     644     1647      `
+#include"reactor_impl.h"
+#include<new>
+#include<assert.h>
+#include"epoll_demultiplexer.h"
+#include"event_handler.h"
+#include<iostream>
+#include"net_data.h"
+
+ReactorImpl::ReactorImpl(){
+	_demultiplexer = new (std::nothrow)EpollDemultiplexer;
+	assert(_demultiplexer != NULL);
+}
+
+ReactorImpl::~ReactorImpl(){
+	std::map<Handle, EventHandler*>::iterator iter = _handlers.begin();
+	for(; iter != _handlers.end(); ++iter){
+		delete iter->second;
+	}
+
+	if (NULL != _demultiplexer){
+		delete _demultiplexer;
+	}
+}
+
+int ReactorImpl::regist(EventHandler* handler, Event evt){
+	printf("reactor::regist(EventHandler=%ox, Event=%d)\n",handler, evt);
+
+	Handle handle = handler->get_handle();
+	//const Handle handle = handler->getHandle();
+	if (_handlers.find(handle) == _handlers.end()){
+		_handlers.insert(std::make_pair(handle, handler));
+	}
+
+	return _demultiplexer->regist(handle, evt);
+}
+
+void ReactorImpl::remove(EventHandler* handler){
+	printf("ReactorImpl::remove(EventHandler* %x)", handler);
+
+	Handle handle = handler->get_handle();
+	//Handle handle = handler>getHandle();
+
+	_demultiplexer->remove(handle);//not check?
+
+	//added by xbs 2018-12-24
+	//对象资源都释放了,应该主动关闭文件描述符,否则会造成资源泄露,客户端一直收不到反应
+	//close(handle);
+
+	//std::cout << "reactor_impl 引起崩溃" << std::endl;
+	//make sure you can find handle?i think shuld add a juge
+	std::map<Handle, EventHandler*>::iterator iter = _handlers.find(handle);
+	if(iter != _handlers.end())
+	{
+		delete iter->second;
+		_handlers.erase(iter);
+	}
+}
+
+void ReactorImpl::dispatch(int timeout){
+	_demultiplexer->wait_event(_handlers, timeout);
+}
+
+/63             0           0     0     644     2456      `
+#include"socket_handler.h"
+#include<errno.h>
+#include"string.h"
+#include"stdio.h"
+#include"assert.h"
+#include"unistd.h"
+#include"sys/socket.h"
+#include"reactor.h"
+#include"task_queue.h"
+#include<errno.h>
+#include<string.h>
+
+SocketHandler::SocketHandler(Handle fd) : _socket_fd(fd){
+	_buf = new (std::nothrow)char[MAX_SIZE];
+	assert (_buf != NULL);
+	memset(_buf, 0, MAX_SIZE);
+
+	m_data = NULL;
+	m_bFirst = true;
+	m_nRecLen = 0;
+}
+
+SocketHandler::~SocketHandler() {
+	close(_socket_fd);
+	delete[] _buf;
+}
+
+/***************************************************************************
+ *功能介绍:接收完整的字节流,先接收长度信息,然后在读取长度指定的数据;
+ *参数:无
+ *返回值:无
+ *
+ *
+ *
+ * ***********************************************************************/
+void SocketHandler::handle_read() {
+
+	printf("%s \n", __PRETTY_FUNCTION__);
+
+	//如果是首次接收数据就先读取4个字节,取得数据包的长度信息
+	int nLen = 0;
+	if(m_bFirst || NULL == m_data) {
+		if( (nLen = read(_socket_fd, _buf + m_nRecLen, 4 - m_nRecLen)) < 0) {
+			printf("读消息长度出错:%s \n", strerror(errno));
+			handle_error();
+			return;
+		}
+
+		m_nRecLen += nLen;
+		if( 4 == m_nRecLen ){
+			int nMsgLen = * ( (int*)_buf);
+			m_data = new RawData(nMsgLen);
+			if( NULL == m_data) {
+				printf("内存不足,结束进程 \n");
+				handle_error();
+				return;
+			}
+
+			m_bFirst = false;
+		}
+		//直接再读一次可能会阻塞
+		return ;
+	}
+
+	//如果不够4字节,直到取得到为止
+	//创建一个RawData对象,并初始化缓冲区
+	//读取指定数目的长度:
+	int nNeedLen = m_data->getNeedLen();
+	nLen = (nNeedLen > MAX_SIZE) ? MAX_SIZE : nNeedLen;
+	if ( (nLen = read(_socket_fd, _buf, nNeedLen) ) < 0) {
+		printf("接收消息内容出错:%s \n", strerror(errno));
+		handle_error();
+		return;
+	}
+
+	//将读取的数据添加到消息对象
+	m_data->append( (byte*)_buf, nLen);
+
+	//数据接收够了就将这个对象放到任务队列,下一次重新生成一个对象
+	if (0 == m_data->getNeedLen()) {
+		g_taskQueue.add(m_data);
+		m_data = NULL;
+		m_bFirst = true;
+		m_nRecLen = 0;
+	}
+
+	//LT模式 如果还有消息剩余会继续:得到通知,直到把字节流接收完
+}
+
+void SocketHandler::handle_write() {
+	//do nothing
+}
+
+void SocketHandler::handle_error() {
+	//Reactor& r = Reactor::get_instance();
+	//r.remove(this);
+	close(_socket_fd);
+	//_sock_fd = NULL;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+task_queue.cpp/ 0           0     0     644     2641      `
+#include"task_queue.h"
+#include<stdio.h>
+#include<pthread.h>
+#include<iostream>
+
+/*****************************************************
+ *这是一个全局对象,网络接口将完整的消息放在这里,业务
+ 模块从这个队列获取消息,然后开始解析协议
+ * ************************************************/
+ TaskQueue g_taskQueue;
+
+ /*******************************************************
+  *初始化互斥量
+  *
+  *
+  *
+  * **************************************************/
+TaskQueue::TaskQueue() {
+	m_cond = PTHREAD_COND_INITIALIZER;
+	m_lock = PTHREAD_MUTEX_INITIALIZER; 
+}
+
+/************************************************************
+ *释放互斥量的资源
+ *
+ *
+ *************************************************************/
+TaskQueue::~TaskQueue() {
+
+	cout << "清除任务队列:" << m_taskQueue.size() << "个" << endl;
+
+	pthread_mutex_lock(&m_lock); 
+
+	while(m_taskQueue.size() > 0) {
+		RawData* pData = m_taskQueue.front();
+		if ( NULL != pData) {
+			delete pData;
+		}
+	}
+
+	pthread_mutex_unlock(&m_lock);
+
+	//m_taskQueue.clear();
+}
+
+/***********************************************************************
+ *功能:添加已经接收完整的消息包,不能重复添加
+ *参数:
+ *RawData* data: 网络接口生成的数据对象,每个对象存储的都是完整的消息
+ *
+ * 返回值:成功返回0
+ *
+ * **********************************************************************/
+int TaskQueue::add(RawData* pData) {
+	
+	printf( "int TaskQueue::add(RawData* %x \n", pData);
+
+	if(NULL == pData) {
+		return -1;
+	}
+
+	//锁住任务队列
+	pthread_mutex_lock(&m_lock);
+
+	//将消息添加到任务队列
+	m_taskQueue.push(pData);
+
+	//解锁
+	pthread_mutex_unlock(&m_lock);
+
+	//通知等待线程
+	pthread_cond_signal(&m_cond);
+
+	printf("int TaskQueue::add() end,count:%d \n", m_taskQueue.size());
+
+	return 0;
+}
+
+/***********************************************************************
+ *功能:业务线程从消息队列中获取一个消息对象 
+ *参数:
+ *返回值:指向消息对象的指针,获得者需要释放这个内存 
+ * **********************************************************************/
+RawData* TaskQueue::get() {
+	//linux pthread_t 是unsigned long
+	printf("线程ID:%lu,RawData::get() start \n", pthread_self());
+
+	RawData* pData = NULL;
+	pthread_mutex_lock(&m_lock);
+
+	//一直等待,直到任务队列有任务为止
+	while(m_taskQueue.size() < 1) {
+		pthread_cond_wait(&m_cond, &m_lock);
+	}
+
+	//获取任务
+	pData = m_taskQueue.front();
+
+	//释放锁资源
+	pthread_mutex_unlock(&m_lock);
+
+	printf("线程ID:%lu, RawData::get() end \n", pthread_self());
+
+	return pData;
+
+}
+

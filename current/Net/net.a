@@ -1,0 +1,315 @@
+!<arch>
+//                                              84        `
+epoll_demultiplexer.cpp/
+listen_handler.cpp/
+reactor_impl.cpp/
+socket_handler.cpp/
+
+/0              0           0     0     644     1821      `
+#include<vector>
+#include<sys/epoll.h>
+#include<iostream>
+#include<errno.h>
+#include<unistd.h>
+#include<string.h>
+#include<assert.h>
+#include"stdio.h"
+
+#include"epoll_demultiplexer.h"
+
+EpollDemultiplexer::EpollDemultiplexer() : _max_fd(0) {
+	_epoll_fd = epoll_create(1024);
+}
+
+EpollDemultiplexer::~EpollDemultiplexer(){
+	close(_epoll_fd);
+}
+
+int EpollDemultiplexer::wait_event(std::map<int, EventHandler*>& handlers, int timeout){
+	std::vector<struct epoll_event> events(_max_fd);
+	int num = epoll_wait(_epoll_fd, &events[0], _max_fd, timeout);
+	if (num < 0){
+		std::cout<<"epoll wait error :"<<strerror(errno)<<std::endl;
+		return num;
+	}
+
+	for (int i = 0; i < num; i++){
+		Handle handle = events[i].data.fd;
+		if ( (EPOLLHUP | EPOLLERR) & events[i].events ) {
+			assert( NULL != handlers[handle]);
+			(handlers[handle])->handle_error();
+
+		}
+		else{
+			if ( (EPOLLIN) & events[i].events){
+				assert(handlers[handle] != NULL);
+				(handlers[handle])->handle_read();
+
+			}
+
+			if ( EPOLLOUT & events[i].events) {
+				(handlers[handle])->handle_write();
+			}
+		}
+
+	}
+
+	return num;
+}
+
+int EpollDemultiplexer::regist(Handle handle, Event evt){
+	struct epoll_event ev;
+	ev.data.fd = handle;
+	if (evt & WriteEvent){
+		ev.events |= EPOLLIN;
+	}
+
+	if (evt & WriteEvent) {
+		ev.events |= EPOLLOUT;
+	}
+	ev.events |= EPOLLET;
+
+	if (epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, handle, &ev) != 0){
+		if (ENOENT == errno){
+			if (epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, handle, &ev) != 0){
+				std::cerr <<"epoll add error"<< errno <<std::endl;
+				return -errno;
+			}
+		}
+	}
+
+	++_max_fd;
+
+	return 0;
+}
+
+int EpollDemultiplexer::remove(Handle handle) {
+	struct epoll_event ev;
+	if (epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, handle, &ev) != 0){
+		std::cerr <<"epoll_del error"<<strerror(errno)<<std::endl;
+		return -errno;
+	}
+
+	--_max_fd;
+	return 0;
+}
+
+
+
+/25             0           0     0     644     928       `
+#include "listen_handler.h" 
+#include <unistd.h> 
+#include <sys/socket.h> 
+#include <stdio.h> 
+#include <new> 
+#include <assert.h> 
+#include "event_handler.h" 
+#include "reactor.h" 
+#include "socket_handler.h"
+#include<iostream>
+#include<arpa/inet.h>
+
+ListenHandler::ListenHandler(Handle fd) : _listen_fd(fd) { 
+// do nothing 
+} 
+ListenHandler::~ListenHandler() { 
+close(_listen_fd); 
+} 
+void ListenHandler::handle_read() { 
+	printf("ListenHandler::handle_read()\n");
+
+	struct sockaddr_in client_addr;
+	socklen_t len = sizeof(sockaddr);
+
+	int fd = accept(_listen_fd,(sockaddr*) &client_addr, &len); 
+
+	printf("接受连接ip:%s\n", inet_ntoa(client_addr.sin_addr) );
+
+	EventHandler* h = new (std::nothrow)SocketHandler(fd); 
+	assert(h != NULL); 
+	Reactor& r = Reactor::get_instance(); 
+	
+	r.regist(h, ReadEvent); 
+} 
+void ListenHandler::handle_write() { 
+// do nothing 
+} 
+void ListenHandler::handle_error() { 
+// do nothing 
+}
+reactor.cpp/    0           0     0     644     635       `
+#include"event.h"
+#include"reactor.h"
+#include<assert.h>
+#include<new>
+
+Reactor Reactor::reactor;
+
+
+
+Reactor::Reactor(){
+	_reactor_impl = new (std::nothrow)ReactorImpl();
+	assert(NULL != _reactor_impl);
+}
+
+Reactor::~Reactor(){
+	if(NULL != _reactor_impl){
+		delete _reactor_impl;
+		_reactor_impl = NULL;
+	}
+}
+
+Reactor& Reactor::get_instance(){
+	return reactor;
+}
+
+int Reactor::regist(EventHandler* handler, Event evt){
+	return _reactor_impl->regist(handler, evt);
+}
+
+void Reactor::remove(EventHandler* handler){
+	return _reactor_impl->remove(handler);
+}
+
+void Reactor::dispatch(int timeout){
+	return _reactor_impl->dispatch(timeout);
+}
+
+/45             0           0     0     644     1365      `
+#include"reactor_impl.h"
+#include<new>
+#include<assert.h>
+#include"epoll_demultiplexer.h"
+#include"event_handler.h"
+#include<iostream>
+
+ReactorImpl::ReactorImpl(){
+	_demultiplexer = new (std::nothrow)EpollDemultiplexer;
+	assert(_demultiplexer != NULL);
+}
+
+ReactorImpl::~ReactorImpl(){
+	std::map<Handle, EventHandler*>::iterator iter = _handlers.begin();
+	for(; iter != _handlers.end(); ++iter){
+		delete iter->second;
+	}
+
+	if (NULL != _demultiplexer){
+		delete _demultiplexer;
+	}
+}
+
+int ReactorImpl::regist(EventHandler* handler, Event evt){
+	printf("reactor::regist(EventHandler=%ox, Event=%d)\n",handler, evt);
+
+	int handle = handler->get_handle();
+	if (_handlers.find(handle) == _handlers.end()){
+		_handlers.insert(std::make_pair(handle, handler));
+	}
+
+	return _demultiplexer->regist(handle, evt);
+}
+
+void ReactorImpl::remove(EventHandler* handler){
+	printf("ReactorImpl::remove(EventHandler* %ox)", handler);
+
+	int handle;// handler>get_handle();
+	_demultiplexer->remove(handle);//not check?
+	//std::cout << "reactor_impl 引起崩溃" << std::endl;
+	//make sure you can find handle?i think shuld add a juge
+	std::map<Handle, EventHandler*>::iterator iter = _handlers.find(handle);
+	if(iter != _handlers.end())
+	{
+		delete iter->second;
+		_handlers.erase(iter);
+	}
+}
+
+void ReactorImpl::dispatch(int timeout){
+	_demultiplexer->wait_event(_handlers, timeout);
+}
+
+/63             0           0     0     644     715       `
+#include"socket_handler.h"
+#include"string.h"
+#include"stdio.h"
+#include"assert.h"
+#include"unistd.h"
+#include"sys/socket.h"
+#include"reactor.h"
+
+SocketHandler::SocketHandler(Handle fd) : _socket_fd(fd){
+	_buf = new (std::nothrow)char[MAX_SIZE];
+	assert (_buf != NULL);
+	memset(_buf, 0, MAX_SIZE);
+
+}
+
+SocketHandler::~SocketHandler() {
+	close(_socket_fd);
+	delete[] _buf;
+}
+
+void SocketHandler::handle_read() {
+	if (read(_socket_fd, _buf, strlen(_buf))){
+		write(_socket_fd, _buf, strlen(_buf));
+	}
+
+	handle_error();
+}
+
+void SocketHandler::handle_write() {
+	//do nothing
+}
+
+void SocketHandler::handle_error() {
+	Reactor& r = Reactor::get_instance();
+	r.remove(this);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

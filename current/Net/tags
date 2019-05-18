@@ -1,0 +1,80 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+DEBUG	makefile	/^DEBUG ?= 1$/;"	m
+DSWITCH	makefile	/^	DSWITCH = -g$/;"	m
+DSWITCH	makefile	/^DSWITCH = #默认发布版本$/;"	m
+EpollDemultiplexer	lib/epoll_demultiplexer.cpp	/^EpollDemultiplexer::EpollDemultiplexer() : _max_fd(0) {$/;"	f	class:EpollDemultiplexer
+EpollDemultiplexer	lib/epoll_demultiplexer.h	/^class EpollDemultiplexer : public EventDemultiplexer {$/;"	c
+ErrorEvent	lib/event.h	/^	ErrorEvent = 0x04,$/;"	e	enum:EventMask
+Event	lib/event.h	/^typedef unsigned int Event;$/;"	t
+EventDemultiplexer	lib/event_demultiplexer.h	/^	EventDemultiplexer(){$/;"	f	class:EventDemultiplexer
+EventDemultiplexer	lib/event_demultiplexer.h	/^class EventDemultiplexer{$/;"	c
+EventHandler	lib/event_handler.h	/^	EventHandler(){$/;"	f	class:EventHandler
+EventHandler	lib/event_handler.h	/^class EventHandler$/;"	c
+EventMask	lib/event.h	/^	EventMask = 0xff$/;"	e	enum:EventMask
+EventMask	lib/event.h	/^enum EventMask$/;"	g
+Handle	lib/event_handler.h	/^typedef int Handle;$/;"	t
+INFTIM	epoll.cpp	18;"	d	file:
+LISTENQ	epoll.cpp	16;"	d	file:
+ListenHandler	lib/listen_handler.cpp	/^ListenHandler::ListenHandler(Handle fd) : _listen_fd(fd) { $/;"	f	class:ListenHandler
+ListenHandler	lib/listen_handler.h	/^class ListenHandler : public EventHandler {$/;"	c
+MAXLINE	epoll.cpp	14;"	d	file:
+MAX_SIZE	lib/socket_handler.h	/^	static const int MAX_SIZE = 1024;$/;"	m	class:SocketHandler
+OPEN_MAX	epoll.cpp	15;"	d	file:
+Reactor	lib/reactor.cpp	/^Reactor::Reactor(){$/;"	f	class:Reactor
+Reactor	lib/reactor.h	/^class Reactor$/;"	c
+ReactorImpl	lib/reactor_impl.cpp	/^ReactorImpl::ReactorImpl(){$/;"	f	class:ReactorImpl
+ReactorImpl	lib/reactor_impl.h	/^class ReactorImpl{$/;"	c
+ReadEvent	lib/event.h	/^	ReadEvent = 0x01,$/;"	e	enum:EventMask
+SERV_PORT	epoll.cpp	17;"	d	file:
+SocketHandler	lib/socket_handler.cpp	/^SocketHandler::SocketHandler(Handle fd) : _socket_fd(fd){$/;"	f	class:SocketHandler
+SocketHandler	lib/socket_handler.h	/^class SocketHandler : public EventHandler {$/;"	c
+WriteEvent	lib/event.h	/^	WriteEvent = 0x02,$/;"	e	enum:EventMask
+_buf	lib/socket_handler.h	/^	char* _buf;$/;"	m	class:SocketHandler
+_demultiplexer	lib/reactor_impl.h	/^	EventDemultiplexer* _demultiplexer;$/;"	m	class:ReactorImpl
+_epoll_fd	lib/epoll_demultiplexer.h	/^	int _epoll_fd;$/;"	m	class:EpollDemultiplexer
+_handlers	lib/reactor_impl.h	/^	std::map<Handle, EventHandler*> _handlers;$/;"	m	class:ReactorImpl
+_listen_fd	lib/listen_handler.h	/^	Handle _listen_fd;$/;"	m	class:ListenHandler
+_max_fd	lib/epoll_demultiplexer.h	/^	int _max_fd;$/;"	m	class:EpollDemultiplexer
+_reactor_impl	lib/reactor.h	/^	ReactorImpl* _reactor_impl;$/;"	m	class:Reactor
+_socket_fd	lib/socket_handler.h	/^	Handle _socket_fd;$/;"	m	class:SocketHandler
+bin_path	makefile	/^bin_path = .\/..\/build\/bin\/$/;"	m
+cli	makefile	/^cli = .\/test_client.cpp$/;"	m
+dispatch	lib/reactor.cpp	/^void Reactor::dispatch(int timeout){$/;"	f	class:Reactor
+dispatch	lib/reactor_impl.cpp	/^void ReactorImpl::dispatch(int timeout){$/;"	f	class:ReactorImpl
+g_nPort	test_server.cpp	/^int g_nPort = 6666;$/;"	v
+get_handle	lib/listen_handler.h	/^	virtual Handle get_handle() const{$/;"	f	class:ListenHandler
+get_handle	lib/socket_handler.h	/^	virtual Handle get_handle() const {$/;"	f	class:SocketHandler
+get_instance	lib/reactor.cpp	/^Reactor& Reactor::get_instance(){$/;"	f	class:Reactor
+handle_error	lib/listen_handler.cpp	/^void ListenHandler::handle_error() { $/;"	f	class:ListenHandler
+handle_error	lib/socket_handler.cpp	/^void SocketHandler::handle_error() {$/;"	f	class:SocketHandler
+handle_read	lib/listen_handler.cpp	/^void ListenHandler::handle_read() { $/;"	f	class:ListenHandler
+handle_read	lib/socket_handler.cpp	/^void SocketHandler::handle_read() {$/;"	f	class:SocketHandler
+handle_write	lib/listen_handler.cpp	/^void ListenHandler::handle_write() { $/;"	f	class:ListenHandler
+handle_write	lib/socket_handler.cpp	/^void SocketHandler::handle_write() {$/;"	f	class:SocketHandler
+main	epoll.cpp	/^int main(int argc,char* arg[])$/;"	f
+main	test_client.cpp	/^int main() {$/;"	f
+main	test_server.cpp	/^int main() { $/;"	f
+obj_path	makefile	/^obj_path = .\/..\/build\/obj\/$/;"	m
+reactor	lib/reactor.cpp	/^Reactor Reactor::reactor;$/;"	m	class:Reactor	file:
+reactor	lib/reactor.h	/^	static Reactor reactor;$/;"	m	class:Reactor
+regist	lib/epoll_demultiplexer.cpp	/^int EpollDemultiplexer::regist(Handle handle, Event evt){$/;"	f	class:EpollDemultiplexer
+regist	lib/reactor.cpp	/^int Reactor::regist(EventHandler* handler, Event evt){$/;"	f	class:Reactor
+regist	lib/reactor_impl.cpp	/^int ReactorImpl::regist(EventHandler* handler, Event evt){$/;"	f	class:ReactorImpl
+remove	lib/epoll_demultiplexer.cpp	/^int EpollDemultiplexer::remove(Handle handle) {$/;"	f	class:EpollDemultiplexer
+remove	lib/reactor.cpp	/^void Reactor::remove(EventHandler* handler){$/;"	f	class:Reactor
+remove	lib/reactor_impl.cpp	/^void ReactorImpl::remove(EventHandler* handler){$/;"	f	class:ReactorImpl
+ser	makefile	/^ser = .\/test_server.cpp $/;"	m
+src	makefile	/^src = .\/lib\/*.cpp$/;"	m
+wait_event	lib/epoll_demultiplexer.cpp	/^int EpollDemultiplexer::wait_event(std::map<int, EventHandler*>& handlers, int timeout){$/;"	f	class:EpollDemultiplexer
+~EpollDemultiplexer	lib/epoll_demultiplexer.cpp	/^EpollDemultiplexer::~EpollDemultiplexer(){$/;"	f	class:EpollDemultiplexer
+~EventDemultiplexer	lib/event_demultiplexer.h	/^	virtual ~EventDemultiplexer(){$/;"	f	class:EventDemultiplexer
+~EventHandler	lib/event_handler.h	/^	virtual ~EventHandler(){$/;"	f	class:EventHandler
+~ListenHandler	lib/listen_handler.cpp	/^ListenHandler::~ListenHandler() { $/;"	f	class:ListenHandler
+~Reactor	lib/reactor.cpp	/^Reactor::~Reactor(){$/;"	f	class:Reactor
+~ReactorImpl	lib/reactor_impl.cpp	/^ReactorImpl::~ReactorImpl(){$/;"	f	class:ReactorImpl
+~SocketHandler	lib/socket_handler.cpp	/^SocketHandler::~SocketHandler() {$/;"	f	class:SocketHandler

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.xiangbaosong.myapplication">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity android:name=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".Prevent" />
+        <activity android:name=".Clinics" />
+        <activity android:name=".HealthyState" />
+        <activity android:name=".Diet" />
+        <activity android:name=".Sports" />
+        <activity android:name=".Psychonogy" />
+        <activity android:name=".Sleep" />
+        <activity android:name=".Family" />
+        <activity android:name=".PersonalCenter" />
+        <activity android:name=".Study" />
+        <activity android:name=".ClinicsRecordHistory" />
+        <activity android:name=".ClinicsRecordAdd" />
+        <activity android:name=".ClinicsRecordHistoryFeedback" />
+        <activity android:name=".PrevenRecordHistory" />
+        <activity android:name=".DietRecordHistory" />
+        <activity android:name=".DietPlan" />
+        <activity android:name=".DietNutritionCaculate" />
+        <activity android:name=".SportsPlan" />
+        <activity android:name=".PsychonogyDairy" />
+        <activity android:name=".PsychonogySchedule" />
+        <activity android:name=".PsychonogyInterpersonal" />
+        <activity android:name=".PsychologyDairyWrite" />
+        <activity android:name=".EnvironmentSelfEvaluation" />
+        <activity android:name=".FamilyArchives" />
+        <activity android:name=".StudyWorks"></activity>
+        <activity android:name=".PhotoGet"></activity>
+    </application>
+
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.hardware.camera.autofocus" />
+</manifest>

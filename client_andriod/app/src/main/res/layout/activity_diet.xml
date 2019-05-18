@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Diet">
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".Diet">
+
+        <Button
+            android:id="@+id/button58"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@android:color/holo_orange_light"
+            android:text="周六"
+            app:layout_constraintBottom_toTopOf="@+id/guideline56"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="@+id/guideline67"
+            app:layout_constraintTop_toTopOf="@+id/guideline58" />
+
+        <android.support.constraint.Guideline
+            android:id="@+id/guideline54"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_begin="20dp"
+            app:layout_constraintGuide_percent="0.762" />
+
+        <android.support.constraint.Guideline
+            android:id="@+id/guideline55"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_begin="20dp"
+            app:layout_constraintGuide_percent="0.619" />
+
+        <android.support.constraint.Guideline
+            android:id="@+id/guideline56"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_begin="20dp"
+            app:layout_constraintGuide_percent="0.476" />
+
+        <android.support.constraint.Guideline
+            android:id="@+id/guideline58"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_begin="20dp"
+            app:layout_constraintGuide_percent="0.4" />
+
+        <android.support.constraint.Guideline
+            android:id="@+id/guideline59"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_begin="20dp"
+            app:layout_constraintGuide_percent="0.905" />
+
+        <Button
+            android:id="@+id/button45"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginBottom="4dp"
+            android:background="@android:color/holo_blue_bright"
+            android:text="营养统计"
+            app:layout_constraintBottom_toTopOf="@+id/guideline58"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/button_diet_history"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginBottom="4dp"
+            android:background="@android:color/holo_orange_dark"
+            android:onClick="button_click"
+            android:text="我的记录"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/guideline61"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/guideline59" />
+
+        <android.support.constraint.Guideline
+            android:id="@+id/guideline60"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="20dp"
+            app:layout_constraintGuide_percent="0.66" />
+
+        <android.support.constraint.Guideline
+            android:id="@+id/guideline61"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="20dp"
+            app:layout_constraintGuide_percent="0.33" />
+
+        <Button
+            android:id="@+id/button_diet_nutrition"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginBottom="4dp"
+            android:background="@android:color/holo_orange_dark"
+            android:onClick="button_click"
+            android:text="营养测算"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/guideline60"
+            app:layout_constraintStart_toStartOf="@+id/guideline61"
+            app:layout_constraintTop_toTopOf="@+id/guideline59" />
+
+        <Button
+            android:id="@+id/button_diet_plan"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginBottom="4dp"
+            android:background="@android:color/holo_orange_dark"
+            android:onClick="button_click"
+            android:text="我的计划"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/guideline60"
+            app:layout_constraintTop_toTopOf="@+id/guideline59" />
+
+        <Button
+            android:id="@+id/button49"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginBottom="4dp"
+            android:background="@android:color/holo_blue_bright"
+            android:text="晚饭 18:00 面条x1 番茄炒鸡蛋x1"
+            app:layout_constraintBottom_toTopOf="@+id/guideline59"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/guideline54" />
+
+        <Button
+            android:id="@+id/button50"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginBottom="4dp"
+            android:background="@android:color/holo_green_light"
+            android:text="中饭 12:00 米饭x2 茄子炒肉x1"
+            app:layout_constraintBottom_toTopOf="@+id/guideline54"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/guideline55" />
+
+        <Button
+            android:id="@+id/button51"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginBottom="4dp"
+            android:background="@android:color/darker_gray"
+            android:text="早饭 8:00 八宝粥x1 牛奶x1"
+            app:layout_constraintBottom_toTopOf="@+id/guideline55"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/guideline56" />
+
+        <Button
+            android:id="@+id/button52"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@android:color/holo_orange_light"
+            android:text="周末"
+            app:layout_constraintBottom_toTopOf="@+id/guideline56"
+            app:layout_constraintEnd_toStartOf="@+id/guideline66"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/guideline58"
+            app:layout_constraintVertical_bias="1.0" />
+
+        <Button
+            android:id="@+id/button53"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@android:color/holo_orange_dark"
+            android:text="周一"
+            app:layout_constraintBottom_toTopOf="@+id/guideline56"
+            app:layout_constraintEnd_toStartOf="@+id/guideline65"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="@+id/guideline66"
+            app:layout_constraintTop_toTopOf="@+id/guideline58" />
+
+        <Button
+            android:id="@+id/button54"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@android:color/holo_orange_light"
+            android:text="周二"
+            app:layout_constraintBottom_toTopOf="@+id/guideline56"
+            app:layout_constraintEnd_toStartOf="@+id/guideline64"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="@+id/guideline65"
+            app:layout_constraintTop_toTopOf="@+id/guideline58" />
+
+        <Button
+            android:id="@+id/button55"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@android:color/holo_orange_light"
+            android:text="周三"
+            app:layout_constraintBottom_toTopOf="@+id/guideline56"
+            app:layout_constraintEnd_toStartOf="@+id/guideline63"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/button54"
+            app:layout_constraintTop_toTopOf="@+id/guideline58" />
+
+        <Button
+            android:id="@+id/button56"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@android:color/holo_orange_light"
+            android:text="周四"
+            app:layout_constraintBottom_toTopOf="@+id/guideline56"
+            app:layout_constraintEnd_toStartOf="@+id/guideline62"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="@+id/guideline63"
+            app:layout_constraintTop_toTopOf="@+id/guideline58" />
+
+        <Button
+            android:id="@+id/button57"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@android:color/holo_orange_light"
+            android:text="周五"
+            app:layout_constraintBottom_toTopOf="@+id/guideline56"
+            app:layout_constraintEnd_toStartOf="@+id/guideline67"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="@+id/guideline62"
+            app:layout_constraintTop_toTopOf="@+id/guideline58" />
+
+        <android.support.constraint.Guideline
+            android:id="@+id/guideline62"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="20dp"
+            app:layout_constraintGuide_percent="0.714" />
+
+        <android.support.constraint.Guideline
+            android:id="@+id/guideline63"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="20dp"
+            app:layout_constraintGuide_percent="0.571" />
+
+        <android.support.constraint.Guideline
+            android:id="@+id/guideline64"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="20dp"
+            app:layout_constraintGuide_percent="0.428" />
+
+        <android.support.constraint.Guideline
+            android:id="@+id/guideline65"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="20dp"
+            app:layout_constraintGuide_percent="0.286" />
+
+        <android.support.constraint.Guideline
+            android:id="@+id/guideline66"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="20dp"
+            app:layout_constraintGuide_percent="0.143" />
+
+        <android.support.constraint.Guideline
+            android:id="@+id/guideline67"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="20dp"
+            app:layout_constraintGuide_percent="0.857" />
+    </android.support.constraint.ConstraintLayout>
+</android.support.constraint.ConstraintLayout>

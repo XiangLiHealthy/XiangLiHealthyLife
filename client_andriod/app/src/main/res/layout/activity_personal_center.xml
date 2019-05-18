@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".PersonalCenter">
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".PersonalCenter">
+
+        <android.support.constraint.Guideline
+            android:id="@+id/guideline31"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_begin="480dp"
+            app:layout_constraintGuide_percent="0.857" />
+
+        <android.support.constraint.Guideline
+            android:id="@+id/guideline41"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_begin="400dp"
+            app:layout_constraintGuide_percent="0.714" />
+
+        <android.support.constraint.Guideline
+            android:id="@+id/guideline42"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_begin="320dp"
+            app:layout_constraintGuide_percent="0.571" />
+
+        <android.support.constraint.Guideline
+            android:id="@+id/guideline43"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_begin="196dp"
+            app:layout_constraintGuide_percent="0.428" />
+
+        <android.support.constraint.Guideline
+            android:id="@+id/guideline44"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="20dp"
+            app:layout_constraintGuide_percent="0.66" />
+
+        <android.support.constraint.Guideline
+            android:id="@+id/guideline45"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="20dp"
+            app:layout_constraintGuide_percent="0.33" />
+
+        <Button
+            android:id="@+id/button20"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@android:color/background_light"
+            android:text="个人信息"
+            app:layout_constraintBottom_toTopOf="@+id/guideline43"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/button27"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginLeft="2dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="2dp"
+            android:layout_marginRight="2dp"
+            android:layout_marginBottom="2dp"
+            android:background="@android:color/holo_orange_dark"
+            android:text="手环"
+            app:layout_constraintBottom_toTopOf="@+id/guideline42"
+            app:layout_constraintEnd_toStartOf="@+id/guideline45"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/guideline43" />
+
+        <Button
+            android:id="@+id/button28"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginLeft="2dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="2dp"
+            android:layout_marginRight="2dp"
+            android:layout_marginBottom="2dp"
+            android:background="@android:color/holo_orange_dark"
+            android:text="体脂称"
+            app:layout_constraintBottom_toTopOf="@+id/guideline42"
+            app:layout_constraintEnd_toStartOf="@+id/guideline44"
+            app:layout_constraintStart_toStartOf="@+id/guideline45"
+            app:layout_constraintTop_toTopOf="@+id/guideline43" />
+
+        <Button
+            android:id="@+id/button29"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginLeft="2dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="2dp"
+            android:layout_marginRight="2dp"
+            android:layout_marginBottom="2dp"
+            android:background="@android:color/holo_orange_dark"
+            android:text="血糖仪"
+            app:layout_constraintBottom_toTopOf="@+id/guideline42"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/guideline44"
+            app:layout_constraintTop_toTopOf="@+id/guideline43" />
+
+        <Button
+            android:id="@+id/button30"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginLeft="2dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="2dp"
+            android:layout_marginRight="2dp"
+            android:layout_marginBottom="2dp"
+            android:background="@android:color/holo_orange_dark"
+            android:text="血压计"
+            app:layout_constraintBottom_toTopOf="@+id/guideline41"
+            app:layout_constraintEnd_toStartOf="@+id/guideline45"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/guideline42" />
+
+        <Button
+            android:id="@+id/button31"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginLeft="2dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="2dp"
+            android:layout_marginRight="2dp"
+            android:layout_marginBottom="2dp"
+            android:background="@android:color/holo_orange_dark"
+            android:text="心率设备"
+            app:layout_constraintBottom_toTopOf="@+id/guideline41"
+            app:layout_constraintEnd_toStartOf="@+id/guideline44"
+            app:layout_constraintStart_toStartOf="@+id/guideline45"
+            app:layout_constraintTop_toTopOf="@+id/guideline42" />
+
+        <Button
+            android:id="@+id/button32"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginLeft="2dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="2dp"
+            android:layout_marginRight="2dp"
+            android:layout_marginBottom="2dp"
+            android:background="@android:color/holo_orange_light"
+            app:layout_constraintBottom_toTopOf="@+id/guideline41"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/guideline44"
+            app:layout_constraintTop_toTopOf="@+id/guideline42" />
+
+        <Button
+            android:id="@+id/button33"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginLeft="2dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="2dp"
+            android:layout_marginRight="2dp"
+            android:layout_marginBottom="2dp"
+            android:background="@android:color/holo_green_light"
+            android:text="体检报告  得分80  水平>70% 评级 良  排名123"
+            app:layout_constraintBottom_toTopOf="@+id/guideline31"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/guideline41" />
+
+        <Button
+            android:id="@+id/button34"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginLeft="2dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="2dp"
+            android:layout_marginRight="2dp"
+            android:layout_marginBottom="2dp"
+            android:background="@android:color/holo_green_light"
+            android:text="体测成绩  得分90  水平>92%  评级 优  排名1321"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/guideline31" />
+    </android.support.constraint.ConstraintLayout>
+</android.support.constraint.ConstraintLayout>

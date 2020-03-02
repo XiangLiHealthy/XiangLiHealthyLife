@@ -2,6 +2,7 @@
 #include<stdio.h>
 #include<pthread.h>
 #include<iostream>
+#include "../../log/log.h"
 
 /*****************************************************
  *这是一个全局对象,网络接口将完整的消息放在这里,业务
@@ -52,9 +53,9 @@ TaskQueue::~TaskQueue() {
  * 返回值:成功返回0
  *
  * **********************************************************************/
-int TaskQueue::add(RawData* pData) {
-	
-	printf( "int TaskQueue::add(RawData* %x \n", pData);
+int TaskQueue::add(RawData* pData) 
+{
+	LOG_DEBUG( "int TaskQueue::add(RawData* %x ", pData);
 
 	if(NULL == pData) {
 		return -1;
@@ -72,7 +73,7 @@ int TaskQueue::add(RawData* pData) {
 	//通知等待线程
 	pthread_cond_signal(&m_cond);
 
-	printf("int TaskQueue::add() end,count:%d \n", m_taskQueue.size());
+	LOG_DEBUG("int TaskQueue::add() end,count:%d \n", m_taskQueue.size());
 
 	return 0;
 }
@@ -84,13 +85,14 @@ int TaskQueue::add(RawData* pData) {
  * **********************************************************************/
 RawData* TaskQueue::get() {
 	//linux pthread_t 是unsigned long
-	printf("线程ID:%lu,RawData::get() start \n", pthread_self());
+	LOG_DEBUG("线程ID:%lu,RawData::get() start \n", pthread_self());
 
 	RawData* pData = NULL;
 	pthread_mutex_lock(&m_lock);
 
 	//一直等待,直到任务队列有任务为止
-	while(m_taskQueue.size() < 1 ) {
+	while(m_taskQueue.size() < 1 ) 
+	{
 		if(m_bExit) {
 			pthread_mutex_unlock(&m_lock);
 			return NULL;
@@ -105,7 +107,7 @@ RawData* TaskQueue::get() {
 	//释放锁资源
 	pthread_mutex_unlock(&m_lock);
 
-	printf("线程ID:%lu, RawData::get() end \n", pthread_self());
+	LOG_DEBUG("线程ID:%lu, RawData::get() end \n", pthread_self());
 
 	return pData;
 

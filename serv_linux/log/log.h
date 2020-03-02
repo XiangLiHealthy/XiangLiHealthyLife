@@ -14,7 +14,7 @@ using XiangLi::LOG_MODE;
 class Log
 {
 public:
-	Log &		GetInstance()
+	static Log &		GetInstance()
 	{
 		static Log singleton;
 		return singleton;
@@ -38,10 +38,10 @@ private:
 	~Log( );
 };
 
-#define LOG_DEBUG(format, ...) Log::GetInstance().WriteLog(LOG_LEVEL::DEBUG, __FILE__, __LINE__, __func__, format, ##__VA_ARGS__)
-#define LOG_INFO(format, ...) Log::GetInstance().WriteLog(LOG_LEVEL::INFO, __FILE__, __LINE__, __func__, format, ##__VA_ARGS__)
-#define LOG_WARNING(format, ...) Log::GetInstance().WriteLog(LOG_LEVEL::WARNING, __FILE__, __LINE__, __func__, format, ##__VA_ARGS__)
-#define LOG_ERROR(format, ...) Log::GetInstance().WriteLog(LOG_LEVEL::ERROR, __FILE__, __LINE__, __func__, format, ##__VA_ARGS__)
-#define LOG_FATAL(format, ...) Log::GetInstance().WriteLog(LOG_LEVEL::FATAL, __FILE__, __LINE__, __func__, format, ##__VA_ARGS__)
+#define LOG_DEBUG(format, ...) Log::GetInstance().WriteLog(LOG_LEVEL::LOG_ERROR_E,  __FILE__, __LINE__, __func__, format, ##__VA_ARGS__)
+#define LOG_INFO(format, ...) Log::GetInstance().WriteLog(LOG_LEVEL::LOG_INFO_E, __FILE__, __LINE__, __func__, format, ##__VA_ARGS__)
+#define LOG_WARNING(format, ...) Log::GetInstance().WriteLog(LOG_LEVEL::LOG_WARNING_E , __FILE__ , __LINE__, __func__, format, ##__VA_ARGS__)
+#define LOG_ERROR(format, ...) Log::GetInstance().WriteLog(LOG_LEVEL::LOG_ERROR_E, __FILE__ , __LINE__ , __func__, format, ##__VA_ARGS__)
+#define LOG_FATAL(format, ...) Log::GetInstance().WriteLog(LOG_LEVEL::LOG_FATAL_E,  __FILE__  , __LINE__ , __func__, format, ##__VA_ARGS__)
 
 #endif

@@ -11,6 +11,7 @@
 #include<stdio.h>
 #include<unistd.h>
 #include"../Net/lib/task_queue.h"
+#include "../log/log.h"
 
 NetWorker::NetWorker() {
 	m_listenfd = 0;
@@ -33,14 +34,14 @@ int NetWorker::start() {
 	/*创建tcp流套接字描述符*/
 	 m_listenfd = -1;
 	if ( (m_listenfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-		printf("socket error:%s \n", strerror(errno));
+		LOG_ERROR("socket error:%s \n", strerror(errno));
 		return -1;
 	}
 	
 	//设置端口可以立即重用 added by 2019-2-21
 	int reuse = 1;
 	if( setsockopt( m_listenfd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof( int)) < 0) {
-		printf( " socket error:%s \n", strerror( errno));
+		LOG_ERROR( " socket error:%s \n", strerror( errno));
 		return -1;
 	}	
 
@@ -51,14 +52,14 @@ int NetWorker::start() {
 	seraddr.sin_addr.s_addr = htonl(INADDR_ANY);
 
 	if (bind(m_listenfd, (struct sockaddr*)&seraddr, sizeof(seraddr)) != 0) {
-		printf("bind error: %s \n",strerror(errno));
+		LOG_ERROR("bind error: %s \n",strerror(errno));
 		close(m_listenfd);
 		return -1;
 	}
 
 	/*开始监听连接*/
 	if ( listen(m_listenfd, 20) < 0) {
-		printf("listen error:%s \n", strerror(errno));
+		LOG_ERROR("listen error:%s \n", strerror(errno));
 		close(m_listenfd);
 		return -1;
 	}
@@ -69,14 +70,14 @@ int NetWorker::start() {
 	EventHandler* handler = new ListenHandler(m_listenfd);
 	reactor.regist(handler, ReadEvent);
 
-	printf("开始轮询网络连接!\n");
+	LOG_ERROR("开始轮询网络连接!\n");
 	while(*m_pIsShutDown == false) {
-		printf("我还在干活......\n");
+		LOG_ERROR("我还在干活......\n");
 
 		reactor.dispatch(1000);
 	}
 
-	printf("网络线程退出.........\n");
+	LOG_ERROR("网络线程退出.........\n");
 
 	return 0;
 }
@@ -95,6 +96,6 @@ int NetWorker:: stop() {
 	}
 
 
-	printf("关闭监听套接字!\n");
+	LOG_ERROR("关闭监听套接字!\n");
 	return 0;
 }

@@ -10,6 +10,7 @@
 #include<stdlib.h>
 #include<signal.h>
 
+#include "../log/log.h"
 /**********************************************************
  *需要安装一个信号处理函数来重启或者停止
  *
@@ -30,13 +31,13 @@ ThreadManager::~ThreadManager() {
  *返回值	：0 成功，非0表示失败；
  *********************************************************/
 int ThreadManager::Start() {
-	printf("%s \n", __PRETTY_FUNCTION__);
+	LOG_ERROR("%s \n", __PRETTY_FUNCTION__);
 
 	//也许这里可以使用抽象工厂设计模式
 	//使用一个线程来维护网络连接和字节流读取
 	Worker* ptr = new NetWorker;
 	if ( NULL == ptr) {
-		printf("内存不足!\n");
+		LOG_ERROR("内存不足!\n");
 		return -1;
 	}
 	m_threadWorker.push_back(ptr);
@@ -46,12 +47,12 @@ int ThreadManager::Start() {
 	//这些IO文件描述符都没有使用epoll
 	int nNumProcessor 	= sysconf( _SC_NPROCESSORS_CONF);
 	int nEable 			= sysconf( _SC_NPROCESSORS_ONLN);
-	printf("系统cpu核心总数:%d, 可用cpu核心数:%d \n", nNumProcessor, nEable);
+	LOG_ERROR("系统cpu核心总数:%d, 可用cpu核心数:%d \n", nNumProcessor, nEable);
 
 	for(int nIndex = 0; nIndex < 2*nEable; nIndex++) {
 		ptr = new BusinessWorker;
 		if ( NULL == ptr) {
-			printf("内存不足!\n");
+			LOG_ERROR("内存不足!\n");
 			Stop();
 			return -1;
 		}
@@ -67,7 +68,7 @@ int ThreadManager::Start() {
 		
 		int ret  = pthread_create(&pid, NULL, CallBack, ptr);
 		if(0 != ret) {
-			printf("创建线程失败:%s \n", strerror(ret));
+			LOG_ERROR("创建线程失败:%s \n", strerror(ret));
 			Stop();
 			return -1;
 		}
@@ -101,7 +102,7 @@ void ThreadManager::WaitSignal() {
 
 		//发生错误直接退出进程
 		if( 0 != err) {
-			printf("sigwait fail %s !exit........\n", strerror(err));
+			LOG_ERROR("sigwait fail %s !exit........\n", strerror(err));
 			//stop();
 			break;
 		}
@@ -110,23 +111,23 @@ void ThreadManager::WaitSignal() {
 		{
 			case SIGINT:
 				{
-					printf("interrupt \n");
+					LOG_ERROR("interrupt \n");
 				}break;
 
 				//退出程序
 			case SIGQUIT:
 				{
-					printf("quit \n");
+					LOG_ERROR("quit \n");
 				}break;
 
 				//更新配置文件
 			case SIGHUP:
 				{
-					printf("sighup \n");
+					LOG_ERROR("sighup \n");
 				}break;
 			default:
 				{
-					printf("default \n");
+					LOG_ERROR("default \n");
 					exit(1);
 				}
 		}
@@ -145,7 +146,7 @@ void ThreadManager::BlockSignal() {
 
 	int nErr = pthread_sigmask(SIG_BLOCK, &sig, NULL);
 	if (0 != nErr) {
-		printf("SIG_BLOCK error %s \n", strerror(nErr));
+		LOG_ERROR("SIG_BLOCK error %s \n", strerror(nErr));
 	}
 }
 

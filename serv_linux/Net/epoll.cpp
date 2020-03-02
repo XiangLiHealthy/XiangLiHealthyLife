@@ -9,6 +9,7 @@
 #include<stdlib.h>
 #include<string.h>
 #include<errno.h>
+#include "../log/log.h"
 
 using namespace std;
 #define MAXLINE 5
@@ -35,7 +36,7 @@ int main(int argc,char* arg[])
 	epfd = epoll_create(5);
 	if(epfd < 0)
 	{
-		printf("epoll文件描述符创建错误:%s",strerror(errno));
+		LOG_ERROR("epoll文件描述符创建错误:%s",strerror(errno));
 		exit(0);
 	}
 
@@ -69,7 +70,7 @@ int main(int argc,char* arg[])
 
 	if(-1 == bind(listen_fd, (struct sockaddr*)&serveraddr, sizeof(serveraddr)) )
 	{
-		printf("bind socket error: %s(erno = %d)\n",strerror(errno), errno);
+		LOG_ERROR("bind socket error: %s(erno = %d)\n",strerror(errno), errno);
 		exit(0);
 
 	}
@@ -84,7 +85,7 @@ int main(int argc,char* arg[])
 
 	if(-1 == listen(listen_fd, LISTENQ))
 	{
-		printf("listen err:%s(errno = %d)",strerror(errno), errno);
+		LOG_ERROR("listen err:%s(errno = %d)",strerror(errno), errno);
 		exit(0);
 	}
 
@@ -92,14 +93,14 @@ int main(int argc,char* arg[])
 	{
 		//等待epoll事件的发生
 		nfds = epoll_wait(epfd, events, 20, -1);
-		cout<<"epoll得到事件数:"<<nfds<<endl;
+		LOG_INFO("epoll得到事件数:%d", nfds);
 
 		//sleep(1000);
 
 		//处理所有发生的事件
 		for(int nIndex = 0; nIndex < nfds; nIndex++)
 		{
-			cout<<"监听描述符:"<<listen_fd<<"事件描述符:"<<events[nIndex].data.fd<<endl;
+			LOG_DEBUG("监听描述符:%d, event fd:%d", listen_fd, events[nIndex].data.fd);
 
 			//如果是监听套接字有消息应该是有新用户连接,就创建新的连接
 			if(events[nIndex].data.fd == listen_fd)
@@ -113,7 +114,7 @@ int main(int argc,char* arg[])
 				}
 
 				char *pszIP = inet_ntoa(clientaddr.sin_addr);
-				printf("accept a connection from %s", pszIP);
+				LOG_DEBUG("accept a connection from %s", pszIP);
 
 				//设置用于读操作的文件描述符
 				ev.data.fd = connfd_fd;
@@ -145,7 +146,7 @@ int main(int argc,char* arg[])
 					}
 					else
 					{
-						printf("read lines error: %s(errno + %d)", strerror(errno), errno);
+						LOG_ERROR("read lines error: %s(errno + %d)", strerror(errno), errno);
 
 					}
 				}
@@ -155,7 +156,7 @@ int main(int argc,char* arg[])
 					events[nIndex].data.fd = -1;
 				}
 
-				printf("%s\n", line);
+				LOG_DEBUG("%s\n", line);
 
 				//设置用于写操作的描述符
 				ev.data.fd = socket_fd;

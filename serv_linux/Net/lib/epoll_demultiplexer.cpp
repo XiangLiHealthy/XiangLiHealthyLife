@@ -23,7 +23,6 @@ int EpollDemultiplexer::wait_event(std::map<int, EventHandler*>& handlers, int t
 	std::vector<struct epoll_event> events(_max_fd);
 	int num = epoll_wait(_epoll_fd, &events[0], _max_fd, timeout);
 	if (num < 0){
-		//std::cout<<"epoll wait error :"<<strerror(errno)<<std::endl;
 		LOG_ERROR("epoll wait error:%s", strerror(errno));
 
 		return num;
@@ -47,8 +46,6 @@ int EpollDemultiplexer::wait_event(std::map<int, EventHandler*>& handlers, int t
 			}
 		else if ( EPOLLOUT & events[i].events || EPOLLWRNORM & events[i].events) {
 				(handlers[handle])->handle_write();
-
-				printf("EPOLLOUT \n");
 				LOG_DEBUG("EPOLLOUT");
 			}
 		else {

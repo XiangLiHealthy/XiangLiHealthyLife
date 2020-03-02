@@ -4,6 +4,7 @@
 #include<string.h>
 #include<unistd.h>
 #include<errno.h>
+#include "../../log/log.h"
 
 RawData::RawData(int nSize) {
 
@@ -35,18 +36,18 @@ void RawData::clear() {
 
 
 int RawData::append(byte* byData, int nLen) {
-	printf("%s: %x, %d \n", __PRETTY_FUNCTION__, byData, nLen);
+	LOG_DEBUG("%s: %x, %d \n", __PRETTY_FUNCTION__, byData, nLen);
 
 	//判断参数指针和数据缓冲是否有效 
 	if (NULL == byData || NULL == m_byData) {
-		printf("发现空指针! \n");
+		LOG_ERROR("发现空指针! ");
 		return -1;
 	}
 
 
 	//判断数据缓冲的长度是否还够
 	if(nLen > m_nSize - m_nPos) {
-		printf("添加的数据过长:srcLen = %d, bufLen = %d \n", nLen, m_nSize - m_nPos);
+		LOG_ERROR("添加的数据过长:srcLen = %d, bufLen = %d \n", nLen, m_nSize - m_nPos);
 		return -1;
 	}
 
@@ -83,7 +84,7 @@ Handle RawData::getHandle( ) {
 int RawData:: SendMsg(const byte* pbyData, int nLen) {
 	int nRet = write(m_hSock, (char*)pbyData, nLen);
 	if ( nRet < nLen) {
-		printf("数据发送失败:%s \n", strerror(errno));
+		LOG_ERROR("数据发送失败:%s \n", strerror(errno));
 		return -1;
 	}
 

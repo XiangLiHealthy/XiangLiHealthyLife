@@ -5,6 +5,7 @@
 #include"event_handler.h"
 #include<iostream>
 #include"net_data.h"
+#include "../../log/log.h"
 
 ReactorImpl::ReactorImpl(){
 	_demultiplexer = new (std::nothrow)EpollDemultiplexer;
@@ -23,7 +24,7 @@ ReactorImpl::~ReactorImpl(){
 }
 
 int ReactorImpl::regist(EventHandler* handler, Event evt){
-	printf("reactor::regist(EventHandler=%ox, Event=%d)\n",handler, evt);
+	LOG_DEBUG("reactor::regist(EventHandler=%ox, Event=%d)\n",handler, evt);
 
 	Handle handle = handler->get_handle();
 	//const Handle handle = handler->getHandle();
@@ -35,7 +36,7 @@ int ReactorImpl::regist(EventHandler* handler, Event evt){
 }
 
 void ReactorImpl::remove(EventHandler* handler){
-	printf("ReactorImpl::remove(EventHandler* %x)", handler);
+	LOG_DEBUG("ReactorImpl::remove(EventHandler* %x)", handler);
 
 	Handle handle = handler->get_handle();
 	//Handle handle = handler>getHandle();

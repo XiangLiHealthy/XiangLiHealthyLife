@@ -1,5 +1,6 @@
 #include"proto_manager.h"
 #include<stdio.h>
+#include "../log/log.h"
 
 ProtoManager g_protoManagerObj;
 
@@ -31,15 +32,15 @@ ProtoManager::~ProtoManager() {
  详细介绍:因为对于列表只是多线程读,所以不用加锁
 ***********************************************************************/
 const Proto* ProtoManager:: GetProto(const char* szName) {
-	printf("%s \n", __PRETTY_FUNCTION__);
+	LOG_DEBUG("get proto");
 
 	//判断参数是否合法
 	if(NULL == szName) {
-		printf("非法参数NULL \n");
+		LOG_ERROR("非法参数NULL ");
 		return NULL;
 	}
 
-	printf("name = %s ", szName);
+	LOG_DEBUG("name = %s ", szName);
 	
 	//通过名字查找对象
 	std::map<const char* , const Proto*>::iterator iter = m_mapProto.find(szName);

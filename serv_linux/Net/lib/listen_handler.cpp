@@ -11,6 +11,7 @@
 #include<arpa/inet.h>
 #include<errno.h>
 #include<string.h>
+#include "../../log/log.h"
 
 ListenHandler::ListenHandler(Handle fd) : _listen_fd(fd) { 
 // do nothing 
@@ -18,15 +19,16 @@ ListenHandler::ListenHandler(Handle fd) : _listen_fd(fd) {
 ListenHandler::~ListenHandler() { 
 close(_listen_fd); 
 } 
-void ListenHandler::handle_read() { 
-	printf("ListenHandler::handle_read()\n");
+void ListenHandler::handle_read() 
+{ 
+	LOG_DEBUG("ListenHandler::handle_read()\n");
 
 	struct sockaddr_in client_addr;
 	socklen_t len = sizeof(sockaddr);
 
 	int fd = accept(_listen_fd,(sockaddr*) &client_addr, &len); 
 
-	printf("接受连接ip:%s\n", inet_ntoa(client_addr.sin_addr) );
+	LOG_INFO("接受连接ip:%s\n", inet_ntoa(client_addr.sin_addr) );
 
 	EventHandler* h = new (std::nothrow)SocketHandler(fd); 
 	assert(h != NULL); 
@@ -39,7 +41,7 @@ void ListenHandler::handle_write() {
 } 
 void ListenHandler::handle_error() { 
 // do nothing 
-	printf("监听套接字出错:%s,进程退出!\n", strerror(errno));
+	LOG_INFO("监听套接字出错:%s,进程退出!\n", strerror(errno));
 	
 	close(_listen_fd);
 	exit(1); 

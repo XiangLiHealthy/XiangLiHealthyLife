@@ -28,7 +28,7 @@ $(BUILDDIR):
 #include ./business/makefile 
 
 server : ./thread/*.h
-	g++ -g server.cpp ./thread/*.cpp ./Net/lib/*.cpp ./business/*.cpp ./DataBase/*.cpp `mysql_config --cflags --libs` -lpthread -L  $(LIB)*.a $(LIB)*.so  -o server
+	g++ -g server.cpp ./thread/*.cpp ./Net/lib/*.cpp ./business/*.cpp ./DataBase/*.cpp ./log/*.cpp   `mysql_config --cflags --libs` -lpthread -L  $(LIB)*.a $(LIB)*.so  -o server
 
 clean:
 	rm -r server

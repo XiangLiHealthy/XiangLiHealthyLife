@@ -4,11 +4,11 @@ namespace XiangLi
 {
 	enum  LOG_LEVEL
 	{
-		LOG_DEBUG 		= 1,
-		LOG_INFO		   = 2,
-		LOG_WARNING = 3,
-		LOG_ERROR 			= 4,
-		LOG_FATAL = 5,
+		LOG_DEBUG_E 		= 1,
+		LOG_INFO_E		   = 2,
+		LOG_WARNING_E = 3,
+		LOG_ERROR_E 			= 4,
+		LOG_FATAL_E = 5,
 	};
 
 	enum LOG_MODE

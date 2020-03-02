@@ -1,16 +1,16 @@
 #include"./thread/thread_manager.h"
 #include<stdio.h>
+#include "log/log.h"
 
 int main (int argc, char* argv[]) {
-	
-	printf("启动服务器......\n");
+	LOG_INFO("start service damon......\n");
 
 	ThreadManager threadManager;
-	if ( threadManager.start() < 0) {
-		printf("启动失败!");
+	if ( threadManager.Start() < 0) {
+		LOG_ERROR("start service failed!");
 	}
 
-	printf("...........停止服务!");
+	LOG_INFO("...........stop service!");
 
 	return 0;
 

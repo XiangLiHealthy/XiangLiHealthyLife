@@ -8,37 +8,43 @@
 #include <iostream>
 #include <map>
 
+#undef max
+#undef min
+#include <sstream>
+
 using namespace std;
 
 pthread_mutex_t lock;
 
 map<LOG_LEVEL, string> g_log_level_desc =
 {
-	{XiangLi::LOG_DEBUG, "[D]"},
-	{XiangLi::LOG_INFO, "[I]"},
-	{XiangLi::LOG_WARNING, "[W]"},
-	{XiangLi::LOG_ERROR, "[E]"},
-	{XiangLi::LOG_FATAL, "[F]"},
+	{XiangLi::LOG_DEBUG_E, "[D]"},
+	{XiangLi::LOG_INFO_E, "[I]"},
+	{XiangLi::LOG_WARNING_E, "[W]"},
+	{XiangLi::LOG_ERROR_E, "[E]"},
+	{XiangLi::LOG_FATAL_E, "[F]"},
 };
 
-Log::Log( ){
+Log::Log( )
+{
 	pthread_mutex_init( &lock,NULL);
 
 	char szWorkDir[256] = {0};
 	getwd(szWorkDir);
 	m_strDir = szWorkDir;
 
-	m_eLevel = XiangLi::LOG_ERR;
+	m_eLevel = XiangLi::LOG_DEBUG_E;
 }
 
-Log::~Log( ){
+Log::~Log( )
+{
 	pthread_mutex_destroy( &lock);
 }
 
 void Log::SetConfig( const config_t* ptrConfig) {
 	if( NULL == ptrConfig) 
 	{
-		WriteLog(XiangLi::LOG_ERR, " 非法参数NULL");
+		LOG_ERROR( " 非法参数NULL");
 		return ;
 	}
 
@@ -65,7 +71,6 @@ void Log::WriteLog(LOG_LEVEL eLevel, const char *szFile,
 	GetLogHeader(strLogHeader, eLevel, szFile, nLine, szFunction);
 
 	//merge log content
-	string strLogBody;
 	va_list valst;
 	va_start(valst, format);
 	char szBody[1024] = {0};
@@ -79,7 +84,7 @@ void Log::WriteLog(LOG_LEVEL eLevel, const char *szFile,
 	}
 	
 	//merger header and body into log
-	string strLog = strLogHeader + strLogBody;
+	string strLog = strLogHeader +  ":" + szBody;
 	
 	//根据模式输出到终端或文件
 	int ret = WriteLogFile(strLog);
@@ -112,10 +117,15 @@ int Log::WriteLogFile(const string& content)
 			{
 				m_log_file.close();
 
-				string file_name = m_strDir + "/";
-				file_name += p->tm_year + "-";
-				file_name += p->tm_mon + "-";
-				file_name += p->tm_mday;
+				p->tm_year += 1900;
+				p->tm_mon += 1;
+				
+				ostringstream ostr;
+				ostr << p->tm_year <<"-"
+						<< p->tm_mon  << "-"
+						<< p->tm_mday;
+
+				string file_name = m_strDir + "/" + ostr.str() + ".txt";
 
 				m_log_file.open(file_name, ios_base::app | ios_base::out);
 				if (!m_log_file)
@@ -125,7 +135,7 @@ int Log::WriteLogFile(const string& content)
 				}
 			}	
 
-			m_log_file << content;
+			m_log_file << content << endl;
 		} while (0);
 		pthread_mutex_unlock( &lock);
 
@@ -159,7 +169,7 @@ void Log::GetLogHeader( string& strLog, LOG_LEVEL eLevel, const char *szFile,
 
 	}else
 	{
-		sprintf( szDateTime, " %4d-%2d-%2d %2d:%2d:%2d.%3d",
+		sprintf( szDateTime, " %04d-%02d-%02d %02d:%02d:%02d.%03d:",
 				1900+p->tm_year, 1+p->tm_mon, p->tm_mday,
 				p->tm_hour, p->tm_min, p->tm_sec, tv.tv_usec);
 		strLog += szDateTime;
@@ -167,15 +177,12 @@ void Log::GetLogHeader( string& strLog, LOG_LEVEL eLevel, const char *szFile,
 
 	//create log header
 	//etc:/etc/log/log.cpp:42:WriteLog:[tid=12]:[E]:connect database error
-	strLog += szFile;
-	strLog += ":";
-	strLog += nLine;
-	strLog += ":";
-	strLog += szFunction;
+	ostringstream ostr;
+	ostr << szFile << ":" << nLine << ":" << szFunction << ":";
 
-	strLog += "[tid=";
-	strLog += pid;
-	strLog += "]";
+	ostr << "[tid=" << pid << "]";
+
+	strLog += ostr.str();
 
 	strLog += g_log_level_desc[eLevel];
 }

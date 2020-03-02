@@ -3,6 +3,7 @@
 #include<pthread.h>
 #include"coder.h"
 #include"../DataBase/DataBase.h"
+#include "../log/log.h"
 
 Clinics Clinics::m_clinics;
 /**********************************************
@@ -87,8 +88,7 @@ Json::Value Clinics::dispatch(const Json::Value& jData, DataBase* pDB)
  * **************************************************************************************/ 
 Json::Value Clinics::GetSymptom(treatment_t treatment, DataBase* pDB) {
 	pthread_t pid;
-	printf("线程ID:%d, %s \n", pid, __PRETTY_FUNCTION__);
-
+	LOG_DEBUG("get symptom");
 
 	Json::Value jRet;
 
@@ -143,8 +143,7 @@ Json::Value Clinics::GetSymptom(treatment_t treatment, DataBase* pDB) {
 }
 
 Json::Value Clinics::GetCause(treatment_t treatment, DataBase* pDB) {
-	pthread_t pid;
-	printf("线程ID:%d, %s \n", pid, __PRETTY_FUNCTION__);
+	LOG_DEBUG("get cause");
 
 	Json::Value jRet;
 	/*1.将原因自定义描述进行词法拆分*/
@@ -177,8 +176,7 @@ Json::Value Clinics::GetCause(treatment_t treatment, DataBase* pDB) {
 }
 
 Json::Value Clinics::GetDiagnosis(treatment_t treatment, DataBase* pDB) {
-	pthread_t pid;
-	printf("线程ID:%d, %s \n", pid, __PRETTY_FUNCTION__);
+	LOG_DEBUG("get diagnosis");
 
 	Json::Value jRet;
 	/*使用词法拆分将自定义描述拆分*/
@@ -208,7 +206,7 @@ Json::Value Clinics::GetDiagnosis(treatment_t treatment, DataBase* pDB) {
 
 Json::Value Clinics::GetSolution(treatment_t treatment, DataBase* pDB) {
 	pthread_t pid;
-	printf("线程ID:%d, %s \n", pid, __PRETTY_FUNCTION__);
+	LOG_DEBUG("get solution");
 
 	Json::Value jRet;
 	/*1.对自定义方法进行词法拆分*/
@@ -268,9 +266,7 @@ vector<string> Clinics:: SplitDetail(const string detail) {
 
 
 vector<LONG> Clinics::GetSymptomID(const vector<string> details, DataBase* pDB) {
-	
-	printf("线程ID:%d, %s \m" ,pthread_self(), __PRETTY_FUNCTION__);
-
+	LOG_DEBUG("get symptom id");
 	vector<LONG> ids;
 	//sql 很久描述获取id
 	string sql = "slect diagnosis_element_id from diagnosis_element where \
@@ -283,7 +279,7 @@ vector<LONG> Clinics::GetSymptomID(const vector<string> details, DataBase* pDB) 
 
 	
 	if(pDB->Exec(sql.c_str()) < 0) {
-		printf("线程ID:%d,执行数据库查询失败: %s\n", pthread_self(), pDB->GetLastError());
+		LOG_ERROR("perform db query failed: %s", pDB->GetLastError());
 		return ids;
 	}
 
@@ -305,11 +301,11 @@ vector<LONG> Clinics::GetSymptomID(const vector<string> details, DataBase* pDB) 
  *
  ********************************************************************/
 vector<symptom_t> Clinics::GetSymptomContent(const vector<LONG> element_ids, DataBase* pDB) {
-	printf("线程ID:%d, %s \n", pthread_self(), __PRETTY_FUNCTION__);
+	LOG_DEBUG("get symptom content");
 
 	vector<symptom_t> symptoms;
 	if(NULL == pDB) {
-		printf("线程ID;%d, 空指针pDB;\n");
+		LOG_ERROR("空指针pDB;");
 		return symptoms;
 	}
 
@@ -331,7 +327,7 @@ vector<symptom_t> Clinics::GetSymptomContent(const vector<LONG> element_ids, Dat
 	sql	+= "group by diagnosis_element_id count(*) as feedback order by feedback;";
 
 	if(pDB->Exec(sql.c_str()) < 0) {
-		printf("线程ID:%d,数据库查询失败:%s \n", pthread_self(), pDB->GetLastError());
+		LOG_ERROR("数据库查询失败:%s \n" , pDB->GetLastError());
 		return symptoms;
 	}
 
@@ -376,7 +372,7 @@ vector<cause_t>	Clinics::GetCauseContent(treatment_t treatment, DataBase* pDB) {
 	sql += "))";
 
 	if(pDB->Exec(sql.c_str()) < 0) {
-		printf("线程ID;%d,执行数据库失败:%s \n", pthread_self(), pDB->GetLastError());
+		LOG_ERROR("执行数据库失败:%s \n" , pDB->GetLastError());
 		return causes;
 	}
 
@@ -421,7 +417,7 @@ vector<diagnosis_t> Clinics::GetDiagnosisContent(treatment_t treatment, DataBase
 	sql += ")";
 	
 	if(pDB->Exec(sql.c_str()) < 0) {
-		printf("线程ID:%d,执行数据库失败:%s \n", pthread_self(), pDB->GetLastError());
+		LOG_ERROR("perform db query failed:%s \n" , pDB->GetLastError());
 		return diagnosises;
 	}
 

@@ -4,6 +4,7 @@
 #include"../business/proto_manager.h"
 #include"../business/proto.h"
 #include<string.h>
+#include "../log/log.h"
 
 BusinessWorker::BusinessWorker() {
 
@@ -14,13 +15,13 @@ BusinessWorker::~BusinessWorker() {
 }
 
 int BusinessWorker::start() {
-	printf("线程ID:%d %s \n", m_pid, __PRETTY_FUNCTION__);
+	LOG_ERROR("线程ID:%d %s \n", m_pid, __PRETTY_FUNCTION__);
 
 	DataBase db;
 
 	//地址，数据库名称，用户，密码
 	if( !db.Connect("127.0.0.1","HealthyLife", "xiangbaosong", "Xl2016xl") ) {
-		printf("线程ID:%d,数据库连接失败:%s \n", m_pid, db.GetLastError());
+		LOG_ERROR("线程ID:%d,数据库连接失败:%s \n", m_pid, db.GetLastError());
 		return -1;
 	}
 
@@ -28,14 +29,14 @@ int BusinessWorker::start() {
 		/*从消息队列取得一个任务*/
 		RawData* pRawData = g_taskQueue.get();
 		if ( NULL == pRawData) {
-			printf("线程ID:%d, 获取消息NULL! \n", m_pid);
+			LOG_ERROR("线程ID:%d, 获取消息NULL! \n", m_pid);
 			continue;
 		}
 
 		/*转化成json对象*/
 	   const byte* pbyData = pRawData->getData();
 	   if ( NULL == pbyData) {
-		   printf("线程ID:%d,消息内数据为NULL!\n", m_pid);
+		   LOG_ERROR("线程ID:%d,消息内数据为NULL!\n", m_pid);
 		   delete pRawData;
 		   continue;
 	   }
@@ -43,14 +44,14 @@ int BusinessWorker::start() {
 	   Json::Reader 	reader;
 	   Json::Value 		jData;
 	   if ( reader.parse( (char*)pbyData, jData) < 0) {
-			printf("线程ID=%d, 消息转化json失败!", m_pid);
+			LOG_ERROR("线程ID=%d, 消息转化json失败!", m_pid);
 			delete pRawData;
 			continue;
 	   }
 
 		/*取得协议名称*/
 		if (jData["proto"].isNull()) {
-			printf("线程ID:%d, 非法协议,字段中没有proto:%s \n", m_pid, pbyData);
+			LOG_ERROR("线程ID:%d, 非法协议,字段中没有proto:%s \n", m_pid, pbyData);
 			delete pRawData;
 			continue;
 		}
@@ -59,24 +60,24 @@ int BusinessWorker::start() {
 		/*取得协议对象*/
 		Proto* ptrProto = (Proto*)g_protoManagerObj.GetProto(strName.c_str());
 		if (NULL == ptrProto) {
-			printf("线程ID:%d, 未找到协议:%s \n", m_pid, strName.c_str());
+			LOG_ERROR("线程ID:%d, 未找到协议:%s \n", m_pid, strName.c_str());
 			delete pRawData;
 			continue;
 		}
 
 		/*协议对象执行业务逻辑,返回回复给客户端的json*/
-		printf("线程ID%d,执行协议:%s!\n", m_pid, strName.c_str());
+		LOG_ERROR("线程ID%d,执行协议:%s!\n", m_pid, strName.c_str());
 
 		/*将json对象转化成字节流,发送给客户端*/
 		Json::Value jRet = ptrProto->dispatch(jData, &db);
 		if ( 0 != SendMsg(pRawData, &jRet, strName.c_str())) {
-			printf("线程ID:%d,发送消息失败!\n", m_pid);
+			LOG_ERROR("线程ID:%d,发送消息失败!\n", m_pid);
 		}
 
 		delete pRawData;
 	}
 
-	printf("线程ID:%d,退出业务工作.....\n", m_pid);
+	LOG_ERROR("线程ID:%d,退出业务工作.....\n", m_pid);
 
 	return 0;
 }
@@ -106,13 +107,13 @@ int BusinessWorker::SendMsg(const void* pRawData, void* ptrjData, const char* st
 	/*发送长度*/
 	int nRet = pRaw->SendMsg ( (byte*)&nLen, sizeof(nLen) );
 	if(nRet < 0 ) {
-		printf("线程ID:%d发送长度失败!", m_pid);
+		LOG_ERROR("线程ID:%d发送长度失败!", m_pid);
 		return -1;
 	}
 
 	/*发送数据*/
 	if ( pRaw->SendMsg((byte*)pStream, nLen) < 0) {
-		printf("线程ID:%d发送字节流失败!\n", m_pid);
+		LOG_ERROR("线程ID:%d发送字节流失败!\n", m_pid);
 		return -1;
 	}
 

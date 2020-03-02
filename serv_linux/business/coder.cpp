@@ -1,6 +1,7 @@
 #include"coder.h"
 #include<memory.h>
 #include<stdlib.h>
+#include "../log/log.h"
 
 int Coder::DecodeTreatment(const Json::Value& jSrc, treatment_t& dst) {
 	//1.解析protocol

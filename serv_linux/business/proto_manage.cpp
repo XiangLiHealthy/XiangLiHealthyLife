@@ -44,7 +44,8 @@ const Proto* ProtoManager:: GetProto(const char* szName) {
 	
 	//通过名字查找对象
 	std::map<const char* , const Proto*>::iterator iter = m_mapProto.find(szName);
-	if (iter != m_mapProto.end()) {
+	if (iter != m_mapProto.end()) 
+	{
 		return iter->second;
 	}
 

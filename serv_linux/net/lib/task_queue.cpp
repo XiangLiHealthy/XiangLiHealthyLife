@@ -83,7 +83,8 @@ int TaskQueue::add(RawData* pData)
  *参数:
  *返回值:指向消息对象的指针,获得者需要释放这个内存 
  * **********************************************************************/
-RawData* TaskQueue::get() {
+RawData* TaskQueue::get() 
+{
 	//linux pthread_t 是unsigned long
 	LOG_DEBUG("线程ID:%lu,RawData::get() start \n", pthread_self());
 
@@ -93,7 +94,8 @@ RawData* TaskQueue::get() {
 	//一直等待,直到任务队列有任务为止
 	while(m_taskQueue.size() < 1 ) 
 	{
-		if(m_bExit) {
+		if(m_bExit) 
+		{
 			pthread_mutex_unlock(&m_lock);
 			return NULL;
 		}

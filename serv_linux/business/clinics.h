@@ -10,7 +10,7 @@ class Clinics : public Proto {
 
 	virtual const  Proto*   getInstance();
 	virtual const char* 	getName();
-	virtual Json::Value 	dispatch(const Json::Value& jData, DataBase* pDB);
+	virtual int 	dispatch(const Json::Value& jData, Handle fd);
 
 	private:
 	Json::Value				GetSymptom(treatment_t symptom, DataBase* pDB);

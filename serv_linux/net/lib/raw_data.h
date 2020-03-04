@@ -15,7 +15,7 @@ public:
 	~RawData();
 	
 	//int alloc(int nSize);
-	int 		append(byte* data, int nLen);
+	int 		append(const byte* data, int nLen);
 	int 		getNeedLen();
 	const byte* getData();
 	int 		getLength();
@@ -27,8 +27,9 @@ public:
 private:
 	void 		clear();
 private:
-	byte* 		m_byData;
-	int 		m_nSize;
-	int 		m_nPos;
 	Handle 		m_hSock;
+
+	byte*	m_byData;
+	int m_nSize;
+	int m_nPos;
 };

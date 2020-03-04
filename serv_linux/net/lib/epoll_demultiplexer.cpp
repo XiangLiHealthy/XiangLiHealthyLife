@@ -30,25 +30,33 @@ int EpollDemultiplexer::wait_event(std::map<int, EventHandler*>& handlers, int t
 
 	LOG_DEBUG("得到连接数:%d\n", num);
 	
-	for (int i = 0; i < num; i++){
+	for (int i = 0; i < num; i++)
+	{
 		Handle handle = events[i].data.fd;
-		if ( (EPOLLHUP | EPOLLERR) & events[i].events ) {
+		if ( (EPOLLHUP | EPOLLERR) & events[i].events ) 
+		{
 			assert( NULL != handlers[handle]);
 			(handlers[handle])->handle_error();
 		
 			LOG_DEBUG("EPOLLERR | EPOLLHUP\n");
 		}
-		else if ( (EPOLLIN) & events[i].events || EPOLLRDNORM & events[i].events){
+
+		else if ( (EPOLLIN) & events[i].events || EPOLLRDNORM & events[i].events)
+		{
 				assert(handlers[handle] != NULL);
-				(handlers[handle])->handle_read();
+				(handlers[handle])->handle_read();//single thread ,it will be trigger agin if there is data leaft
 
 				LOG_DEBUG("EPOLLIN");
-			}
-		else if ( EPOLLOUT & events[i].events || EPOLLWRNORM & events[i].events) {
+		}
+
+		else if ( EPOLLOUT & events[i].events || EPOLLWRNORM & events[i].events) 
+		{
 				(handlers[handle])->handle_write();
 				LOG_DEBUG("EPOLLOUT");
-			}
-		else {
+		}
+
+		else 
+		{
 			LOG_DEBUG("意外的事件，事件编号：%d \n",events[i].events);
 		}
 

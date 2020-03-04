@@ -3,7 +3,8 @@
 #include"../include/json/json.h"
 #include"business_data.h"
 
-class Coder {
+class Coder 
+{
 	public:
 	int 		DecodeTreatment(const Json::Value& jData,treatment_t& treatment );
 	int 		EncodeTreatment(const treatment_t& treatment_src, Json::Value& jDst);

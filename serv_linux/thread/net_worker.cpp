@@ -4,21 +4,23 @@
 #include<iostream>
 #include<errno.h>
 #include<string.h>
-#include"../Net/lib/reactor.h"
-#include"../Net/lib/event_handler.h"
-#include"../Net/lib/listen_handler.h"
-#include"../Net/lib/event.h"
+#include"../net/lib/reactor.h"
+#include"../net/lib/event_handler.h"
+#include"../net/lib/listen_handler.h"
+#include"../net/lib/event.h"
 #include<stdio.h>
 #include<unistd.h>
-#include"../Net/lib/task_queue.h"
+#include"../net/lib/task_queue.h"
 #include "../log/log.h"
 
 NetWorker::NetWorker() {
 	m_listenfd = 0;
 }
 
-NetWorker::~NetWorker() {
-	if(m_listenfd > 0) {
+NetWorker::~NetWorker() 
+{
+	if(m_listenfd > 0) 
+	{
 		close(m_listenfd);
 		m_listenfd = -1;
 	}
@@ -30,17 +32,20 @@ NetWorker::~NetWorker() {
  *
  *
  * ***********************************************************/
-int NetWorker::start() {
+int NetWorker::start() 
+{
 	/*创建tcp流套接字描述符*/
 	 m_listenfd = -1;
-	if ( (m_listenfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+	if ( (m_listenfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) 
+	{
 		LOG_ERROR("socket error:%s \n", strerror(errno));
 		return -1;
 	}
 	
 	//设置端口可以立即重用 added by 2019-2-21
 	int reuse = 1;
-	if( setsockopt( m_listenfd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof( int)) < 0) {
+	if( setsockopt( m_listenfd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof( int)) < 0) 
+	{
 		LOG_ERROR( " socket error:%s \n", strerror( errno));
 		return -1;
 	}	
@@ -51,14 +56,16 @@ int NetWorker::start() {
 	seraddr.sin_port = htons(6666);
 	seraddr.sin_addr.s_addr = htonl(INADDR_ANY);
 
-	if (bind(m_listenfd, (struct sockaddr*)&seraddr, sizeof(seraddr)) != 0) {
+	if (bind(m_listenfd, (struct sockaddr*)&seraddr, sizeof(seraddr)) != 0) 
+	{
 		LOG_ERROR("bind error: %s \n",strerror(errno));
 		close(m_listenfd);
 		return -1;
 	}
 
 	/*开始监听连接*/
-	if ( listen(m_listenfd, 20) < 0) {
+	if ( listen(m_listenfd, 20) < 0) 
+	{
 		LOG_ERROR("listen error:%s \n", strerror(errno));
 		close(m_listenfd);
 		return -1;
@@ -71,7 +78,8 @@ int NetWorker::start() {
 	reactor.regist(handler, ReadEvent);
 
 	LOG_ERROR("开始轮询网络连接!\n");
-	while(*m_pIsShutDown == false) {
+	while(*m_pIsShutDown == false) 
+	{
 		LOG_ERROR("我还在干活......\n");
 
 		reactor.dispatch(1000);
@@ -89,12 +97,13 @@ int NetWorker::start() {
  *交给业务工作者去处理;
  *
  * *******************************************************/ 
-int NetWorker:: stop() {
-	if(m_listenfd > 0) {
+int NetWorker:: stop() 
+{
+	if(m_listenfd > 0) 
+	{
 		close(m_listenfd);
 		m_listenfd = 0;
 	}
-
 
 	LOG_ERROR("关闭监听套接字!\n");
 	return 0;

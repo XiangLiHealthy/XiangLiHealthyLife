@@ -40,7 +40,7 @@ const char* Clinics::getName() {
  *返回值:返回一个json,这个json包装好要发送的数据
  *       调用函数需要释放返回json对象的内存资源
  * ********************************************/
-Json::Value Clinics::dispatch(const Json::Value& jData, DataBase* pDB)
+int Clinics::dispatch(const Json::Value& jData, Handle fd)
 //Json::Value Clinics::dispatch(const Json::Value jData) 
 {
 	Json::Value jRet;
@@ -51,10 +51,11 @@ Json::Value Clinics::dispatch(const Json::Value& jData, DataBase* pDB)
 	if(coder.DecodeTreatment(jData, treatment) < 0) {
 		jRet["code"] = -1;
 		jRet["error"]	= coder.GetLastError();
-		return jRet;
+		return -1;
 	}
 
 	//使用合适的方法更细致的业务
+	DataBase* pDB = nullptr;
 	const char* method = treatment.protocol.c_str();
 	if(0 == strcmp("GetSymptom", method) ) {
 		jRet = GetSymptom(treatment,pDB);
@@ -77,7 +78,7 @@ Json::Value Clinics::dispatch(const Json::Value& jData, DataBase* pDB)
 		jRet["error"]	= error;
 	}
 	
-	return jRet;
+	return 0;
 }
 
 /****************************************************************************************

@@ -10,6 +10,7 @@
 #include<errno.h>
 #include<string.h>
 #include "../../log/log.h"
+#include "net_data.h"
 
 static const short FARAME_HEADER = 0x1122;
 static const short FARAME_TAIL = 0x3344;
@@ -101,11 +102,22 @@ int SocketHandler::ParserBuffer()
 		int nHeaderPos = GetHeaderPos();
 		if (nHeaderPos < 0)
 		{
+			if ( (m_tail_pos - m_header_pos) > 0 )
+			{
+				m_buf[0] = m_buf[m_tail_pos -1];
+				m_tail_pos = 1;
+			} 
+			else
+			{
+				m_tail_pos = 0;
+			}
+			
 			m_header_pos = 0;
-			m_tail_pos = 0;
+
 			LOG_ERROR("can not get frame header");
 			break;
 		}
+
 		m_header_pos = nHeaderPos;
 
 		int nTailPos = GetTailPos();
@@ -119,7 +131,7 @@ int SocketHandler::ParserBuffer()
 			LOG_ERROR("parse frame error");
 		}
 
-		m_header_pos = nTailPos + 1;
+		m_header_pos = nTailPos;
 	} while (1);
 	
 	return 0;
@@ -131,21 +143,21 @@ int SocketHandler::ParserFrame(const int nHeaderPos, const int nTailPos)
 	if (!CheckData())
 	{
 		LOG_ERROR("check data error");
-		m_header_pos = nTailPos + 1;
+		m_header_pos = nTailPos;
 		return -1;
 	}
 
 	//get data
-	int nLen = * (short*)(m_buf + nHeaderPos +  + sizeof (FARAME_HEADER) + CHECKSUM_SIZE );
+	int nLen = * (short*)( &m_buf[nHeaderPos +  + sizeof (FARAME_HEADER) + CHECKSUM_SIZE ]);
 
 	RawData* ptrData = new RawData(nLen);
 	if (nullptr == ptrData)
 	{
-		LOG_ERROR("no memry");
+		LOG_ERROR("no memry, need memeory:%d bytes", nLen);
 		return -1;
 	}
 
-	byte* ptrBuff = m_buf + nHeaderPos + sizeof (FARAME_HEADER) + CHECKSUM_SIZE + FRAME_LEN_SIZE;
+	byte* ptrBuff = &m_buf [nHeaderPos + sizeof (FARAME_HEADER) + CHECKSUM_SIZE + FRAME_LEN_SIZE];
 	if (ptrData->append(ptrBuff, nLen) < 0)
 	{
 		LOG_ERROR("append data error");
@@ -164,7 +176,7 @@ int SocketHandler::GetHeaderPos()
 	int nHeaderPos = -1;
 	for (int index = 0; index < m_tail_pos - m_header_pos; index ++)
 	{
-		short* ptrHeader = (short*)(m_buf + m_header_pos + index);
+		short* ptrHeader = (short*)( &m_buf[m_header_pos + index]);
 		if (*ptrHeader == FARAME_HEADER)
 		{
 			nHeaderPos = m_header_pos + index;
@@ -177,16 +189,20 @@ int SocketHandler::GetHeaderPos()
 
 int SocketHandler::GetTailPos()
 {
-	int nDataLen = *(short*)(m_buf + m_header_pos + sizeof(FARAME_HEADER) + CHECKSUM_SIZE);
+	int nRecvLen = m_tail_pos - m_header_pos;
+	if (nRecvLen < FRAME_FORMAT_SIZE)
+	{
+		return -1;
+	}
 
-	int nUseSize = m_header_pos +  sizeof(FARAME_HEADER) + CHECKSUM_SIZE + FRAME_LEN_SIZE + nDataLen + sizeof (FARAME_TAIL);
-	if (nUseSize > sizeof(m_buf))
+	int nDataLen = *(short*)( &m_buf [m_header_pos + sizeof(FARAME_HEADER) + CHECKSUM_SIZE]);
+	if (nRecvLen < nDataLen + FRAME_FORMAT_SIZE)
 	{//has not received tail
 		return -1;
 	}
 
 	//caculate tail pos
-	int nTailPos = m_header_pos + sizeof(FARAME_HEADER) + CHECKSUM_SIZE + FRAME_LEN_SIZE + nDataLen;
+	int nTailPos = m_header_pos + FRAME_FORMAT_SIZE + nDataLen - sizeof(FARAME_TAIL);
 	
 	//check tail
 	short* ptrTail = (short*)(m_buf + nTailPos);
@@ -205,29 +221,18 @@ bool SocketHandler::CheckData()
 	return true;
 }
 
-int SocketHandler::SendData(const Handle fd, const byte* ptrData, int nLen )
+int SocketHandler::SendFrame(const Handle fd, send_frame_t& frame_data)
 {
-	int nFormatSize = sizeof(FARAME_HEADER) + CHECKSUM_SIZE + FRAME_LEN_SIZE + sizeof(FARAME_TAIL);
-	if (nullptr == ptrData || nLen < 0 || nLen > MAX_SIZE - nFormatSize)
-	{
-		LOG_ERROR("invalid para, ptrData:%p, nLen:%d", ptrData, nLen);
-		return -1;
-	}
+	* frame_data.ptrFrameHeader = FARAME_HEADER;
 
-	byte byTmp[MAX_SIZE];
+	* frame_data.ptrCheckSum = 0;//checksum default is 0
 
-	* ( (short*)byTmp) = FARAME_HEADER;
+	*frame_data.ptrSeqLen = frame_data.nFrameLen - FRAME_FORMAT_SIZE;
 
-	* ( (short*) (byTmp + sizeof(FARAME_HEADER)) ) = 0;//checksum default is 0
+	*frame_data.ptrFrameTail = FARAME_TAIL;
 
-	* ( (short*) (byTmp + sizeof(FARAME_HEADER) + CHECKSUM_SIZE) ) = nLen;
-
-	memcpy(byTmp +  sizeof(FARAME_HEADER) + CHECKSUM_SIZE + FRAME_LEN_SIZE, ptrData, nLen);
-
-	*( (short*) (byTmp +  sizeof(FARAME_HEADER) + CHECKSUM_SIZE + FRAME_LEN_SIZE + nLen) ) = FARAME_TAIL;
-
-	int nRet = write(fd, (char*)byTmp, nLen + nFormatSize);
-	if ( nRet < nLen + nFormatSize) 
+	int nRet = write(fd, frame_data.byBuff, frame_data.nFrameLen);
+	if ( nRet < frame_data.nFrameLen) 
 	{
 		LOG_ERROR("数据发送失败:%s \n", strerror(errno));
 		return -1;

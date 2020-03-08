@@ -25,14 +25,18 @@ RawData::~RawData()
  ***************************************************************************/ 
 void RawData::clear() 
 {
-	m_hSock = NULL;
+	if (m_byData)
+	{
+		delete[] m_byData;
+		m_byData = nullptr;
+	}
+
+	m_hSock = -1;
 }
 
 
 int RawData::append(const byte* byData, int nLen) 
 {
-	LOG_DEBUG("%s: %x, %d \n", __PRETTY_FUNCTION__, byData, nLen);
-
 	//判断参数指针和数据缓冲是否有效 
 	if (NULL == byData || NULL == m_byData) 
 	{
@@ -69,7 +73,7 @@ const byte* RawData:: getData()
 
 int RawData::getLength() 
 {
-	return m_nSize;
+	return m_nPos;
 }
 
 void RawData::setHandle(Handle hSock) 
@@ -80,19 +84,6 @@ void RawData::setHandle(Handle hSock)
 Handle RawData::getHandle( ) 
 {
 	return m_hSock;
-}
-
-
-int RawData:: SendMsg(const byte* pbyData, int nLen) 
-{
-	int nRet = write(m_hSock, (char*)pbyData, nLen);
-	if ( nRet < nLen) 
-	{
-		LOG_ERROR("数据发送失败:%s \n", strerror(errno));
-		return -1;
-	}
-
-	return 0;
 }
 
 

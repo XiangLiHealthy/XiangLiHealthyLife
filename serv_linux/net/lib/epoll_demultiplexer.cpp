@@ -28,7 +28,7 @@ int EpollDemultiplexer::wait_event(std::map<int, EventHandler*>& handlers, int t
 		return num;
 	}
 
-	LOG_DEBUG("得到连接数:%d\n", num);
+	LOG_DEBUG("triger connect count:%d\n", num);
 	
 	for (int i = 0; i < num; i++)
 	{
@@ -38,7 +38,7 @@ int EpollDemultiplexer::wait_event(std::map<int, EventHandler*>& handlers, int t
 			assert( NULL != handlers[handle]);
 			(handlers[handle])->handle_error();
 		
-			LOG_DEBUG("EPOLLERR | EPOLLHUP\n");
+			LOG_ERROR("EPOLLERR | EPOLLHUP, fd:%d", events[i].data.fd);
 		}
 
 		else if ( (EPOLLIN) & events[i].events || EPOLLRDNORM & events[i].events)
@@ -46,13 +46,13 @@ int EpollDemultiplexer::wait_event(std::map<int, EventHandler*>& handlers, int t
 				assert(handlers[handle] != NULL);
 				(handlers[handle])->handle_read();//single thread ,it will be trigger agin if there is data leaft
 
-				LOG_DEBUG("EPOLLIN");
+				LOG_DEBUG("EPOLLIN：%X, fd:%d", events[i].events, events[i].data.fd);
 		}
 
 		else if ( EPOLLOUT & events[i].events || EPOLLWRNORM & events[i].events) 
 		{
 				(handlers[handle])->handle_write();
-				LOG_DEBUG("EPOLLOUT");
+				LOG_DEBUG("EPOLLOUT: %X, fd:%d", events[i].events, events[i].data.fd);
 		}
 
 		else 

@@ -22,8 +22,6 @@ public:
 
 	void 		setHandle(Handle hSock);
 	Handle 		getHandle();
-
-	int 		SendMsg(const byte* pbyData, int nLen);
 private:
 	void 		clear();
 private:

@@ -298,7 +298,7 @@ vector<LONG> Clinics::GetSymptomID(const vector<string> details, DataBase* pDB) 
  *直接按照记录出现的次数来排序似乎不科学,应该考虑到数据源的权重(病例/医学库)
  *还有就是症状描述度个例符合程度,比如三个原始描述刚好满足一个病例的所有描述,
  *应该匹配度最高;还有自己的病历有这样的描述应该特殊考虑,还有按用户的年龄/职业 
- *性别/地理位置/季节等进行综合分析;我们的优势是精准,而不是纯粹的搜索,比医生准;
+ *性别/地理位置/季节等进行综合分析;我们的优势是精准,而不是纯粹的搜索,比医生准;element_ids
  *
  ********************************************************************/
 vector<symptom_t> Clinics::GetSymptomContent(const vector<LONG> element_ids, DataBase* pDB) {
@@ -317,7 +317,7 @@ vector<symptom_t> Clinics::GetSymptomContent(const vector<LONG> element_ids, Dat
 	
 	for(int i = 0; i < element_ids.size(); i++) {
 		char szID[32];
-		sprintf(szID, "%ld,", element_ids[i]);
+		sprintf(szID, "%lld,", element_ids[i]);
 
 		sql += szID;
 	}
@@ -359,14 +359,14 @@ vector<cause_t>	Clinics::GetCauseContent(treatment_t treatment, DataBase* pDB) {
 	char szID[32];
 
 	for( i = 0; i < treatment.symptom.elements.size(); i++) {
-		sprintf(szID, "%ld,", treatment.symptom.elements[i].diagnosis_element_id);
+		sprintf(szID, "%lld,", treatment.symptom.elements[i].diagnosis_element_id);
 		sql += szID;
 	}
 	sql = sql.substr(0, sql.size() - 1);
 
 	/*插入原因描述,这是一个数量级增加的算法,原因会越来越多*/
 	for(i = 0; i < treatment.cause.elements.size(); i++) {
-		sprintf(szID, "%ld.", treatment.cause.elements[i].diagnosis_element_id);
+		sprintf(szID, "%lld.", treatment.cause.elements[i].diagnosis_element_id);
 		sql += szID;
 	}
 	sql = sql.substr(0, sql.size() - 1);
@@ -403,14 +403,14 @@ vector<diagnosis_t> Clinics::GetDiagnosisContent(treatment_t treatment, DataBase
 	int i = 0;
 	char szID[32] ;
 	for(i = 0; i < treatment.symptom.elements.size(); i++) {
-		sprintf(szID, "%ld,", treatment.symptom.elements[i].diagnosis_element_id);
+		sprintf(szID, "%lld,", treatment.symptom.elements[i].diagnosis_element_id);
 		sql += szID;
 	}
 	sql = sql.substr(0, sql.size() - 1);
 
 	sql += ") ) and diagnosis_element_id in ("; 
 	for(i = 0; i < treatment.cause.elements.size(); i++){
-		sprintf(szID, "%ld,", treatment.cause.elements[i].diagnosis_element_id);
+		sprintf(szID, "%lld,", treatment.cause.elements[i].diagnosis_element_id);
 		sql += szID;
 	}
 	sql = sql.substr(0, sql.size() - 1);
@@ -435,7 +435,7 @@ vector<diagnosis_t> Clinics::GetDiagnosisContent(treatment_t treatment, DataBase
 				where diagnosis_id = ";
 
 		diagnosis = diagnosises[i];
-		sprintf(szID, "%ld" ,diagnosis.diagnosis_id);
+		sprintf(szID, "%lld" ,diagnosis.diagnosis_id);
 		sql += szID;
 		
 		sql += ") and diagnosis_element_id in (";

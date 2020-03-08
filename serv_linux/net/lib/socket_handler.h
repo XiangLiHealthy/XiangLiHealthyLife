@@ -1,5 +1,6 @@
 #include"event_handler.h"
 #include"event.h"
+struct send_frame_t;
 
 
 class RawData;
@@ -16,7 +17,7 @@ public:
 	virtual void handle_write() override;
 	virtual void handle_error() override;
 
-	static int SendData(const Handle fd, const byte* ptrData, int nLen );
+	static int SendFrame(const Handle fd, send_frame_t& frame_data);
 private:
 	Handle _socket_fd;
 	static const int MAX_SIZE = 8192;

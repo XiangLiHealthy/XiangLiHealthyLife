@@ -13,12 +13,17 @@
 #include<string.h>
 #include "../../log/log.h"
 
-ListenHandler::ListenHandler(Handle fd) : _listen_fd(fd) { 
+ListenHandler::ListenHandler(Handle fd) : _listen_fd(fd) 
+{ 
 // do nothing 
 } 
-ListenHandler::~ListenHandler() { 
-close(_listen_fd); 
+
+ListenHandler::~ListenHandler() 
+{ 
+	LOG_INFO("listen socket distory");
+	close(_listen_fd); 
 } 
+
 void ListenHandler::handle_read() 
 { 
 	LOG_DEBUG("ListenHandler::handle_read()\n");
@@ -35,13 +40,17 @@ void ListenHandler::handle_read()
 	Reactor& r = Reactor::get_instance(); 
 	
 	r.regist(h, ReadEvent); 
-} 
-void ListenHandler::handle_write() { 
+}
+
+void ListenHandler::handle_write() 
+{ 
 // do nothing 
 } 
-void ListenHandler::handle_error() { 
+
+void ListenHandler::handle_error()
+ { 
 // do nothing 
-	LOG_INFO("监听套接字出错:%s,进程退出!\n", strerror(errno));
+	LOG_INFO("listen socket error!exit process", strerror(errno));
 	
 	close(_listen_fd);
 	exit(1); 

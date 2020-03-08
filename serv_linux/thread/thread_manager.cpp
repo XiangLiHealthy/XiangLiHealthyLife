@@ -60,7 +60,8 @@ int ThreadManager::Start() {
 	}
 
 
-	for(int index = 0; index < m_threadWorker.size(); index++) {
+	for(int index = 0; index < m_threadWorker.size(); index++) 
+	{
 		pthread_t pid = 0;
 
 		ptr = m_threadWorker[index];

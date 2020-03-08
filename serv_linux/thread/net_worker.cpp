@@ -53,7 +53,7 @@ int NetWorker::start()
 	/*绑定ip和端口,应该把做到配置文件里面*/
 	struct sockaddr_in seraddr;
 	seraddr.sin_family = AF_INET;
-	seraddr.sin_port = htons(6666);
+	seraddr.sin_port = htons(8888);
 	seraddr.sin_addr.s_addr = htonl(INADDR_ANY);
 
 	if (bind(m_listenfd, (struct sockaddr*)&seraddr, sizeof(seraddr)) != 0) 
@@ -80,9 +80,7 @@ int NetWorker::start()
 	LOG_ERROR("开始轮询网络连接!\n");
 	while(*m_pIsShutDown == false) 
 	{
-		LOG_ERROR("我还在干活......\n");
-
-		reactor.dispatch(1000);
+		reactor.dispatch(10000000);
 	}
 
 	LOG_ERROR("网络线程退出.........\n");

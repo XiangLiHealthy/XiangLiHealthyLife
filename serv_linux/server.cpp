@@ -2,7 +2,8 @@
 #include<stdio.h>
 #include "log/log.h"
 
-int main (int argc, char* argv[]) {
+int main (int argc, char* argv[]) 
+{
 	LOG_INFO("start service damon......\n");
 
 	ThreadManager threadManager;

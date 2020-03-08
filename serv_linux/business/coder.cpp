@@ -333,7 +333,7 @@ Json::Value Coder::Encode(const solution_container_t solution) {
 		solution_t element_t 	= solution.elements[i];
 		
 		char szValue[32] = {0};
-		sprintf(szValue, "%l", element_t.diagnosis_element_id);
+		sprintf(szValue, "%lld", element_t.diagnosis_element_id);
 
 		element["diagnosis_id"] = szValue;
 		element["content"]		= element_t.content;

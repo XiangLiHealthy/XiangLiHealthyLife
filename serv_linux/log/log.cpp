@@ -11,6 +11,8 @@
 #undef max
 #undef min
 #include <sstream>
+#include<unistd.h>
+#include <stdio.h>
 
 using namespace std;
 
@@ -30,7 +32,7 @@ Log::Log( )
 	pthread_mutex_init( &lock,NULL);
 
 	char szWorkDir[256] = {0};
-	getwd(szWorkDir);
+	getwd( szWorkDir);
 	m_strDir = szWorkDir;
 
 	m_eLevel = XiangLi::LOG_DEBUG_E;
@@ -79,7 +81,7 @@ void Log::WriteLog(LOG_LEVEL eLevel, const char *szFile,
 	if (nCount < 0)
 	{
 		openlog("XiangLiHealthyService", LOG_NOWAIT, LOG_SYSLOG);
-		syslog(LOG_NOWAIT, "create log body failed", strerror(errno));
+		syslog(LOG_NOWAIT, "create log body failed :%s", strerror(errno));
 		return ;
 	}
 	
@@ -92,7 +94,7 @@ void Log::WriteLog(LOG_LEVEL eLevel, const char *szFile,
 	{
 		strLog += ret;
 		openlog("XiangLiHealthyService", LOG_NOWAIT, LOG_SYSLOG);
-		syslog(LOG_NOWAIT, strLog.c_str());
+		syslog(LOG_NOWAIT,"%s",  strLog.c_str());
 	}
 }
 
@@ -169,7 +171,7 @@ void Log::GetLogHeader( string& strLog, LOG_LEVEL eLevel, const char *szFile,
 
 	}else
 	{
-		sprintf( szDateTime, " %04d-%02d-%02d %02d:%02d:%02d.%03d:",
+	sprintf( szDateTime, " %04d-%02d-%02d %02d:%02d:%02d.%03ld:",
 				1900+p->tm_year, 1+p->tm_mon, p->tm_mday,
 				p->tm_hour, p->tm_min, p->tm_sec, tv.tv_usec);
 		strLog += szDateTime;

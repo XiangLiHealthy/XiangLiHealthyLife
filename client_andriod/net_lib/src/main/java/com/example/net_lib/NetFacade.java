@@ -6,6 +6,12 @@ import com.example.commondata.*;
 
 
 public class NetFacade {
+
+    public void main()
+    {
+
+    }
+
     //每个app只允许一个网络连接
     public static synchronized NetFacade getInstance() throws Exception {
         if(!net.m_bConnet) {

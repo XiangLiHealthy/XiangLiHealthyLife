@@ -10,9 +10,11 @@ RawData::RawData(int nSize)
 {
 	m_byData = (byte*)malloc(nSize + 2);
 	m_nSize = nSize;
-
+	m_nPos = 0;
+	
 	m_byData[nSize] = 0;//for unicode string
 	m_byData[nSize + 1] = 0;
+	
 }
 
 RawData::~RawData() 

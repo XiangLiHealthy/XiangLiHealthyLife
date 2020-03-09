@@ -107,6 +107,11 @@ namespace msg_seq_manager
     int MsgSeqManager::GetDataType(RawData* ptrData)
     {
         const byte* ptrBuff = ptrData->getData();
+        if (nullptr == ptrBuff)
+        {
+            LOG_ERROR("invalid para null, fd:%d", ptrData->getHandle());
+            return -1;
+        }
 
         return * (ptrBuff + UID_SIZE);
     }
@@ -114,6 +119,11 @@ namespace msg_seq_manager
     int MsgSeqManager::GetSeqNum(RawData* ptrData)
     {
         const byte* ptrBuff = ptrData->getData();
+        if (nullptr == ptrBuff)
+        {
+            LOG_ERROR("invalid para null, fd:%d", ptrData->getHandle());
+            return -1;
+        }
 
        return * (short*)( &ptrBuff[UID_SIZE + DATA_TYPE_SIZE + SEQ_STATE_SIZE] );
     }
@@ -391,6 +401,12 @@ int MsgSeqManager::SendSeq(Handle fd,
      string MsgSeqManager::GetSeqUID( RawData* ptrData)
      {
          const byte* ptrBuff = ptrData->getData();
+         if (nullptr == ptrBuff)
+        {
+            LOG_ERROR("invalid para null, fd:%d", ptrData->getHandle());
+            return "";
+        }
+
          char szUID[UID_SIZE] = {0};
          memcpy(szUID, ptrBuff, UID_SIZE -1);
 

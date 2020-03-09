@@ -6,6 +6,7 @@
 #include<iostream>
 #include"net_data.h"
 #include "../../log/log.h"
+#include <unistd.h>
 
 ReactorImpl::ReactorImpl(){
 	_demultiplexer = new (std::nothrow)EpollDemultiplexer;
@@ -55,6 +56,8 @@ void ReactorImpl::remove(EventHandler* handler){
 		delete iter->second;
 		_handlers.erase(iter);
 	}
+
+	close(handle);
 }
 
 void ReactorImpl::dispatch(int timeout){

@@ -67,17 +67,8 @@ int JsonSeqStrategy::SendSeq(Handle fd, const Json::Value& jData)
     const char* ptrData = strData.c_str();
 
     int nSeqNum = MsgSeqManager::SendSeq(fd, 
-    strUID, TYPE_JSON, SEQ_START, 0, 
+    strUID, TYPE_JSON, SEQ_START_END, 0, 
    (byte*)ptrData, strData.length() );
-    if (nSeqNum < 0)
-   {
-       LOG_ERROR("send json data failed");
-       return -1;
-   }
-
-    nSeqNum = MsgSeqManager::SendSeq(fd, 
-    strUID, TYPE_JSON, SEQ_END, 0, 
-   nullptr, 0 );
     if (nSeqNum < 0)
    {
        LOG_ERROR("send json data failed");

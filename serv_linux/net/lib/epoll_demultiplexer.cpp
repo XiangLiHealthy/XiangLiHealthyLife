@@ -19,10 +19,12 @@ EpollDemultiplexer::~EpollDemultiplexer(){
 	close(_epoll_fd);
 }
 
-int EpollDemultiplexer::wait_event(std::map<int, EventHandler*>& handlers, int timeout){
+int EpollDemultiplexer::wait_event(std::map<int, EventHandler*>& handlers, int timeout)
+{
 	std::vector<struct epoll_event> events(_max_fd);
 	int num = epoll_wait(_epoll_fd, &events[0], _max_fd, timeout);
-	if (num < 0){
+	if (num < 0)
+	{
 		LOG_ERROR("epoll wait error:%s", strerror(errno));
 
 		return num;
@@ -68,18 +70,23 @@ int EpollDemultiplexer::wait_event(std::map<int, EventHandler*>& handlers, int t
 int EpollDemultiplexer::regist(Handle handle, Event evt){
 	struct epoll_event ev;
 	ev.data.fd = handle;
-	if (evt & WriteEvent){
-		ev.events |= EPOLLIN;
+	if (evt & ReadEvent)
+	{
+		ev.events = EPOLLIN;
 	}
 
-	if (evt & WriteEvent) {
+	if (evt & WriteEvent) 
+	{
 		ev.events |= EPOLLOUT;
 	}
-	ev.events |= EPOLLET;//水平触发模式更加简单
+	//ev.events |= EPOLLET;//水平触发模式更加简单
 
-	if (epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, handle, &ev) != 0){
-		if (ENOENT == errno){
-			if (epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, handle, &ev) != 0){
+	if (epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, handle, &ev) != 0)
+	{
+		if (ENOENT == errno)
+		{
+			if (epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, handle, &ev) != 0)
+			{
 				LOG_ERROR("epoll add error :%s", strerror(errno));
 				return -errno;
 			}

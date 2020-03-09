@@ -105,7 +105,8 @@ RawData* TaskQueue::get()
 
 	//获取任务
 	pData = m_taskQueue.front();
-
+	m_taskQueue.pop();
+	
 	//释放锁资源
 	pthread_mutex_unlock(&m_lock);
 

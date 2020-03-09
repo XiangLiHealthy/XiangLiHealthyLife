@@ -28,6 +28,8 @@ int main(int argc, char* argv[])
 	string msg;
 	while (getline(cin, msg))
 	{
+		cout << "input:" << msg << endl;
+		
 		if (clients.SendMsg(msg) < 0)
 		{
 			cout << "msg send failed:" << msg << endl;

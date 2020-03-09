@@ -9,6 +9,7 @@
 #include "../../include/json/json.h"
 #include "../../sequence/msg_seq_manager.h"
 #include "../../sequence/json_seq_strategy.h"
+#include "../../log/log.h"
 
  #define SHUTDOWN 0
  #define SEND_MSG 1
@@ -56,11 +57,25 @@ int Client::Start()
     while ( !m_ptrContext->m_bShutDown)
     {
         //epoll wait
-        int nums = epoll_wait(m_epoll, events, sizeof(events)/sizeof(events[0]), -1);
+        int nums = epoll_wait(m_epoll, events, sizeof(events)/sizeof(events[0]),100000);
+
+        if (nums < 0)
+        {
+            cout << "epoll error:" << strerror(errno) << endl;
+        }
+        else
+        {
+            cout << m_nNum << "epoll trigger:" << nums << endl;
+        }
+        
+        
 
         for (int index = 0; index < nums; index ++)
         {
             int nCurrentFd = events[index].data.fd;
+
+            cout << "fd:" << nCurrentFd << ", ev:" << events[index].events << endl;
+            cout << "m_fd:" << m_fd << ", pipe[0]" << m_pipe[0] << ", pipe[1]:" << m_pipe[1] << endl;
 
             if (nCurrentFd == m_fd && EPOLLIN & events[index].events)
             {
@@ -70,12 +85,12 @@ int Client::Start()
                          cout << "client :" << m_nNum << "recv msg failed" << endl;
                      }
             }
-            else if (nCurrentFd == m_pipe[1] && EPOLLIN & events[index].events)
+            else if (nCurrentFd == m_pipe[0] && EPOLLIN & events[index].events)
             {
                 cout << "client :" << m_nNum << "send a msg" << endl;
                 
                 char szBuff[8] = {0};
-                if (read(m_pipe[1], szBuff, sizeof(szBuff)) <= 0)
+                if (read(m_pipe[0], szBuff, sizeof(szBuff)) <= 0)
                 {
                     cout << "client :" << m_nNum << "read data failed:" << strerror(errno) << endl;
                     continue;
@@ -110,7 +125,7 @@ void Client::Stop()
     if (m_pipe[0] < 0)
     {
         byte byCmd = SHUTDOWN;
-        if (write(m_pipe[0], &byCmd, sizeof(byCmd)) < sizeof(byCmd))
+        if (write(m_pipe[1], &byCmd, sizeof(byCmd)) < sizeof(byCmd))
         {
             cout << "client:" << m_nNum << "stop failed" << endl;
         }
@@ -173,6 +188,8 @@ int Client::RecvMsg()
 
 int Client::SendMsg()
 {
+    cout << "clent send msg :" << m_nNum <<endl;
+
     Json::Value jData;
     Json::Reader reader;
 
@@ -194,12 +211,13 @@ int Client::SendMsg()
 
 void Client::Notify()
 {
+    cout << "notify:" << m_nNum << endl;
+
     m_bSent = false;
 
     //write a byte to pipe
     byte byCmd = SEND_MSG;
-
-    if (write(m_pipe[0], &byCmd, sizeof(byCmd) ) < sizeof(byCmd))
+    if (write(m_pipe[1], &byCmd, sizeof(byCmd) ) < sizeof(byCmd))
     {
         cout << "client :" << m_nNum << "notify failed:" << strerror(errno) << endl;
     }
@@ -208,24 +226,38 @@ void Client::Notify()
 int Client::PrepareEpoll()
 {
     // 创建epoll树
-    int epfd = epoll_create(0);
+    int epfd = epoll_create(1024);
     if(epfd == -1)
     {
         perror("epoll_create");
        return -1;
     }
 
+    m_epoll = epfd;
+
     // 将监听client添加到树上
     struct epoll_event ev;
 
-    ev.events = EPOLLIN ;
+    ev.events = EPOLLIN  ;
     ev.data.fd = m_fd;
-    epoll_ctl(epfd, EPOLL_CTL_ADD, m_fd, &ev);
+    cout << "client fd:" << m_fd << endl;
+
+    if ( epoll_ctl(m_epoll, EPOLL_CTL_ADD, m_fd, &ev) < 0)
+    {
+        cout << "add client fd error:" << strerror(errno) << endl;
+        return -1;
+    }
 
     //将pipe添加到树上
-    ev.events = EPOLLIN;
-    ev.data.fd = m_pipe[1];
-    epoll_ctl(m_epoll, EPOLL_CTL_ADD, m_pipe[1], &ev);
+    ev.events = EPOLLIN ;
+    ev.data.fd = m_pipe[0];
+    cout <<  "pipe[0]:" << m_pipe[0] << ", pipe[1]:" << m_pipe[1] << endl;
+
+    if (epoll_ctl(m_epoll, EPOLL_CTL_ADD, m_pipe[0], &ev) < 0)
+    {
+        cout << "add pipe fd error:" << strerror(errno) << endl;
+        return -1;
+    }
 
     return 0;
 }

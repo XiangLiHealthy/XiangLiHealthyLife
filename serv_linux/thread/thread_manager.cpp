@@ -95,14 +95,16 @@ void ThreadManager::WaitSignal() {
 
 	sigemptyset(&sig);
 	sigaddset(&sig, SIGHUP);
-	sigaddset(&sig, SIGINT);
+	//sigaddset(&sig, SIGINT);
 	sigaddset(&sig, SIGQUIT);
 
-	while(1) {
+	while(1) 
+	{
 		err = sigwait(&sig, &signo);
 
 		//发生错误直接退出进程
-		if( 0 != err) {
+		if( 0 != err) 
+		{
 			LOG_ERROR("sigwait fail %s !exit........\n", strerror(err));
 			//stop();
 			break;

@@ -45,7 +45,7 @@ void SocketHandler::handle_read()
 	int nLen = 0;
 	if( (nLen = read(_socket_fd, m_buf + m_tail_pos, sizeof(m_buf) - m_tail_pos)) <= 0) 
 	{
-		LOG_ERROR("read socket error:%s \n", strerror(errno));
+		LOG_ERROR("read socket,fd:%d, error:%s \n", _socket_fd,  strerror(errno));
 		handle_error();
 		return;
 	}
@@ -72,10 +72,6 @@ void SocketHandler::handle_write()
 void SocketHandler::handle_error() 
 {
 	LOG_INFO("socket fd:%d disconnect", _socket_fd);
-	//Reactor& r = Reactor::get_instance();
-	//r.remove(this);
-	close(_socket_fd);
-	//_sock_fd = NULL;
 
 	RawData* ptrData = new RawData(sizeof(DISCONNECT_FRAME));
 	if (nullptr == ptrData)
@@ -93,6 +89,9 @@ void SocketHandler::handle_error()
 
 	ptrData->setHandle(_socket_fd);
 	g_taskQueue.add(ptrData);
+
+	Reactor& r = Reactor::get_instance();
+	r.remove(this);
 }
 
 int SocketHandler::ParserBuffer()

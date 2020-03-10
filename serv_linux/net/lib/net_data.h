@@ -19,7 +19,7 @@ using std::string;
 
 struct send_frame_t
 {
-    short* ptrFrameHeader;
+    byte* ptrFrameHeader;
     short* ptrCheckSum;
     short* ptrSeqLen;
     char* ptrUID;
@@ -27,13 +27,13 @@ struct send_frame_t
     byte* ptrSeqState;
     short* ptrSeqNum;
     byte* ptrData;
-    short* ptrFrameTail;
+    byte* ptrFrameTail;
     byte byBuff[MAX_FRAME_SIZE];
     short nFrameLen;
 
     send_frame_t(const string& strUID, byte type, byte state, short seq_num, const byte* ptrBuff, int nLen )
     {
-        ptrFrameHeader = (short*)(byte*)byBuff;
+        ptrFrameHeader = byBuff;
         ptrCheckSum = (short*) ((byte*)byBuff + 2);
         ptrSeqLen = (short*) ((byte*)byBuff + 4);
         ptrUID = (char*) ((byte*)byBuff + 6);
@@ -58,7 +58,7 @@ struct send_frame_t
         }
         
     
-        ptrFrameTail = (short*)(ptrData + nLen);
+        ptrFrameTail = ptrData + nLen;
 
         nFrameLen = nLen + FRAME_FORMAT_SIZE + SEQ_FORMAT_SIZE;
         *ptrSeqLen = nLen + SEQ_FORMAT_SIZE;

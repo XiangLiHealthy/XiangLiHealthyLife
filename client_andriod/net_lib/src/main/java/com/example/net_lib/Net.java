@@ -29,25 +29,50 @@ public class Net extends Thread {
     private InputStreamReader m_receiver;
     private boolean m_bConnet = false;
     private boolean m_bShutDown = false;
+    private  static Net m_singleton = new Net();
+    public static Net getInstance()
+    {
+        return  m_singleton;
+    }
 
-    public  static void main (String[] args) {
+    public  static void main (String[] args)
+    {
         String host = "127.0.0.1";
         int port = 6666;
 
         try {
-            Socket client = new Socket(host, port);
-            Writer writer = new OutputStreamWriter(client.getOutputStream());
+//            Socket client = new Socket(host, port);
+//            Writer writer = new OutputStreamWriter(client.getOutputStream());
+//
+//            writer.write("Hellow from Client\n" +
+//                    "");
+//            writer.flush();
+//
+//            writer.close();
+//
+//
+//            client.close();
 
-            writer.write("Hellow from Client\n" +
-                    "");
-            writer.flush();
+//            JSONObject jData = new JSONObject();
+//            jData.put("proto", "test");
+            String msg = "{\"proto\":\"hellow world\"}";
+            byte[] byMsg = msg.getBytes();
 
-            writer.close();
+            while(true)
+            {
+                if (NetSequence.getInstance().sendDataOnce(byMsg, DATA_TYPE.DATA_JONS) < 0)
+                {
+
+                }
+
+                sleep(1000);
+            }
 
 
-            client.close();
+            //Net.getInstance().sendJson(jData);
 
-        } catch (IOException e) {
+        } catch (Exception e) {
+            String msg = e.getMessage();
             e.printStackTrace();
         }
     }

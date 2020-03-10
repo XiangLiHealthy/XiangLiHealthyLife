@@ -12,8 +12,8 @@
 #include "../../log/log.h"
 #include "net_data.h"
 
-static const short FARAME_HEADER = 0x1122;
-static const short FARAME_TAIL = 0x3344;
+static const byte FARAME_HEADER[] = {0x11, 0x22};
+static const byte  FARAME_TAIL[] = {0x33, 0x44};
 static const  short CHECKSUM_SIZE = 2;
 static const short FRAME_LEN_SIZE = 2;
 static const byte DISCONNECT_FRAME[]= {0x00, 0x01,0x00,  0x01, 0x03};
@@ -101,19 +101,13 @@ int SocketHandler::ParserBuffer()
 		int nHeaderPos = GetHeaderPos();
 		if (nHeaderPos < 0)
 		{
-			if ( (m_tail_pos - m_header_pos) > 0 )
-			{
-				m_buf[0] = m_buf[m_tail_pos -1];
-				m_tail_pos = 1;
-			} 
-			else
-			{
-				m_tail_pos = 0;
-			}
-			
-			m_header_pos = 0;
+			int nLoseLen = m_tail_pos - m_header_pos -1;
+			LOG_ERROR("can not get frame header,lose len:%d", nLoseLen);
 
-			LOG_ERROR("can not get frame header");
+			m_buf[0] = m_buf[m_tail_pos -1];
+			m_tail_pos = 1;
+			m_header_pos = 0;
+			
 			break;
 		}
 
@@ -131,7 +125,7 @@ int SocketHandler::ParserBuffer()
 		}
 
 		m_header_pos = nTailPos;
-	} while (1);
+	} while ( m_tail_pos - m_header_pos > 0);
 	
 	return 0;
 }
@@ -147,7 +141,8 @@ int SocketHandler::ParserFrame(const int nHeaderPos, const int nTailPos)
 	}
 
 	//get data
-	int nLen = * (short*)( &m_buf[nHeaderPos +  + sizeof (FARAME_HEADER) + CHECKSUM_SIZE ]);
+	int nLen = m_buf[nHeaderPos +  sizeof (FARAME_HEADER) + CHECKSUM_SIZE ] * 256 +
+	m_buf[nHeaderPos +  sizeof (FARAME_HEADER) + CHECKSUM_SIZE + 1 ];
 
 	RawData* ptrData = new RawData(nLen);
 	if (nullptr == ptrData)
@@ -175,8 +170,8 @@ int SocketHandler::GetHeaderPos()
 	int nHeaderPos = -1;
 	for (int index = 0; index < m_tail_pos - m_header_pos; index ++)
 	{
-		short* ptrHeader = (short*)( &m_buf[m_header_pos + index]);
-		if (*ptrHeader == FARAME_HEADER)
+		if (m_buf[m_header_pos + index] == FARAME_HEADER[0] 
+		&& m_buf[m_header_pos + index + 1] == FARAME_HEADER[1])
 		{
 			nHeaderPos = m_header_pos + index;
 			break;
@@ -194,7 +189,9 @@ int SocketHandler::GetTailPos()
 		return -1;
 	}
 
-	int nDataLen = *(short*)( &m_buf [m_header_pos + sizeof(FARAME_HEADER) + CHECKSUM_SIZE]);
+	int nDataLen = m_buf [m_header_pos + sizeof(FARAME_HEADER) + CHECKSUM_SIZE] * 256 + 
+	 m_buf [m_header_pos + sizeof(FARAME_HEADER) + CHECKSUM_SIZE + 1];
+
 	if (nRecvLen < nDataLen + FRAME_FORMAT_SIZE)
 	{//has not received tail
 		return -1;
@@ -204,8 +201,7 @@ int SocketHandler::GetTailPos()
 	int nTailPos = m_header_pos + FRAME_FORMAT_SIZE + nDataLen - sizeof(FARAME_TAIL);
 	
 	//check tail
-	short* ptrTail = (short*)(m_buf + nTailPos);
-	if (FARAME_TAIL != *ptrTail)
+	if (FARAME_TAIL[0] != m_buf[nTailPos] || FARAME_TAIL[1] != m_buf[nTailPos + 1])
 	{
 		//invaild frame,throw away these data
 		m_header_pos = nTailPos;
@@ -222,13 +218,15 @@ bool SocketHandler::CheckData()
 
 int SocketHandler::SendFrame(const Handle fd, send_frame_t& frame_data)
 {
-	* frame_data.ptrFrameHeader = FARAME_HEADER;
+	 frame_data.ptrFrameHeader[0] = FARAME_HEADER[0];
+	 frame_data.ptrFrameHeader[1] = FARAME_HEADER[1];
 
 	* frame_data.ptrCheckSum = 0;//checksum default is 0
 
 	*frame_data.ptrSeqLen = frame_data.nFrameLen - FRAME_FORMAT_SIZE;
 
-	*frame_data.ptrFrameTail = FARAME_TAIL;
+	frame_data.ptrFrameTail[0] = FARAME_TAIL[0];
+	frame_data.ptrFrameTail[1] = FARAME_TAIL[1];
 
 	int nRet = write(fd, frame_data.byBuff, frame_data.nFrameLen);
 	if ( nRet < frame_data.nFrameLen) 

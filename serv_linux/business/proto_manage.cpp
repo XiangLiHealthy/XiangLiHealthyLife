@@ -1,6 +1,8 @@
 #include"proto_manager.h"
 #include<stdio.h>
 #include "../log/log.h"
+#include "clinics.h"
+#include "test.h"
 
 ProtoManager g_protoManagerObj;
 
@@ -13,15 +15,23 @@ ProtoManager g_protoManagerObj;
  *协议中不能保存业务缓存,因为每个协议可能同时被多个线程执行,对应着不同的
  *连接
  * *******************************************************************/
-ProtoManager::ProtoManager() {
+ProtoManager::ProtoManager() 
+{
 	//每个协议都是一个单列.并实例化一个静态对象,这样协议名可以每个对象单独维护
-	//Proto*  ptr = clinics.getInstance();
-	//m_mapProto.add(ptr->getName(), ptr);
-	
-	
+	regist(new Clinics());
+	regist(new Test());
 }
 
-ProtoManager::~ProtoManager() {
+ProtoManager::~ProtoManager() 
+{
+	for (auto itr : m_mapProto)
+	{
+		if (itr.second)
+		{
+			delete itr.second;
+		}
+	}
+	m_mapProto.clear();
 
 }
 
@@ -52,3 +62,20 @@ const Proto* ProtoManager:: GetProto(const char* szName) {
 	return NULL;
 }
 
+void ProtoManager::regist(Proto* ptrProto)
+{
+	if (nullptr == ptrProto)
+	{
+		LOG_ERROR("invalid para null");
+		return ;
+	}
+
+	if (m_mapProto.find(ptrProto->getName()) != m_mapProto.end())
+	{
+		LOG_INFO("proto:%s has be exist", ptrProto->getName());
+		delete ptrProto;
+		return;
+	}
+	
+	m_mapProto[ptrProto->getName()] = ptrProto;
+}

@@ -80,84 +80,48 @@ public class NetSequence {
         }
     }
 
-    public int sendDataOnce(byte[] arrData, DATA_TYPE type)
-    {
-
-        m_strUID = createUID();
-
-        do {
-            if (arrData.length > MAX_SEQ_SIZE - SEQ_HEADER_SIZE)
-            {
-                int nSeq_num = sendSeq(createUID(), type, SEQ_STATE.SEQ_START,
-                        (short) 0, arrData);
-
-                sendSeq(createUID(), type, SEQ_STATE.SEQ_END,
-                        (short)++nSeq_num, null);
-
-                break;
-            }
-
+    public int sendDataOnce(byte[] arrData, DATA_TYPE type) throws Exception {
             sendSeq(createUID(), type, SEQ_STATE.SEQ_START_END,
                     (short) 0, arrData);
-        }while (true);
 
         return 0;
 
     }
 
     private int sendSeq(String strUID, DATA_TYPE dt_type, SEQ_STATE seq_state,
-                        short seq_num, byte[] arrData)
-    {
-        if (null == arrData)
+                        short seq_num, byte[] arrData) throws Exception {
+
+        SEQ_STATE state_tmp = seq_state;
+
+        if (state_tmp == SEQ_STATE.SEQ_START_END && arrData.length > MAX_SEQ_DATA_LEN)
         {
-            byte[] arrSeq = new byte[SEQ_HEADER_SIZE];
-            byte[] arrUID = strUID.getBytes();
-
-            System.arraycopy(arrSeq, 0, arrUID, 0, arrUID.length);
-
-            short data_type = getDataTypeVale(dt_type);
-            arrSeq[UID_SIZE] = (byte)(data_type & 0xff);
-
-            short state_value = getStateValue(seq_state);
-            arrSeq[UID_SIZE + 1] = (byte)(state_value & 0xff);
-
-            arrSeq[UID_SIZE + 2] = (byte)(seq_num >> 8);
-            arrSeq[UID_SIZE + 3] = (byte)(seq_num & 0xff);
-
-            m_frame.sendSeq(arrSeq);
-
-            return seq_num;
-        }
-
-        //surport last seq carry data
-        if (arrData.length > MAX_SEQ_DATA_LEN && seq_state == SEQ_STATE.SEQ_END)
-        {
-            seq_state = SEQ_STATE.SEQ_BODY;
+            seq_state = SEQ_STATE.SEQ_START;
         }
 
         int nSentLen = 0;
         while (arrData.length - nSentLen  > 0)
         {
 
-            int nSendLen = (arrData.length - nSentLen) % MAX_SEQ_DATA_LEN == 0 ? MAX_SEQ_DATA_LEN : (arrData.length - nSentLen) % MAX_SEQ_DATA_LEN;
+            int nSendLen = ( (arrData.length - nSentLen) > MAX_SEQ_DATA_LEN ) ? MAX_SEQ_DATA_LEN : (arrData.length - nSentLen) ;
 
-            byte[] arrSeq = new byte[nSendLen + SEQ_HEADER_SIZE];
-            byte[] arrUID = strUID.getBytes();
+            seq_state = (arrData.length - nSentLen > 0 && state_tmp == SEQ_STATE.SEQ_END) ? SEQ_STATE.SEQ_BODY : seq_state;
 
-            System.arraycopy(arrSeq, 0, arrUID, 0, arrUID.length);
+            seq_state = (arrData.length - nSentLen <= 0 && state_tmp == SEQ_STATE.SEQ_START_END) ? SEQ_STATE.SEQ_START_END : seq_state;
+
+            FrameData frameData = new FrameData();
+            frameData.setUID(strUID);
 
             short data_type = getDataTypeVale(dt_type);
-            arrSeq[UID_SIZE] = (byte)(data_type & 0xff);
+           frameData.setDataType((byte) data_type);
 
             short state_value = getStateValue(seq_state);
-            arrSeq[UID_SIZE + 1] = (byte)(state_value & 0xff);
+            frameData.setSeqState((byte)state_value);
 
-            arrSeq[UID_SIZE + 2] = (byte)(seq_num >> 8);
-            arrSeq[UID_SIZE + 3] = (byte)(seq_num & 0xff);
+           frameData.setSeqNum(seq_num);
 
-            System.arraycopy(arrSeq, SEQ_HEADER_SIZE, arrData, nSentLen, nSendLen);
+           frameData.setPaloadData(arrData, nSentLen, nSendLen);
 
-            m_frame.sendSeq(arrSeq);
+            m_frame.sendSeq(frameData);
 
 
             seq_num++;
@@ -168,7 +132,6 @@ public class NetSequence {
             }
         }
 
-
         return seq_num;
     }
 
@@ -176,8 +139,6 @@ public class NetSequence {
     {
         switch (seq_state)
         {
-
-
             case SEQ_START:
                 return 0;
             case SEQ_BODY:
@@ -216,13 +177,13 @@ public class NetSequence {
         switch (type)
         {
             case DATA_JONS:
-                return 0;
-
-            case DATA_PICTURE:
                 return 1;
 
-            case DATA_MOVIE:
+            case DATA_PICTURE:
                 return 2;
+
+            case DATA_MOVIE:
+                return 3;
 
             default:
                 return -1;
@@ -233,13 +194,13 @@ public class NetSequence {
     {
         switch (type)
         {
-            case 0:
+            case 1:
                 return DATA_TYPE.DATA_JONS;
 
-            case 1:
+            case 2:
                 return DATA_TYPE.DATA_PICTURE;
 
-            case 2:
+            case 3:
                 return DATA_TYPE.DATA_MOVIE;
 
             default:
@@ -253,10 +214,17 @@ public class NetSequence {
 
         long td = Thread.currentThread().getId();
 
-        String uid = String.format("%04d%02d%02d%02%02d%02d.%03d.%08ld",
-                calendar.YEAR, calendar.MONTH, calendar.DATE,
-                calendar.HOUR, calendar.MINUTE, calendar.SECOND, calendar.MILLISECOND,
-                td);
+//        String uid = String.format("%04d%02d%02d%02%02d%02d.%03d.%d",
+//                calendar.YEAR, calendar.MONTH, calendar.DATE,
+//                calendar.HOUR, calendar.MINUTE, calendar.SECOND, calendar.MILLISECOND,
+//                td);
+        String uid = String.format("%04d%02d%02d",
+                calendar.YEAR, calendar.MONTH, calendar.DATE
+                );
+        uid += String.format("%02d%02d%02d.%03d",
+                calendar.HOUR, calendar.MINUTE, calendar.SECOND, calendar.MILLISECOND);
+        uid += String.format(".%08d", td);
+
 
         return uid;
     }
@@ -308,7 +276,7 @@ public class NetSequence {
 
     private NetFrame m_frame = new NetFrame();
 
-    String m_strUID;
+    String m_strUID = new String();
     DATA_TYPE m_data_type;
     SEQ_STATE m_seq_state;
     short m_current_seq_num;

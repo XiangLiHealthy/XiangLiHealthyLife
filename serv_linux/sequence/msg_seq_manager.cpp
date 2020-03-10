@@ -60,7 +60,7 @@ namespace msg_seq_manager
     int  MsgSeqManager::PerformWork( RawData* ptrData)
     {
         /*转化成json对象*/
-        const byte* pbyData = ptrData->getData();
+        const byte* pbyData = GetDataContent(ptrData);
         if ( NULL == pbyData) 
         {
             LOG_ERROR("nullptr");
@@ -69,7 +69,7 @@ namespace msg_seq_manager
 
         Json::Reader 	reader;
         Json::Value 		jData;
-        if ( reader.parse( (char*)pbyData + SEQ_FORMAT_SIZE, jData) < 0) 
+        if ( reader.parse( (char*)pbyData, jData) < 0) 
         {
                 LOG_ERROR("parse json failed!");
                 return -1;
@@ -78,7 +78,7 @@ namespace msg_seq_manager
             /*取得协议名称*/
             if (jData["proto"].isNull()) 
             {
-                LOG_ERROR("thers is not key proto");
+                LOG_ERROR("thers is not key proto:%s", pbyData);
                 return -1;
             }
             const string strName =  jData["proto"].asString();
@@ -191,7 +191,7 @@ int MsgSeqManager::SendSeq(Handle fd,
 
             state = (SEQ_END == state && nLen - nSentLen - nSendLen >0 ) ? SEQ_BODY : state;
 
-            state = (SEQ_START_END == state_tmp && nLen - nSentLen - nSendLen <= 0) ? SEQ_END : state;
+            state = (SEQ_START_END == state_tmp && nLen - nSentLen - nSendLen <= 0 && nSentLen > 0) ? SEQ_END : state;
 
             send_frame_t frame_data(strUID, type, state, seq_num, ptrBuff, nSendLen);
 
@@ -413,6 +413,18 @@ int MsgSeqManager::SendSeq(Handle fd,
          string strUID = szUID;
 
          return strUID;
+     }
+
+     const byte* MsgSeqManager::GetDataContent(RawData* ptrData)
+     {
+         const byte* ptrTmp = ptrData->getData();
+         if (nullptr == ptrTmp)
+         {
+             LOG_ERROR("error nullptr ");
+             return nullptr;
+         }
+
+         return ptrTmp + SEQ_FORMAT_SIZE;
      }
 }
 

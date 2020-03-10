@@ -3,16 +3,15 @@
 //#include"../DataBase/DataBase.h"
 #include"business_data.h"
 
-class Clinics : public Proto {
+class Clinics : public Proto 
+{
 	public:
 							Clinics();
 							~Clinics();
 
-	virtual const  Proto*   getInstance();
 	virtual const char* 	getName();
 	virtual int 	dispatch(const Json::Value& jData, Handle fd);
-
-	private:
+private:
 	Json::Value				GetSymptom(treatment_t symptom, DataBase* pDB);
 	Json::Value				GetCause(treatment_t treatment, DataBase* pDB );
 	Json::Value				GetDiagnosis(treatment_t treatment, DataBase* pDB);
@@ -26,6 +25,5 @@ class Clinics : public Proto {
 	vector<cause_t>			GetCauseContent(treatment_t treatment,DataBase* pDB);
 	vector<diagnosis_t>		GetDiagnosisContent(treatment_t treatment, DataBase* pDB);
 	vector<solution_t>		GetSolutionContent(treatment_t treatment, DataBase* pDB);
-	public:
-	static Clinics 			m_clinics;
+public:
 };

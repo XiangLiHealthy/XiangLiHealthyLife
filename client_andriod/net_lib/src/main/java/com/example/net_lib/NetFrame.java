@@ -8,6 +8,169 @@ import java.io.InputStreamReader;
 import java.io.Writer;
 import java.net.Socket;
 
+
+class FrameData
+{
+    private byte[] m_frame_data = new byte[MAX_FRAME_SIZE];
+    private short m_payload_len;
+    static public int MAX_FRAME_SIZE = 8192;
+    static public int FRAME_FORMAT_LEN = 8;
+    static public int UID_SIZE = 32;
+    static public int SEQ_FORMAT_LEN = UID_SIZE + 4;
+
+    //frame oporat
+    public byte[] getHeader()
+    {
+        byte[] header = new byte[2];
+
+        header[0] = m_frame_data[0];
+        header[1] = m_frame_data[1];
+
+        return  header;
+    }
+
+    public void setHeader(byte[] header)
+    {
+        m_frame_data[0] = header[0];
+        m_frame_data[1] = header[1];
+    }
+
+    public short getCheckSum()
+    {
+        short nCheckSum = 0;
+        nCheckSum = (short) (m_frame_data[2] * 256 + m_frame_data[3] );
+        return  nCheckSum;
+    }
+
+    public  void setCheckSum(short sum)
+    {
+        m_frame_data[2] = (byte) (sum / 256);
+        m_frame_data[3] = (byte) (sum & 0x00ff);
+    }
+
+    public  short getSeqLen()
+    {
+        return (short) (m_frame_data[4] * 256 + m_frame_data[5]);
+    }
+
+    public void setSeqLen(short len)
+    {
+        m_frame_data[4] = (byte) (len / 256);
+        m_frame_data[5] = (byte) (len & 0x00ff);
+    }
+
+    public byte[] getTail()
+    {
+        byte[] tail = new byte[2];
+        short nSeqLen = getSeqLen();
+
+        tail[0] = m_frame_data[nSeqLen + FRAME_FORMAT_LEN -2];
+        tail[1] = m_frame_data[nSeqLen + FRAME_FORMAT_LEN - 1];
+
+        return  tail;
+    }
+
+    public void setTail(byte[] tail)
+    {
+        short nSeqLen = getSeqLen();
+
+        m_frame_data[nSeqLen + FRAME_FORMAT_LEN -2] = tail[0];
+        m_frame_data[nSeqLen + FRAME_FORMAT_LEN - 1] = tail[1];
+    }
+
+    //sequnec oprator
+    public void setUID(String strUID)
+    {
+        byte[] byUID = strUID.getBytes();
+        System.arraycopy( byUID, 0, m_frame_data, FRAME_FORMAT_LEN - 2, byUID.length);
+
+    }
+
+    public String getUID()
+    {
+        byte[] byUID = new byte[UID_SIZE];
+        System.arraycopy( byUID, 0, m_frame_data, FRAME_FORMAT_LEN - 2, UID_SIZE);
+
+        String strUID = new String(byUID);
+
+        return  strUID;
+    }
+
+    public void setDataType(byte type)
+    {
+        m_frame_data[FRAME_FORMAT_LEN - 2 + UID_SIZE] = type;
+    }
+
+    public byte getDataType()
+    {
+        return  m_frame_data[FRAME_FORMAT_LEN - 2 + UID_SIZE];
+    }
+
+    public void setSeqState(byte state)
+    {
+        m_frame_data[FRAME_FORMAT_LEN - 2 + UID_SIZE + 1] = state;
+    }
+
+    public byte getSeqState()
+    {
+        return m_frame_data[FRAME_FORMAT_LEN - 2 + UID_SIZE + 1];
+    }
+
+    public void setSeqNum(short num)
+    {
+        m_frame_data[FRAME_FORMAT_LEN - 2 + UID_SIZE + 3] = (byte) (num / 256);
+        m_frame_data[FRAME_FORMAT_LEN - 2 + UID_SIZE + 4] = (byte) (num & 0x00ff);
+    }
+
+    public short getSeqNum()
+    {
+        return  (short) (m_frame_data[FRAME_FORMAT_LEN - 2 + UID_SIZE + 3] * 256
+                + m_frame_data[FRAME_FORMAT_LEN - 2 + UID_SIZE + 4] );
+    }
+
+    public void setPaloadData(byte[] data, int nPos, int nLen) throws Exception {
+        if (data.length > MAX_FRAME_SIZE - FRAME_FORMAT_LEN - SEQ_FORMAT_LEN)
+        {
+            throw  new Exception("data too long");
+        }
+
+        if (null != data)
+        {
+            System.arraycopy( data, nPos, m_frame_data, FRAME_FORMAT_LEN + SEQ_FORMAT_LEN - 2, nLen);
+        }
+
+        setSeqLen( (short) (nLen + SEQ_FORMAT_LEN) );
+    }
+
+    public byte[] getPayload()
+    {
+       int nLen = getSeqLen() - SEQ_FORMAT_LEN;
+
+       byte[] paload = new byte[nLen];
+
+       System.arraycopy(m_frame_data, FRAME_FORMAT_LEN - SEQ_FORMAT_LEN - 2, paload, 0, nLen);
+
+       return  paload;
+    }
+
+    public void setFrameData(byte[] data)
+    {
+        m_frame_data = data;
+    }
+
+    public byte[] getFrameData()
+    {
+        return m_frame_data;
+    }
+
+    public short getFrameLen()
+    {
+        return (short) (getSeqLen() + FRAME_FORMAT_LEN);
+    }
+};
+
+
+
 enum FIND_STATE
 {
     FIND_OK,
@@ -25,7 +188,7 @@ public class NetFrame {
     {
         try
         {
-            m_client = new Socket("10.0.2.2",6666);
+            m_client = new Socket("127.0.0.1",8888);
             m_sender = new DataOutputStream(m_client.getOutputStream());
             m_receiver = new DataInputStream(m_client.getInputStream());
         }catch (Exception e)
@@ -37,13 +200,22 @@ public class NetFrame {
         return 0;
     }
 
-    public  int sendSeq(byte[] arrData)
+    public  int sendSeq(FrameData frameData)
     {
         try
         {
-            byte[] frame = packageFrame(arrData);
+            frameData.setHeader(FRAME_HEADER);
 
-            m_sender.write(frame, 0, frame.length);
+            frameData.setCheckSum((short) 0);
+
+            //frameData.setSeqLen();
+
+            frameData.setTail(FRAME_TAIL);
+
+            byte[] byData = frameData.getFrameData();
+            int nLen = frameData.getFrameLen();
+
+            m_sender.write(byData, 0, nLen);
         }catch (Exception e)
         {
             m_last_error = e.getMessage();
@@ -73,7 +245,7 @@ public class NetFrame {
         frame[5] = (byte)(len & 0xff00);
 
         //fill in data
-        System.arraycopy(frame,FRAME_FORMAT_LEN, arrData, 0, len);
+        System.arraycopy(arrData, 0, frame,FRAME_FORMAT_LEN, len);
 
         //fill tail
         frame[FRAME_FORMAT_LEN - 2 + len] = FRAME_TAIL[0];
@@ -179,7 +351,7 @@ public class NetFrame {
     private byte[] parseFrame()
     {
         byte[] arrData = new byte[m_data_len];
-        System.arraycopy(arrData, 0, m_recv_buff, m_header_pos + FRAME_FORMAT_LEN - 2,m_data_len);
+        System.arraycopy(m_recv_buff, m_header_pos + FRAME_FORMAT_LEN - 2, arrData, 0, m_data_len);
 
         m_header_pos = m_header_pos + FRAME_FORMAT_LEN + m_data_len;
         m_rcv_len = m_rcv_len - FRAME_FORMAT_LEN - m_data_len;

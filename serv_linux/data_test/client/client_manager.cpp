@@ -44,6 +44,7 @@ int ClientManager::StartWork()
         m_clients.push_back(ptrClient);
 
         //start a thread
+        usleep(10*1000);
         thread task(Callback, ptrClient);
         task.detach();
     }

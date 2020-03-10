@@ -32,6 +32,11 @@ void ListenHandler::handle_read()
 	socklen_t len = sizeof(sockaddr);
 
 	int fd = accept(_listen_fd,(sockaddr*) &client_addr, &len); 
+	if (fd < 0)
+	{
+		LOG_ERROR("accecpt connect failed:%s", strerror(errno));
+		return;
+	}
 
 	LOG_INFO("接受连接ip:%s\n", inet_ntoa(client_addr.sin_addr) );
 

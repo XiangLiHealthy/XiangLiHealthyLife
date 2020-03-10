@@ -70,6 +70,7 @@ namespace msg_seq_manager
         int CaculateSeqLen(RawData* ptrData);  
         int MergeSeqs(RawData* ptrDest, const RawData* ptrSrc);
         int GetSeqsByUID( RawData* ptrData, vector<RawData*>& seqs);
+        const byte* GetDataContent(RawData* ptrData);
     };
 };
 

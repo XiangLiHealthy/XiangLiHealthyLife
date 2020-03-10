@@ -1,3 +1,6 @@
+#ifndef PROTO_
+#define PROTO_
+
 #include"../include/json/json.h"
 #include"../DataBase/DataBase.h"
 #include "../net/lib/net_data.h"
@@ -12,15 +15,6 @@ class Proto
 	public:
 								Proto(){};
 		virtual					~Proto(){};
-
-		/**************************************************************
-		 *功能: 获取协议对象的指针,指向的对象就是本协议静态对象,这样可以
-		 *		避免内存管理的麻烦
-		 *
-		 *返回: 返回静态成员协议对象的指针;
-		 *
-		 * *************************************************************/ 
-		virtual  const Proto* 	getInstance() = 0;
 
 		/**************************************************************
 		 *功能: 获取协议对象的名称;每个类具体实现的时候都需要唯一指定自
@@ -42,3 +36,5 @@ class Proto
 	protected:
 		char 					m_szName[128];
 };
+
+#endif

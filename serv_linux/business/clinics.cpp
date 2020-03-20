@@ -3,8 +3,8 @@
 #include<pthread.h>
 #include"coder.h"
 #include"../DataBase/DataBase.h"
+#include "../log/log.h"
 
-Clinics Clinics::m_clinics;
 /**********************************************
  *这里指定协议的名称为类名
  *
@@ -16,14 +16,6 @@ Clinics::Clinics() {
 Clinics::~Clinics() {
 
 }
-
-/********************************************
- *获取静态对象的引用,注册到协议管理器;每个协议 
- *只实例化一个对象
- * ******************************************/ 
-const Proto* Clinics::getInstance() {
-	return &m_clinics;
-	}
 
 /********************************************
  *功能:获取协议的名称
@@ -39,7 +31,7 @@ const char* Clinics::getName() {
  *返回值:返回一个json,这个json包装好要发送的数据
  *       调用函数需要释放返回json对象的内存资源
  * ********************************************/
-Json::Value Clinics::dispatch(const Json::Value& jData, DataBase* pDB)
+int Clinics::dispatch(const Json::Value& jData, Handle fd)
 //Json::Value Clinics::dispatch(const Json::Value jData) 
 {
 	Json::Value jRet;
@@ -50,10 +42,11 @@ Json::Value Clinics::dispatch(const Json::Value& jData, DataBase* pDB)
 	if(coder.DecodeTreatment(jData, treatment) < 0) {
 		jRet["code"] = -1;
 		jRet["error"]	= coder.GetLastError();
-		return jRet;
+		return -1;
 	}
 
 	//使用合适的方法更细致的业务
+	DataBase* pDB = nullptr;
 	const char* method = treatment.protocol.c_str();
 	if(0 == strcmp("GetSymptom", method) ) {
 		jRet = GetSymptom(treatment,pDB);
@@ -76,7 +69,7 @@ Json::Value Clinics::dispatch(const Json::Value& jData, DataBase* pDB)
 		jRet["error"]	= error;
 	}
 	
-	return jRet;
+	return 0;
 }
 
 /****************************************************************************************
@@ -87,8 +80,7 @@ Json::Value Clinics::dispatch(const Json::Value& jData, DataBase* pDB)
  * **************************************************************************************/ 
 Json::Value Clinics::GetSymptom(treatment_t treatment, DataBase* pDB) {
 	pthread_t pid;
-	printf("线程ID:%d, %s \n", pid, __PRETTY_FUNCTION__);
-
+	LOG_DEBUG("get symptom");
 
 	Json::Value jRet;
 
@@ -143,8 +135,7 @@ Json::Value Clinics::GetSymptom(treatment_t treatment, DataBase* pDB) {
 }
 
 Json::Value Clinics::GetCause(treatment_t treatment, DataBase* pDB) {
-	pthread_t pid;
-	printf("线程ID:%d, %s \n", pid, __PRETTY_FUNCTION__);
+	LOG_DEBUG("get cause");
 
 	Json::Value jRet;
 	/*1.将原因自定义描述进行词法拆分*/
@@ -177,8 +168,7 @@ Json::Value Clinics::GetCause(treatment_t treatment, DataBase* pDB) {
 }
 
 Json::Value Clinics::GetDiagnosis(treatment_t treatment, DataBase* pDB) {
-	pthread_t pid;
-	printf("线程ID:%d, %s \n", pid, __PRETTY_FUNCTION__);
+	LOG_DEBUG("get diagnosis");
 
 	Json::Value jRet;
 	/*使用词法拆分将自定义描述拆分*/
@@ -208,7 +198,7 @@ Json::Value Clinics::GetDiagnosis(treatment_t treatment, DataBase* pDB) {
 
 Json::Value Clinics::GetSolution(treatment_t treatment, DataBase* pDB) {
 	pthread_t pid;
-	printf("线程ID:%d, %s \n", pid, __PRETTY_FUNCTION__);
+	LOG_DEBUG("get solution");
 
 	Json::Value jRet;
 	/*1.对自定义方法进行词法拆分*/
@@ -268,9 +258,7 @@ vector<string> Clinics:: SplitDetail(const string detail) {
 
 
 vector<LONG> Clinics::GetSymptomID(const vector<string> details, DataBase* pDB) {
-	
-	printf("线程ID:%d, %s \m" ,pthread_self(), __PRETTY_FUNCTION__);
-
+	LOG_DEBUG("get symptom id");
 	vector<LONG> ids;
 	//sql 很久描述获取id
 	string sql = "slect diagnosis_element_id from diagnosis_element where \
@@ -283,7 +271,7 @@ vector<LONG> Clinics::GetSymptomID(const vector<string> details, DataBase* pDB) 
 
 	
 	if(pDB->Exec(sql.c_str()) < 0) {
-		printf("线程ID:%d,执行数据库查询失败: %s\n", pthread_self(), pDB->GetLastError());
+		LOG_ERROR("perform db query failed: %s", pDB->GetLastError());
 		return ids;
 	}
 
@@ -301,15 +289,15 @@ vector<LONG> Clinics::GetSymptomID(const vector<string> details, DataBase* pDB) 
  *直接按照记录出现的次数来排序似乎不科学,应该考虑到数据源的权重(病例/医学库)
  *还有就是症状描述度个例符合程度,比如三个原始描述刚好满足一个病例的所有描述,
  *应该匹配度最高;还有自己的病历有这样的描述应该特殊考虑,还有按用户的年龄/职业 
- *性别/地理位置/季节等进行综合分析;我们的优势是精准,而不是纯粹的搜索,比医生准;
+ *性别/地理位置/季节等进行综合分析;我们的优势是精准,而不是纯粹的搜索,比医生准;element_ids
  *
  ********************************************************************/
 vector<symptom_t> Clinics::GetSymptomContent(const vector<LONG> element_ids, DataBase* pDB) {
-	printf("线程ID:%d, %s \n", pthread_self(), __PRETTY_FUNCTION__);
+	LOG_DEBUG("get symptom content");
 
 	vector<symptom_t> symptoms;
 	if(NULL == pDB) {
-		printf("线程ID;%d, 空指针pDB;\n");
+		LOG_ERROR("空指针pDB;");
 		return symptoms;
 	}
 
@@ -320,7 +308,7 @@ vector<symptom_t> Clinics::GetSymptomContent(const vector<LONG> element_ids, Dat
 	
 	for(int i = 0; i < element_ids.size(); i++) {
 		char szID[32];
-		sprintf(szID, "%ld,", element_ids[i]);
+		sprintf(szID, "%lld,", element_ids[i]);
 
 		sql += szID;
 	}
@@ -331,7 +319,7 @@ vector<symptom_t> Clinics::GetSymptomContent(const vector<LONG> element_ids, Dat
 	sql	+= "group by diagnosis_element_id count(*) as feedback order by feedback;";
 
 	if(pDB->Exec(sql.c_str()) < 0) {
-		printf("线程ID:%d,数据库查询失败:%s \n", pthread_self(), pDB->GetLastError());
+		LOG_ERROR("数据库查询失败:%s \n" , pDB->GetLastError());
 		return symptoms;
 	}
 
@@ -362,21 +350,21 @@ vector<cause_t>	Clinics::GetCauseContent(treatment_t treatment, DataBase* pDB) {
 	char szID[32];
 
 	for( i = 0; i < treatment.symptom.elements.size(); i++) {
-		sprintf(szID, "%ld,", treatment.symptom.elements[i].diagnosis_element_id);
+		sprintf(szID, "%lld,", treatment.symptom.elements[i].diagnosis_element_id);
 		sql += szID;
 	}
 	sql = sql.substr(0, sql.size() - 1);
 
 	/*插入原因描述,这是一个数量级增加的算法,原因会越来越多*/
 	for(i = 0; i < treatment.cause.elements.size(); i++) {
-		sprintf(szID, "%ld.", treatment.cause.elements[i].diagnosis_element_id);
+		sprintf(szID, "%lld.", treatment.cause.elements[i].diagnosis_element_id);
 		sql += szID;
 	}
 	sql = sql.substr(0, sql.size() - 1);
 	sql += "))";
 
 	if(pDB->Exec(sql.c_str()) < 0) {
-		printf("线程ID;%d,执行数据库失败:%s \n", pthread_self(), pDB->GetLastError());
+		LOG_ERROR("执行数据库失败:%s \n" , pDB->GetLastError());
 		return causes;
 	}
 
@@ -406,14 +394,14 @@ vector<diagnosis_t> Clinics::GetDiagnosisContent(treatment_t treatment, DataBase
 	int i = 0;
 	char szID[32] ;
 	for(i = 0; i < treatment.symptom.elements.size(); i++) {
-		sprintf(szID, "%ld,", treatment.symptom.elements[i].diagnosis_element_id);
+		sprintf(szID, "%lld,", treatment.symptom.elements[i].diagnosis_element_id);
 		sql += szID;
 	}
 	sql = sql.substr(0, sql.size() - 1);
 
 	sql += ") ) and diagnosis_element_id in ("; 
 	for(i = 0; i < treatment.cause.elements.size(); i++){
-		sprintf(szID, "%ld,", treatment.cause.elements[i].diagnosis_element_id);
+		sprintf(szID, "%lld,", treatment.cause.elements[i].diagnosis_element_id);
 		sql += szID;
 	}
 	sql = sql.substr(0, sql.size() - 1);
@@ -421,7 +409,7 @@ vector<diagnosis_t> Clinics::GetDiagnosisContent(treatment_t treatment, DataBase
 	sql += ")";
 	
 	if(pDB->Exec(sql.c_str()) < 0) {
-		printf("线程ID:%d,执行数据库失败:%s \n", pthread_self(), pDB->GetLastError());
+		LOG_ERROR("perform db query failed:%s \n" , pDB->GetLastError());
 		return diagnosises;
 	}
 
@@ -438,7 +426,7 @@ vector<diagnosis_t> Clinics::GetDiagnosisContent(treatment_t treatment, DataBase
 				where diagnosis_id = ";
 
 		diagnosis = diagnosises[i];
-		sprintf(szID, "%ld" ,diagnosis.diagnosis_id);
+		sprintf(szID, "%lld" ,diagnosis.diagnosis_id);
 		sql += szID;
 		
 		sql += ") and diagnosis_element_id in (";

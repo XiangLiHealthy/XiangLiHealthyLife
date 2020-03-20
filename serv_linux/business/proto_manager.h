@@ -10,6 +10,9 @@ class ProtoManager {
 		
 	private:
 		std::map<const char*, const Proto*> m_mapProto;
+
+	private:
+		void regist(Proto* ptrProto);
 };
 
 extern ProtoManager g_protoManagerObj;

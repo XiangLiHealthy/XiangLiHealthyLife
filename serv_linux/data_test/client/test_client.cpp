@@ -27,8 +27,8 @@ int main(int argc, char* argv[])
 
 	string msg = "{\"proto\": \"Clinics\"}";
 
-	//while (getline(cin, msg))
-	while(true)
+	while (getline(cin, msg))
+	//while(true)
 	{
 		cout << "input:" << msg << endl;
 		
@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
 			cout << "msg send failed:" << msg << endl;
 		}
 
-		sleep(1);
+		//sleep(1);
 	}
 
 	clients.StopWork();

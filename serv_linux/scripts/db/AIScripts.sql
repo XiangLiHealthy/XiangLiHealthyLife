@@ -94,18 +94,29 @@ create table user
 ;
 
 ----爬虫数据缓存表
-create table diagnosis_element_tmp 
+create table medical_tmp 
 (
-     disease varchar(64) primary key,
-      src_url varchar(1024),
-      state int,
-       import_time datetime  
+    knowledge_id bigint auto_increment primary key,
+    disease varchar(64) ,
+    src_url varchar(1024),
+    station varchar(128),
+    state int default 0,
+    import_time datetime ,
 )charset=utf8,engine = InnoDB;
 
 create table diagnosis_element_tmp 
 ( 
-    disease varchar(64), 
+    element_id bigint auto_increment primary key, 
+    knowledge_id bigint,
     title varchar(128), 
-    content varchar(8024), 
-    backup varchar(128) 
+    content varchar(4096), 
+    cleaning_state int default 0
 ) charset = utf8, engine = InnoDB;
+
+create table station 
+( 
+    station varchar(128), 
+    url varchar(1024), 
+    state int default 0,
+    add_time datetime
+ )charset = utf8, engine = InnoDB;

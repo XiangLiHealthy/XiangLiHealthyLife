@@ -55,7 +55,7 @@ public class Net extends Thread {
 
 //            JSONObject jData = new JSONObject();
 //            jData.put("proto", "test");
-            String msg = "{\"proto\":\"hellow world\"}";
+            String msg = "{\"proto\":\"hellow world杨洋\"}";
             byte[] byMsg = msg.getBytes();
 
             while(true)

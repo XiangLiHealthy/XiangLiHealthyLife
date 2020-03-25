@@ -14,15 +14,6 @@ public class NetFacade {
 
     //每个app只允许一个网络连接
     public static synchronized NetFacade getInstance() throws Exception {
-        if(!net.m_bConnet) {
-            net.m_bConnet = net.m_net.connet();
-        }
-
-        //连接失败
-        if(!net.m_bConnet) {
-            throw new Exception("网络连接失败!");
-        }
-
         return net;
     }
 
@@ -30,8 +21,7 @@ public class NetFacade {
         //m_net.connet();
     }
 
-    public Treatment request(enum_item eItem, Treatment clinics, int nPageNum)
-    {
+    public Treatment request(enum_item eItem, Treatment clinics, int nPageNum) throws Exception {
         return m_clinics.request(eItem, clinics, nPageNum);
     }
 
@@ -58,8 +48,6 @@ public class NetFacade {
     static              NetFacade       net         = new NetFacade();
                         boolean         m_bConnet   = false;
     private             JsonCoder       coder       = new JsonCoder();
-    private             Net             m_net       = new Net();
-
-    private             NetClinics      m_clinics   = new NetClinics(coder, m_net);
+    private             NetClinics      m_clinics   = new NetClinics(coder);
 
 }

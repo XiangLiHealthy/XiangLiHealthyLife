@@ -41,23 +41,22 @@ ProtoManager::~ProtoManager()
  返回:协议对象的引用
  详细介绍:因为对于列表只是多线程读,所以不用加锁
 ***********************************************************************/
-const Proto* ProtoManager:: GetProto(const char* szName) {
+const Proto* ProtoManager:: GetProto(const string& strName)
+ {
 	LOG_DEBUG("get proto");
 
 	//判断参数是否合法
-	if(NULL == szName) {
-		LOG_ERROR("非法参数NULL ");
-		return NULL;
-	}
-
-	LOG_DEBUG("name = %s ", szName);
+	LOG_DEBUG("name = %s ", strName.c_str());
 	
 	//通过名字查找对象
-	std::map<const char* , const Proto*>::iterator iter = m_mapProto.find(szName);
+	std::map<string , const Proto*>::iterator iter = m_mapProto.find(strName);
 	if (iter != m_mapProto.end()) 
 	{
 		return iter->second;
 	}
+
+	//print all protocol name
+	PrintAllProtocols();
 
 	return NULL;
 }
@@ -72,10 +71,20 @@ void ProtoManager::regist(Proto* ptrProto)
 
 	if (m_mapProto.find(ptrProto->getName()) != m_mapProto.end())
 	{
-		LOG_INFO("proto:%s has be exist", ptrProto->getName());
+		LOG_INFO("proto:%s has be exist", ptrProto->getName().c_str());
 		delete ptrProto;
 		return;
 	}
 	
 	m_mapProto[ptrProto->getName()] = ptrProto;
+}
+
+
+void ProtoManager::PrintAllProtocols()
+{
+	int index = 0;
+	for (auto itr : m_mapProto)
+	{
+		LOG_INFO("(%d/%d) protoclol:%s",  m_mapProto.size(), index ++, itr.first.c_str());
+	}
 }

@@ -7,21 +7,27 @@
 #include<unistd.h>
 #include<map>
 
-ConfigManager g_config;
+using namespace XiangLi;
 
-std::map<LOG_LEVEL_E, const char*>	mapLevel;
-std::map<LOG_MODE_E, const char*>	mapMode;
+std::map<LOG_LEVEL, const char*>	mapLevel;
+std::map<LOG_MODE, const char*>	mapMode;
 
-ConfigManager::ConfigManager( ){
-	memset( &m_config, 0, sizeof( m_config));
-
-	mapLevel[ LOG_ERR]		= "LOG_ERR";
-	mapLevel[ LOG_WARNING]	= "LOG_WARNING";
-	mapLevel[ LOG_INFO]		= "LOG_INFO";
-	mapLevel[ LOG_DEBUG]	= "LOG_DEBUG";
+ConfigManager::ConfigManager( )
+{
+	mapLevel[ LOG_ERROR_E]		= "LOG_ERR";
+	mapLevel[ LOG_WARNING_E]	= "LOG_WARNING";
+	mapLevel[ LOG_INFO_E]		= "LOG_INFO";
+	mapLevel[ LOG_DEBUG_E]	= "LOG_DEBUG";
 
 	mapMode[ LOG_PRINT]		= "LOG_PRINT";
 	mapMode[ LOG_TEXT]		= "LOG_TEXT";
+
+
+	m_config.tdb.strHost = "127.0.0.1";
+	m_config.tdb.strDBName = "HealthyLife";
+	m_config.tdb.strUsr = "xiangbaosong";
+	m_config.tdb.strPassword = "Xl2016xl";
+	m_config.tdb.limit_count = 10;
 }
 
 ConfigManager::~ConfigManager( ) {
@@ -32,42 +38,42 @@ int ConfigManager::LoadConfig( ){
 	//1.获取程序全路劲，然后解析出文件目录
 	GetConfigPath( m_szPath, sizeof( m_szPath));
 	if( 0 == m_szPath[ 0]) {
-		g_logger.Add(LOG_ERR, " 配置文件路径加载失败！" );
+		LOG_ERROR(" 配置文件路径加载失败！" );
 		return -1;
 	}
 
 	//2.读取本目录下的config.ini文件
 	std::string strConfig;
 	if( GetConfigString( m_szPath, strConfig) < 0) {
-		g_logger.Add( LOG_ERR, " 读取配置文件流失败！");
+		LOG_ERROR(" 读取配置文件流失败！");
 		return -1;
 	}
 
 	Json::Value jConfig;
 	Json::Reader reader;
 
-	g_logger.Add( LOG_DEBUG, strConfig.c_str( ));
+	LOG_DEBUG( strConfig.c_str( ));
 
 	if( !reader.parse(strConfig, jConfig )) {
-		g_logger.Add( LOG_ERR, " 配置文件解析成json对象失败！");
+		LOG_ERROR(" 配置文件解析成json对象失败！");
 		return -1;
 	}
 
 	//3.解析对应的参数
 	if( jConfig[" port"].isNull( ))	{
-		g_logger.Add(LOG_ERR, " 配置文件没有port");
+		LOG_ERROR(" 配置文件没有port");
 		return -1;
 	}
 	m_config.nPort = jConfig[ " port"].asInt( );
 
 	if( jConfig[ " threadCount"].isNull( )) {
-		g_logger.Add( LOG_ERR, "配置文件没有threadCount");
+		LOG_ERROR("配置文件没有threadCount");
 		return -1;
 	}
 	m_config.nThreadCount = jConfig[ " threadCount"].asInt( );
 
 	if( jConfig[  "log"].isNull( )){
-		g_logger.Add( LOG_ERR, " 配置文件中缺少log");
+		LOG_ERROR(" 配置文件中缺少log");
 		return -1;
 	}
 	Json::Value jChild = jConfig[ "log"];
@@ -75,26 +81,25 @@ int ConfigManager::LoadConfig( ){
 	log_t tLog;
 	memset( &tLog, 0, sizeof( tLog));
 	if( jChild[ "level"].isNull( )) {
-		g_logger.Add( LOG_ERR, " 配置文件里没有level");
+		LOG_ERROR(" 配置文件里没有level");
 		return -1;
 	}
 	tLog.eLevel = GetLogLevel( jChild[ "level"].asString( ).c_str( ) );
 
 	if( jChild[ "mode"].isNull( )) {
-		g_logger.Add(LOG_ERR, "配置文件里没有mode");
+		LOG_ERROR("配置文件里没有mode");
 		return -1;
 	}
 	tLog.eMode = GetLogMode( jChild[ "mode"].asString( ).c_str( ));
 
 	if( jChild[ "dir"].isNull( )){
-		g_logger.Add( LOG_ERR, " 配置文件log节点缺少dir");
+		LOG_ERROR(" 配置文件log节点缺少dir");
 		return -1;
 	}
-	std::string strBuff = jChild[ "dir"].asString( );
-	memcpy( tLog.szDir, strBuff.c_str( ), strBuff.size( ));
+	tLog.strDir = jChild[ "dir"].asString( );
 	
 	if( jChild[ " saveDay"].isNull( )){
-		g_logger.Add( LOG_ERR, " 配置文件log节点却好啊savaDay");
+		LOG_ERROR(" 配置文件log节点却好啊savaDay");
 		return -1;
 	}
 	tLog.nSaveDay = jChild[ "saveDay"].asInt( );
@@ -103,7 +108,7 @@ int ConfigManager::LoadConfig( ){
 
 	//数据库节点
 	if( jConfig[ "db"].isNull( )){
-		g_logger.Add( LOG_ERR, " 配置文件缺少db");
+		LOG_ERROR(" 配置文件缺少db");
 		return -1;
 	}
 	jChild = jConfig[ "db"];
@@ -112,32 +117,28 @@ int ConfigManager::LoadConfig( ){
 	memset( &tDB, 0, sizeof( tDB));
 
 	if( jChild[ "host"].isNull( )){
-		g_logger.Add( LOG_ERR, " 配置文件db节点缺少host");
+		LOG_ERROR(" 配置文件db节点缺少host");
 		return -1;
 	}
-	strBuff = jChild[ "host"].asString( );
-	memcpy( tDB.szHost, strBuff.c_str( ), strBuff.size( ));
+	tDB.strHost = jChild[ "host"].asString( );
 	
 	if( jChild[ "db_name"].isNull( )) {
-		g_logger.Add( LOG_ERR, " 配置节点缺少db_name");
+		LOG_ERROR(" 配置节点缺少db_name");
 		return -1;
 	}
-	strBuff = jChild[ "db_name"].asString( );
-	memcpy( tDB.szDBName, strBuff.c_str( ), strBuff.size( ) );
+	tDB.strDBName = jChild[ "db_name"].asString( );
 
 	if( jChild[ "usr"].isNull( )){
-		g_logger.Add( LOG_ERR, " 配置文件缺少usr");
+		LOG_ERROR(" 配置文件缺少usr");
 		return -1;
 	}
-	strBuff = jChild[ "usr"].asString( );
-	memcpy( tDB.szUsr, strBuff.c_str( ), strBuff.size( ));
+	tDB.strUsr = jChild[ "usr"].asString( );
 
 	if( jChild[ "password"].isNull( )){
-		g_logger.Add( LOG_ERR, " 配置文件缺少password");
+		LOG_ERROR(" 配置文件缺少password");
 		return -1;
 	}
-	strBuff = jChild[ " password"].asString( );
-	memcpy( tDB.szPassword, strBuff.c_str( ), strBuff.size( ));
+	tDB.strPassword = jChild[ " password"].asString( );
 
 	m_config.tdb = tDB;
 
@@ -155,17 +156,17 @@ std::string ConfigManager::GetJsonString( ) {
 	log_t tLog				= m_config.tlog;
 	jLog[ "level"]			= GetLogLevelDesc( tLog.eLevel);
 	jLog[ "mode"]			= GetLogModeDesc( tLog.eMode);
-	jLog[ "dir"]			= tLog.szDir;
+	jLog[ "dir"]			= tLog.strDir;
 	jLog[ "saveDay"]		= tLog.nSaveDay;
 	
 	jRoot[ "log"]			= jLog;
 
 
 	db_t tDB				= m_config.tdb;
-	jDB[ "host"]			= tDB.szHost;
-	jDB[ "db_name"]			= tDB.szDBName;
-	jDB[ "usr"]				= tDB.szUsr;
-	jDB[ "password"]		= tDB.szPassword;
+	jDB[ "host"]			= tDB.strHost;
+	jDB[ "db_name"]			= tDB.strDBName;
+	jDB[ "usr"]				= tDB.strUsr;
+	jDB[ "password"]		= tDB.strPassword;
 
 	jRoot[ "db"]			= jDB;
 
@@ -180,19 +181,19 @@ int ConfigManager::SaveConfig( ){
 	if( NULL == pf) {
 		strErr = " 配置文件打开失败：";
 		strErr += strerror( errno);
-		g_logger.Add( LOG_ERR, strErr.c_str( ));
+		LOG_ERROR(strErr.c_str( ));
 		return -1;
 	}
 
 	//得到json格式字符串string
 	std::string strBuff = GetJsonString( );
-	g_logger.Add( LOG_DEBUG, strBuff.c_str( ));
+	LOG_DEBUG( strBuff.c_str( ));
 
 	//2.写入节点数据
 	if( strBuff.size( ) != fwrite( strBuff.c_str( ), sizeof( char), strBuff.size( ), pf) ){
 		strErr = " 配置文件写入失败";
 		strErr += strerror( errno);	
-		g_logger.Add( LOG_ERR, strErr.c_str( ));
+		LOG_ERROR(strErr.c_str( ));
 	}
 
 	fclose( pf);
@@ -200,9 +201,9 @@ int ConfigManager::SaveConfig( ){
 	return 0;
 }
 
-const config_t* ConfigManager::GetConfig( ){
+const config_t& ConfigManager::GetConfig( ){
 
-	return &m_config;
+	return m_config;
 }
 
 
@@ -213,7 +214,7 @@ int ConfigManager::GetConfigPath( char* szPath, int nLen) {
 
 	//获取文件模块目录
 	if( NULL == getcwd( szPath, nLen - 1)) {
-		g_logger.Add( LOG_ERR, " 获取当前工作目录失败！");
+		LOG_ERROR(" 获取当前工作目录失败！");
 		return -1;
 	}
 
@@ -223,21 +224,21 @@ int ConfigManager::GetConfigPath( char* szPath, int nLen) {
 	//int nPos = strPath.rfind( "/");
 	//if( nPos < 0) {
 	//	std::string strErr = " 非法路径：" + strPath;
-	//	g_logger.Add(LOG_ERR, strErr );
+	//	LOG_ERROR(strErr );
 	//	return -1;
 	//}
 
 	//将斜线后面的位置替换成config.json
 	sprintf(szPath + strlen( szPath), "/config.json"  );
 
-	g_logger.Add( LOG_DEBUG, szPath);
+	LOG_DEBUG( szPath);
 
 	return 0;
 }
 
 int ConfigManager::GetConfigString( const char* pstrPath, std::string& strConfig) {
 	if( NULL == pstrPath || 0 == pstrPath[ 0]) {
-		g_logger.Add( LOG_ERR, " 非法参数NULL！");
+		LOG_ERROR(" 非法参数NULL！");
 		return -1;
 	}
 
@@ -248,7 +249,7 @@ int ConfigManager::GetConfigString( const char* pstrPath, std::string& strConfig
 	if( NULL == pf) {
 		strErr = " 文件打开失败：" ;
 	    strErr += strerror(errno );
-		g_logger.Add( LOG_ERR, strErr.c_str( ));
+		LOG_ERROR(strErr.c_str( ));
 		return -1;
 	}
 
@@ -269,7 +270,7 @@ int ConfigManager::GetConfigString( const char* pstrPath, std::string& strConfig
 	return 0;
 }
 
-const char* ConfigManager::GetLogLevelDesc( LOG_LEVEL_E eLevel) {
+const char* ConfigManager::GetLogLevelDesc( LOG_LEVEL eLevel) {
 	if( mapLevel.count( eLevel) < 1){
 		return "UNKNOWN";
 	}
@@ -277,22 +278,23 @@ const char* ConfigManager::GetLogLevelDesc( LOG_LEVEL_E eLevel) {
 	return mapLevel[ eLevel];
 }
 
-LOG_LEVEL_E ConfigManager::GetLogLevel( const char* pstrLevel) {
+LOG_LEVEL ConfigManager::GetLogLevel( const char* pstrLevel) 
+{
 	if( NULL == pstrLevel || 0 == pstrLevel[ 0]) {
-		return LOG_LEVEL_UNKNOWN; 
+		return LOG_UNKOWN; 
 	}
 
-	std::map<LOG_LEVEL_E, const char*>::iterator itr = mapLevel.begin( );
+	std::map<LOG_LEVEL, const char*>::iterator itr = mapLevel.begin( );
 	for( ; itr != mapLevel.end( ); itr++) {
 		if( strcmp( pstrLevel, itr->second) == 0){
 			return itr->first;
 		}
 	}
 
-	return LOG_LEVEL_UNKNOWN;
+	return LOG_UNKOWN;
 }
 
-const char* ConfigManager::GetLogModeDesc( LOG_MODE_E eMode) {
+const char* ConfigManager::GetLogModeDesc( LOG_MODE eMode) {
 	if( mapMode.count( eMode) < 1) {
 		return "UNKNOWN";
 	}
@@ -300,12 +302,12 @@ const char* ConfigManager::GetLogModeDesc( LOG_MODE_E eMode) {
 	return mapMode[ eMode];
 }
 
-LOG_MODE_E ConfigManager::GetLogMode( const char* pstrMode) {
+LOG_MODE ConfigManager::GetLogMode( const char* pstrMode) {
 	if( NULL == pstrMode || 0 == pstrMode[ 0]) {
 		return LOG_MODE_UNKNOWN;
 	}
 
-	std::map<LOG_MODE_E, const char*> ::iterator itr = mapMode.begin( );
+	std::map<LOG_MODE, const char*> ::iterator itr = mapMode.begin( );
 	for( ; itr != mapMode.end( ); itr++) {
 		if( strcmp( itr->second , pstrMode) == 0) {
 			return itr->first;
@@ -316,3 +318,8 @@ LOG_MODE_E ConfigManager::GetLogMode( const char* pstrMode) {
 }
 
 
+ConfigManager& ConfigManager::GetInstance()
+{
+	static ConfigManager sinleton;
+	return sinleton;
+}

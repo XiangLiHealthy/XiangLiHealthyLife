@@ -76,15 +76,15 @@ namespace msg_seq_manager
         }
 
             /*取得协议名称*/
-            if (jData["proto"].isNull()) 
+            if (jData["protocol"].isNull()) 
             {
                 LOG_ERROR("thers is not key proto:%s", pbyData);
                 return -1;
             }
-            const string strName =  jData["proto"].asString();
+            const string strName =  jData["protocol"].asString();
             
             /*取得协议对象*/
-            Proto* ptrProto = (Proto*)g_protoManagerObj.GetProto(strName.c_str());
+            Proto* ptrProto = (Proto*)g_protoManagerObj.GetProto(strName);
             if (NULL == ptrProto) 
             {
                 LOG_ERROR("there is not : %s ",  strName.c_str());
@@ -92,10 +92,10 @@ namespace msg_seq_manager
             }
 
             /*协议对象执行业务逻辑,返回回复给客户端的json*/
-            LOG_DEBUG("perform protocol :%s!",  strName.c_str());
+            LOG_INFO("perform protocol :%s!",  strName.c_str());
 
             /*将json对象转化成字节流,发送给客户端*/
-            if (  ptrProto->dispatch(jData, ptrData->getHandle() ) < 0) 
+            if (  ptrProto->dispatch(jData["data"], ptrData->getHandle() ) < 0) 
             {
                 LOG_ERROR("perform business failed");
                 return -1;

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CauseContainer {
-    public String m_strDetail;
+    public String m_strDetail = new String("");
     public ArrayList<Cause> m_lstItem = new ArrayList<Cause>();
     //private SymptomContainer m_symptoms;
 

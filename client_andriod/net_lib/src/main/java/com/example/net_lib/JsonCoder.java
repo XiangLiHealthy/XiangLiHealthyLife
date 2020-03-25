@@ -5,6 +5,7 @@ import com.example.commondata.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.time.chrono.JapaneseDate;
 import java.util.ArrayList;
 
 import static com.example.commondata.enum_item.CAUSE;
@@ -15,6 +16,14 @@ import static com.example.commondata.enum_item.SYMPTOM;
 import static com.example.commondata.enum_item.UNKNOWN;
 
 class JsonCoder {
+    public JSONObject setProtocol(JSONObject jData, String protocol) throws Exception{
+        JSONObject tmp = new JSONObject();
+        tmp.put("protocol", protocol);
+        tmp.put("data", jData);
+
+        return tmp;
+    }
+
     /**
      * 自诊
      */
@@ -46,7 +55,8 @@ class JsonCoder {
             }
 
             //添加诊断结论对象
-            if(null != clinics.m_diagnosis) {
+            if(null != clinics.m_diagnosis)
+            {
                 jData = encodeDianosis(clinics.m_diagnosis);
                 json.put("Diagnosis", jData);
             }
@@ -236,7 +246,7 @@ class JsonCoder {
             Symptom symptom = symptomContainer.getData().get(i);
 
             JSONObject jRow = new JSONObject();
-            jRow.put("dignosis_element_id", symptom.nID);
+            jRow.put("diagnosis_element_id", symptom.nID);
 
             ja.put(i, jRow);
         }
@@ -257,7 +267,7 @@ class JsonCoder {
              Cause symptom = cause.getData().get(i);
 
              JSONObject jRow = new JSONObject();
-             jRow.put("dignosis_element_id", symptom.nID);
+             jRow.put("diagnosis_element_id", symptom.nID);
 
              ja.put(i, jRow);
          }
@@ -277,7 +287,7 @@ class JsonCoder {
             Diagnosis symptom = diagnosisContainer.getData().get(i);
 
             JSONObject jRow = new JSONObject();
-            jRow.put("dignosis_element_id", symptom.nID);
+            jRow.put("diagnosis_element_id", symptom.nID);
 
             ja.put(i, jRow);
         }
@@ -297,7 +307,7 @@ class JsonCoder {
              Solution symptom = solutionContainer.getData().get(i);
 
              JSONObject jRow = new JSONObject();
-             jRow.put("dignosis_element_id", symptom.nID);
+             jRow.put("diagnosis_element_id", symptom.nID);
 
              ja.put(i, jRow);
          }

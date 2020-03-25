@@ -1,4 +1,7 @@
 #include<map>
+#include <string>
+using std::string;
+
 class Proto;
 
 class ProtoManager {
@@ -6,13 +9,14 @@ class ProtoManager {
 		ProtoManager();
 		~ProtoManager();
 
-		const Proto* GetProto(const char* szName);
+		const Proto* GetProto(const string& strName);
 		
 	private:
-		std::map<const char*, const Proto*> m_mapProto;
+		std::map<string, const Proto*> m_mapProto;
 
 	private:
 		void regist(Proto* ptrProto);
+		void PrintAllProtocols();
 };
 
 extern ProtoManager g_protoManagerObj;

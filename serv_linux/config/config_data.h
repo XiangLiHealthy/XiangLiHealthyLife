@@ -1,4 +1,6 @@
 #pragma once
+#include <string>
+using std::string;
 
 namespace XiangLi
 {
@@ -9,6 +11,7 @@ namespace XiangLi
 		LOG_WARNING_E = 3,
 		LOG_ERROR_E 			= 4,
 		LOG_FATAL_E = 5,
+		LOG_UNKOWN
 	};
 
 	enum LOG_MODE
@@ -18,18 +21,20 @@ namespace XiangLi
 		LOG_MODE_UNKNOWN
 	};
 
-	struct db_t {
-		char		szHost[ 32];
-		char		szDBName[ 64];
-		char		szUsr[ 64];
-		char		szPassword[ 64];
+	struct db_t 
+	{
+		string		strHost;
+		string		strDBName;
+		string		strUsr;
+		string		strPassword;
+		int            limit_count;
 	};
 	
 	struct log_t 
 	{
 		LOG_LEVEL eLevel;
 		LOG_MODE	eMode;
-		char		szDir[ 260];
+		string		strDir;
 		int			nSaveDay;
 	};
 	

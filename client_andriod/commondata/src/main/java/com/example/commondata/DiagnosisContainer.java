@@ -3,7 +3,7 @@ package com.example.commondata;
 import java.util.ArrayList;
 
 public class DiagnosisContainer {
-    String m_strDetail;
+    String m_strDetail = new String("");
     ArrayList<Diagnosis> m_lstItem = new ArrayList<Diagnosis>();
     CauseContainer m_causes;
 

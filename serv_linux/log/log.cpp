@@ -31,10 +31,8 @@ Log::Log( )
 {
 	pthread_mutex_init( &lock,NULL);
 
-	char szWorkDir[256] = {0};
-	getwd( szWorkDir);
-	m_strDir = szWorkDir;
-
+	char szDir[256];
+	m_strDir = getwd( szDir);
 	m_eLevel = XiangLi::LOG_DEBUG_E;
 }
 
@@ -53,7 +51,7 @@ void Log::SetConfig( const config_t* ptrConfig) {
 	pthread_mutex_lock( &lock);
 	m_eMode	  = ptrConfig->tlog.eMode;
 	m_eLevel	= ptrConfig->tlog.eLevel;
-	m_strDir	  = ptrConfig->tlog.szDir;
+	m_strDir	  = ptrConfig->tlog.strDir;
 
 	pthread_mutex_unlock( &lock);
 }

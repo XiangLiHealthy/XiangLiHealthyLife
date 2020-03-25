@@ -203,7 +203,7 @@ public class Clinics extends AppCompatActivity {
                 //完成诊断
                 case R.id.button_cilinics_finish:
                 {
-                    m_eItem = enum_item.SYMPTOM;
+                    m_eItem = enum_item.FINISH;
                     strInput = "";
                 }
 

@@ -37,9 +37,10 @@ class FrameData
 
     public short getCheckSum()
     {
-        short nCheckSum = 0;
-        nCheckSum = (short) (m_frame_data[2] * 256 + m_frame_data[3] );
-        return  nCheckSum;
+        int nCheckSum = m_frame_data[2] * 256;
+        nCheckSum += m_frame_data[3] & 0xff;
+
+        return  (short) nCheckSum;
     }
 
     public  void setCheckSum(short sum)
@@ -50,7 +51,10 @@ class FrameData
 
     public  short getSeqLen()
     {
-        return (short) (m_frame_data[4] * 256 + m_frame_data[5]);
+        int len = m_frame_data[4] * 256;
+        len += m_frame_data[5] & 0xff;
+
+        return (short) len;
     }
 
     public void setSeqLen(short len)
@@ -181,6 +185,7 @@ enum FIND_STATE
 public class NetFrame {
     NetFrame()
     {
+
         initNet();
     }
 
@@ -188,7 +193,9 @@ public class NetFrame {
     {
         try
         {
-            m_client = new Socket("127.0.0.1",8888);
+            m_client = new Socket("10.0.2.2",8888);
+            //m_client = new Socket("127.0.0.1",8888);
+            m_client.setSoTimeout(5*1000);
             m_sender = new DataOutputStream(m_client.getOutputStream());
             m_receiver = new DataInputStream(m_client.getInputStream());
         }catch (Exception e)

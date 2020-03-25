@@ -23,7 +23,7 @@ class Proto
 		 *
 		 *返回: 协议名称
 		 * ***********************************************************/ 
-		virtual const char* 	getName() = 0;
+		const string& 	getName() {return m_name;}
 
 		/**************************************************************
 		 *功能: 执行具体的业务;
@@ -34,7 +34,7 @@ class Proto
 		 * ***********************************************************/ 
 		virtual int 	dispatch(const Json::Value& jData, Handle fd) = 0;
 	protected:
-		char 					m_szName[128];
+		string 					m_name;
 };
 
 #endif

@@ -7,6 +7,11 @@ class accont_manage {
         return  0;
     }
 
+    public boolean isLogin()
+    {
+        return m_login_state;
+    }
+
     int get_verifacationCode() {
         return 0;
     }
@@ -39,4 +44,5 @@ class accont_manage {
 
     data_person m_stperson;
     data_accout m_staccount;
+    boolean m_login_state = false;
 }

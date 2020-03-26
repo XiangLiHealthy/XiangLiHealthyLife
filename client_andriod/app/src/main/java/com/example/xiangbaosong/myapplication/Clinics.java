@@ -205,9 +205,22 @@ public class Clinics extends AppCompatActivity {
                 {
                     m_eItem = enum_item.FINISH;
                     strInput = "";
+
+
                 }
 
                 //更新界面显示
+            }
+
+            if (enum_item .FINISH== m_eItem && !model.isLogin())
+            {
+                Intent intent = new Intent(this, activity_login.class);
+                startActivity(intent);
+
+                if (!model.isLogin())
+                {
+                    return;
+                }
             }
 
             model.RequestDiagnosis(m_eItem);

@@ -2,6 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.xiangbaosong.myapplication">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.hardware.camera.autofocus" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -40,15 +47,10 @@
         <activity android:name=".PsychologyDairyWrite" />
         <activity android:name=".EnvironmentSelfEvaluation" />
         <activity android:name=".FamilyArchives" />
-        <activity android:name=".StudyWorks"></activity>
-        <activity android:name=".PhotoGet"></activity>
+        <activity android:name=".StudyWorks" />
+        <activity android:name=".PhotoGet" />
+        <activity android:name=".activity_login" />
+        <activity android:name=".activity_register"></activity>
     </application>
 
-
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.hardware.camera.autofocus" />
 </manifest>

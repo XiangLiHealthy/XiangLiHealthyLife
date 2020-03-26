@@ -34,6 +34,12 @@ public class model_facade {
     /********************************************************************
      账户管理接口
      **************************************************************/
+    //get login state
+    public boolean isLogin()
+    {
+        return  m_accont.isLogin();
+    }
+
     //登录
     public int login(String strID, String strPasswd, String strResult) {
         return 0;

@@ -80,7 +80,7 @@
         app:layout_constraintTop_toTopOf="@+id/guideline206">
 
         <android.support.design.widget.TextInputEditText
-            android:id="@+id/password"
+            android:id="@+id/rgst_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="请输入密码" />
@@ -118,6 +118,7 @@
         android:layout_marginRight="16dp"
         android:layout_marginBottom="8dp"
         android:background="@android:color/holo_orange_dark"
+        android:onClick="btn_click"
         android:text="注册"
         app:layout_constraintBottom_toTopOf="@+id/guideline209"
         app:layout_constraintEnd_toEndOf="parent"
@@ -139,15 +140,14 @@
         app:layout_constraintTop_toTopOf="@+id/guideline209" />
 
     <TextView
-        android:id="@+id/textView6"
+        android:id="@+id/register_info_tv"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginEnd="256dp"
-        android:layout_marginRight="256dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
         android:layout_marginBottom="8dp"
-        android:text="注册"
         app:layout_constraintBottom_toTopOf="@+id/guideline204"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

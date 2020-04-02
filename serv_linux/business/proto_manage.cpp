@@ -3,6 +3,7 @@
 #include "../log/log.h"
 #include "clinics.h"
 #include "test.h"
+#include "account_manager.h"
 
 ProtoManager g_protoManagerObj;
 
@@ -20,6 +21,7 @@ ProtoManager::ProtoManager()
 	//每个协议都是一个单列.并实例化一个静态对象,这样协议名可以每个对象单独维护
 	regist(new Clinics());
 	regist(new Test());
+	regist(new AccountManager());
 }
 
 ProtoManager::~ProtoManager() 

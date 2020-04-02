@@ -1,6 +1,7 @@
 #include"DataBase.h"
 #include<string.h>
 #include <iostream>
+#include "../log/log.h"
 
 using namespace std;
 
@@ -34,6 +35,23 @@ bool DataBase::Connect(const string& host, const string& db, const string& user,
 		return false;
 	}
 
+	LOG_INFO("database charset:%s", mysql_character_set_name(connection));
+
+	if (mysql_query(connection, "set character_set_database=utf8;") != 0)
+	{
+		LOG_ERROR("set database charset utf-8 failed");
+	}
+
+	// if (mysql_query(connection, "set character_set_server=utf8;") != 0)
+	// {
+	// 	LOG_ERROR("set database charset-set server utf-8 failed");
+	// }
+
+	if (mysql_query(connection, "set names utf8;") != 0)
+	{
+		LOG_ERROR("set names utf8 failed");
+	}
+
 	return true;
 }
 
@@ -46,17 +64,25 @@ void DataBase::Disconnect() {
 
 LONG DataBase::Exec(const string& sql) 
 {
-	//执行查询
-	if(!mysql_query(connection, sql.c_str())) 
+	LOG_DEBUG("perform sql:%s", sql.c_str());
+
+	if (result)
 	{
-		m_lastError = mysql_error(connection);
+		mysql_free_result(result);
+		result = NULL;
+	}
+
+	//执行查询
+	
+	if ( mysql_query(connection, sql.c_str()) != 0)
+	{
+		LOG_ERROR("perform sql error:%s", mysql_error(connection));
 		return -1;
 	}
 
-
 	//获取记录数,执行写操作应该没有结果集,不知道那是什么情况
 	LONG count = 0;
-	result = mysql_use_result(connection);
+	result = mysql_store_result(connection);
 	if(NULL != result) 
 	{
 		count = result->row_count;
@@ -72,7 +98,18 @@ const string& DataBase::GetLastError()
 
 bool DataBase::HasNext() {
 	//下一行 string&* row
-	row =  mysql_fetch_row(result);
+	row = NULL;
+	if (result)
+	{
+		row =  mysql_fetch_row(result);
+	}
+	
+	if (nullptr == row )
+	{
+		mysql_free_result(result);
+		result = nullptr;
+	}
+
 	return (NULL == row) ? false : true;
 }
 
@@ -116,12 +153,6 @@ bool DataBase::GetFieldValue(const string& name, short& value)
 }
 
 bool DataBase::GetFieldValue(const string& name, string& value) {
-
-	if(value.empty()) {
-		m_lastError = "非法参数NULL";
-		return false;
-	}
-
 	value = GetField(name);
 	if(value.empty()) {
 		return false;

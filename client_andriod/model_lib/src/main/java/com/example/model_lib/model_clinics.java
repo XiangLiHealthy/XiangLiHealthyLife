@@ -66,11 +66,12 @@ public class model_clinics  extends Notify {
      * 获取症状描述
      * @return 返回描述列表
      */
-    public SymptomContainer RequestDiagnosis(final enum_item eItem) {
+    public SymptomContainer RequestDiagnosis(final enum_item eItem, String user_id) {
         //从网络中获取一批数据
         try
         {
             m_treatment.m_eItem = eItem;
+            m_treatment.m_user_id = user_id;
 
             TaskQueue.taskQueue.put(new GetDiagnosisElement(this, m_treatment) {
                 @Override

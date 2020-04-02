@@ -62,7 +62,9 @@ public class Net extends Thread {
     public void sendJson(JSONObject jData) throws Exception
     {
         NetSequence seq_manager = NetSequence.getInstance();
-        seq_manager.sendDataOnce(jData.toString().getBytes(), DATA_TYPE.DATA_JONS);
+        String test = new String(jData.toString().getBytes("UTF-8"));
+
+        seq_manager.sendDataOnce(jData.toString().getBytes("UTF-8"), DATA_TYPE.DATA_JONS);
     }
     public void sendPicture(String file_name)
     {

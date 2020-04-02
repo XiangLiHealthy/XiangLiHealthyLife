@@ -20,7 +20,9 @@ create table diagnosis
     diagnosis_detail varchar(1024),
     solution_detail varchar(1024),
     feedback int,
-    data_source varchar(64)
+    data_source varchar(64),
+    create_time datetime,
+    status int
 )engine = InnoDB, charset = utf8;
 
 create table diagnosis_element_map

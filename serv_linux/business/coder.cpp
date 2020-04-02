@@ -3,28 +3,28 @@
 #include<stdlib.h>
 #include "../log/log.h"
 
-int Coder::DecodeTreatment(const Json::Value& jSrc, treatment_t& dst) {
-	//1.解析protocol
-	// if(jSrc["protocol"].isNull()) 
+int Coder::DecodeTreatment(const Json::Value& data, treatment_t& dst) {
+	//1.解析method
+	// if(jSrc["method"].isNull()) 
 	// {
-	// 	LOG_ERROR("clinic,没有protocol键值");
+	// 	LOG_ERROR("clinic,没有method键值");
 	// 	return -1;
 	// }
-	// dst.protocol = jSrc["protocol"].asString();
+	// dst.method = jSrc["method"].asString();
 
 	//2.获得data
-	if(jSrc["data"].isNull()) {
-		LOG_ERROR("clinic, 没有data键值");
-		return -1;
-	}
-	Json::Value data = jSrc["data"];
+	// if(jSrc["data"].isNull()) {
+	// 	LOG_ERROR("clinic, 没有data键值");
+	// 	return -1;
+	// }
+	// Json::Value data = jSrc["data"];
 
 	if (data["method"].isNull())
 	{
 		LOG_ERROR("there is not method");
 		return -1;
 	}
-	dst.protocol = data["method"].toStyledString();
+	dst.method = data["method"].asString();
 	
 	//3.获取symptom_container
 	if(data["Symptom"].isNull()) 
@@ -93,7 +93,7 @@ int Coder::DecodeTreatment(const Json::Value& jSrc, treatment_t& dst) {
 
 int Coder::EncodeTreatment(const treatment_t& src, Json::Value& jDst) {
 	//1.编码ptotocol
-	jDst["ptotocol"] 	= src.protocol;
+	jDst["ptotocol"] 	= src.method;
 
 	//2.生成symptom_container json 
 	jDst["Symptom"]		= Encode(src.symptom);
@@ -367,7 +367,7 @@ int Coder::DecodeAccountLogin(const Json::Value& jData, account_t& account)
 		return -1;
 	}
 
-	account.account = jData["account"].toStyledString();
+	account.account = jData["account"].asString();
 
 	//get password
 	if (jData["password"].isNull() < 0)
@@ -376,7 +376,7 @@ int Coder::DecodeAccountLogin(const Json::Value& jData, account_t& account)
 		return -1;
 	}
 
-	account.password = jData["password"].toStyledString();
+	account.password = jData["password"].asString();
 
 	//get wat
 	if (jData["way"].isNull())
@@ -385,7 +385,7 @@ int Coder::DecodeAccountLogin(const Json::Value& jData, account_t& account)
 		return -1;
 	}
 
-	account.way = jData["way"].toStyledString();
+	account.way = jData["way"].asString();
 
 	return 0;
 }
@@ -394,22 +394,22 @@ int Coder::DecodeAccountRegister(const Json::Value& jData, db_user_t& user_info)
 {
 	if (!jData["tel"].isNull())
 	{
-		user_info.tel = jData["tel"].toStyledString();
+		user_info.tel = jData["tel"].asString();
 	}
 
 	if (!jData["password"].isNull())
 	{
-		user_info.password = jData["password"].toStyledString();
+		user_info.password = jData["password"].asString();
 	}
 
 	if (!jData["name"].isNull())
 	{
-		user_info.name = jData["name"].toStyledString();
+		user_info.name = jData["name"].asString();
 	}
 
 	if (!jData["sex"].isNull())
 	{
-		user_info.sex = jData["sex"].toStyledString();
+		user_info.sex = jData["sex"].asString();
 	}
 
 	if (!jData["tall"].isNull())
@@ -424,32 +424,32 @@ int Coder::DecodeAccountRegister(const Json::Value& jData, db_user_t& user_info)
 
 	if (!jData["birthday"].isNull())
 	{
-		user_info.birthday = jData["birthday"].toStyledString();
+		user_info.birthday = jData["birthday"].asString();
 	}
 
 	if (!jData["native_place"].isNull())
 	{
-		user_info.native_place = jData["native_place"].toStyledString();
+		user_info.native_place = jData["native_place"].asString();
 	}
 
 	if (!jData["family"].isNull())
 	{
-		user_info.family = jData["family"].toStyledString();
+		user_info.family = jData["family"].asString();
 	}
 
 	if (!jData["marital_status"].isNull())
 	{
-		user_info.marital_status = jData["marital_stattus"].toStyledString();
+		user_info.marital_status = jData["marital_stattus"].asString();
 	}
 
 	if (!jData["blood_type"].isNull())
 	{
-		user_info.blood_type = jData["blood_type"].toStyledString();
+		user_info.blood_type = jData["blood_type"].asString();
 	}
 
 	if (!jData["occupation"].isNull())
 	{
-		user_info.occupation = jData["occupation"].toStyledString();
+		user_info.occupation = jData["occupation"].asString();
 	}
 
 	return 0;

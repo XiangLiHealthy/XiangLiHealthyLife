@@ -9,7 +9,6 @@ class Clinics : public Proto
 							Clinics();
 							~Clinics();
 
-	virtual const char* 	getName();
 	virtual int 	dispatch(const Json::Value& jData, Handle fd);
 private:
 	Json::Value				GetSymptom(treatment_t symptom );

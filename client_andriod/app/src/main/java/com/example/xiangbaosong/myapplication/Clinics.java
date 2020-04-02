@@ -1,5 +1,6 @@
 package com.example.xiangbaosong.myapplication;
 
+import android.accounts.AccountManager;
 import android.content.Intent;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
@@ -114,7 +115,19 @@ public class Clinics extends AppCompatActivity {
     }
 
 
-    public void button_click(View v){
+    public void button_click(View v)
+    {
+        //必须先登录
+        if (enum_item .FINISH== m_eItem && !model.getAccountManager().isLogin())
+        {
+            Intent intent = new Intent(this, activity_login.class);
+            startActivity(intent);
+
+            if (!model.getAccountManager().isLogin())
+            {
+                return;
+            }
+        }
 
         //1.获取到按钮id
         int nID = v.getId();
@@ -212,18 +225,20 @@ public class Clinics extends AppCompatActivity {
                 //更新界面显示
             }
 
-            if (enum_item .FINISH== m_eItem && !model.isLogin())
+            //必须先登录
+            if (enum_item .FINISH== m_eItem && !model.getAccountManager().isLogin())
             {
                 Intent intent = new Intent(this, activity_login.class);
                 startActivity(intent);
 
-                if (!model.isLogin())
+                if (!model.getAccountManager().isLogin())
                 {
                     return;
                 }
             }
 
-            model.RequestDiagnosis(m_eItem);
+            String user_id = model.getAccountManager().getAccountInfo().user_id;
+            model.RequestDiagnosis(m_eItem, user_id);
 
             //将分解后的描述动态生成复选框
             //adapter.clear();
@@ -248,7 +263,7 @@ public class Clinics extends AppCompatActivity {
         EditText editText1 =(EditText)findViewById(R.id.clinics_input);
         editText1.setText("肚子不舒服;每天晚上凌晨会痛;不是很痛;侧身睡就会感觉舒服点;已经几年了!");
 
-       mButtonGetValue = (Button) findViewById(R.id.button_symptom);
+        mButtonGetValue = (Button) findViewById(R.id.button_symptom);
         mListView = (ListView) findViewById(R.id.clinics_treatment_lst);
     }
 

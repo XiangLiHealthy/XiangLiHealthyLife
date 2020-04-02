@@ -154,7 +154,7 @@ struct solution_container_t {
 struct treatment_t 
 {
 	long long 								user_id;
-	std::string								protocol;
+	std::string								method;
 	symptom_container_t    symptom;
 	cause_container_t 			cause;
 	diagnosis_container_t	diagnosis;
@@ -168,7 +168,7 @@ struct treatment_t
 	public:
 	void Clear() 
 	{
-		protocol = "";
+		method = "";
 		symptom.Clear();
 		cause.Clear();
 		diagnosis.Clear();

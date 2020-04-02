@@ -41,6 +41,7 @@ int Clinics::dispatch(const Json::Value& jData, Handle fd)
 
 	//解析出treatment_t
 	treatment_t treatment;
+	treatment.Clear();
 	if(Coder::DecodeTreatment(jData, treatment) < 0) 
 	{
 		LOG_ERROR("data parser failed");
@@ -48,7 +49,7 @@ int Clinics::dispatch(const Json::Value& jData, Handle fd)
 	}
 
 	//使用合适的方法更细致的业务
-	const char* method = treatment.protocol.c_str();
+	const char* method = treatment.method.c_str();
 	if(0 == strcmp("GetSymptom", method) ) 
 	{
 		jRet = GetSymptom(treatment);
@@ -71,12 +72,13 @@ int Clinics::dispatch(const Json::Value& jData, Handle fd)
 	}
 	else{
 		jRet["result"] = FAILED;
-		string error 	= "不支持的协议:" +treatment.protocol;
+		string error 	= "不支持的协议:" +treatment.method;
 		jRet["desc"]	= error;
 	}
 	
-	jRet["method"] = treatment.protocol;
-	if (SendData(jRet) < 0)
+	jRet["method"] = treatment.method;
+
+	if (SendData( jRet, fd) < 0)
 	{
 		LOG_ERROR("send data failed");
 		return -1;
@@ -139,7 +141,7 @@ Json::Value Clinics::GetSymptom(treatment_t treatment ) {
 
 	Json::Value jSymptom;
 	treatment.Clear();
-	treatment.protocol = "GetSymptom";
+	treatment.method = "GetSymptom";
 	Coder::EncodeTreatment(treatment, jSymptom);
 
 	jRet["ret"]  	= 0;
@@ -163,7 +165,7 @@ Json::Value Clinics::GetCause(treatment_t treatment ) {
 	/*考虑把自定义拆分的id标记出来,这个算是原创描述,值得特殊考虑*/
 	/*从数据库获取记录症状描述和统计结果*/
 	treatment.Clear();
-	treatment.protocol 		= "GetCause";
+	treatment.method 		= "GetCause";
 	treatment.cause.elements 	= causes;
 	
 	
@@ -198,12 +200,13 @@ Json::Value Clinics::GetDiagnosis(treatment_t treatment ) {
 	Json::Value jDiagnosis;
 
 	treatment.Clear();
-	treatment.protocol = "GetDiagnosis";
+	treatment.method = "GetDiagnosis";
 	Coder::EncodeTreatment(treatment, jDiagnosis);
 
 	jRet["data"] 	= jDiagnosis;
-	jRet["code"]	= 0;
-	
+	jRet["desc"]   = "";
+	jRet["result"] = FAILED;
+
 	return jRet;
 }
 
@@ -224,7 +227,7 @@ Json::Value Clinics::GetSolution(treatment_t treatment ) {
 	Json::Value jSolution;
 
 	treatment.Clear();
-	treatment.protocol = "GetSolution";
+	treatment.method = "GetSolution";
 	Coder::EncodeTreatment(treatment, jSolution);
 
 	jRet["data"]	= jSolution;
@@ -371,7 +374,7 @@ vector<cause_t>	Clinics::GetCauseContent(treatment_t treatment ) {
 
 	shared_ptr<DataBase> ptrDB = DBConnectorContainer::GetInstance().GetDB();
 	if( ptrDB->Exec(sql.c_str()) < 0) {
-		LOG_ERROR("执行数据库失败:%s \n" ,  ptrDB->GetLastError());
+		LOG_ERROR("执行数据库失败") ;
 		return causes;
 	}
 
@@ -490,29 +493,35 @@ Json::Value Clinics::Finish(treatment_t treatment ) {
 			break;
 		}
 
-		sql.clear();
-		sql << "insert into diagnosis (user_id, sysptom_detail, \
+		sql.str("");
+		sql << "insert into diagnosis (user_id, symptom_detail, \
 		cause_detail, diagnosis_detail, solution_detail, feedback, data_source,\
 		create_time, status) \
 		values ( "
 		<< treatment.user_id << ", "
-		<< " ' " << treatment.symptom.detail << " ', "
-		<< " ' " << treatment.cause.detail << " ', "
-		<< " ' " << treatment.diagnosis.detail << "', "
-		<< " ' " << treatment.solution.detail << "', "
+		<< " '" << treatment.symptom.detail << "', "
+		<< " '" << treatment.cause.detail << "', "
+		<< " '" << treatment.diagnosis.detail << "', "
+		<< " '" << treatment.solution.detail << "', "
 		<< treatment.feedback << ", "
 		<< " ' " << treatment.data_source << "', "
 		<< "NOW(), "
 		<< treatment.status
 		<< ");";
-
-		sql << "select max(diagnosis_id) from diagnosis;";
-
 		if (ptrDB->Exec(sql.str()) < 0)
 		{
 			desc << ("perfrom sql failed");
 			break;
 		}
+
+		sql.str("");
+		sql << "select max(diagnosis_id) as diagnosis_id from diagnosis ;";
+		if (ptrDB->Exec(sql.str()) < 0)
+		{
+			desc << ("perfrom sql failed");
+			break;
+		}
+		
 
 		if (!ptrDB->HasNext())
 		{
@@ -524,7 +533,7 @@ Json::Value Clinics::Finish(treatment_t treatment ) {
 		ptrDB->GetFieldValue("diagnosis_id", diagnosis_id);
 
 		//insert sysptom
-		sql.clear();
+		sql.str("");
 		for (auto itr : treatment.symptom.elements)
 		{
 			sql << "insert into diagnosis_element_map (diagnosis_id, diagnosis_element_id)\
@@ -532,6 +541,14 @@ Json::Value Clinics::Finish(treatment_t treatment ) {
 			<< diagnosis_id << ", "
 			<< itr.diagnosis_element_id  << ""
 			<< ");";
+
+			if (ptrDB->Exec(sql.str()) < 0)
+			{
+				desc << "commit sql failed";
+				LOG_ERROR(desc.str().c_str());
+				result = FAILED;
+			}
+			sql.str("");
 		}
 
 		//insert cause
@@ -542,6 +559,14 @@ Json::Value Clinics::Finish(treatment_t treatment ) {
 			<< diagnosis_id << ", "
 			<< itr.diagnosis_element_id  << ""
 			<< ");";
+
+			if (ptrDB->Exec(sql.str()) < 0)
+			{
+				desc << "commit sql failed";
+				LOG_ERROR(desc.str().c_str());
+				result = FAILED;
+			}
+			sql.str("");
 		}
 
 		//insert  diagnosis
@@ -552,6 +577,14 @@ Json::Value Clinics::Finish(treatment_t treatment ) {
 			<< diagnosis_id << ", "
 			<< itr.diagnosis_element_id  << ""
 			<< ");";
+
+			if (ptrDB->Exec(sql.str()) < 0)
+			{
+				desc << "commit sql failed";
+				LOG_ERROR(desc.str().c_str());
+				result = FAILED;
+			}
+			sql.str("");
 		}
 
 		//insert solution
@@ -562,20 +595,22 @@ Json::Value Clinics::Finish(treatment_t treatment ) {
 			<< diagnosis_id << ", "
 			<< itr.diagnosis_element_id  << ""
 			<< ");";
-		}
 
-		if (ptrDB->Exec(sql.str()) < 0)
-		{
-			desc << "insert diagnosis_element map failed";
-			break;
+			if (ptrDB->Exec(sql.str()) < 0)
+			{
+				desc << "commit sql failed";
+				LOG_ERROR(desc.str().c_str());
+				result = FAILED;
+			}
+			sql.str("");
 		}
 
 		result = SUCCESS;
 	} while (0);
 	
 	//insert into diagnosis_element_map
-	sql.clear();
-	result.compare(SUCCESS) ? sql<< "COMMIT;" : sql << "ROLLBACK;";
+	sql.str("");
+	result.compare(SUCCESS) == 0 ? sql<< "COMMIT;" : sql << "ROLLBACK;";
 	if (ptrDB && ptrDB->Exec(sql.str()) < 0)
 	{
 		desc << "commit sql failed";
@@ -592,7 +627,7 @@ Json::Value Clinics::Finish(treatment_t treatment ) {
 int Clinics::SendData(const Json::Value& jData, Handle fd)
 {
 	Json::Value jSend;
-	jSend["protocol"] = m_name;
+	jSend["method"] = m_name;
 	jSend["data"] = jData;
 
 	if (JsonSeqStrategy::SendSeq( fd, jSend) < 0)

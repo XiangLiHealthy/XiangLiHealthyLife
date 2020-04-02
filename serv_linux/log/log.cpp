@@ -73,7 +73,7 @@ void Log::WriteLog(LOG_LEVEL eLevel, const char *szFile,
 	//merge log content
 	va_list valst;
 	va_start(valst, format);
-	char szBody[1024] = {0};
+	char szBody[2048] = {0};
 	int nCount = vsnprintf(szBody, sizeof(szBody) -1,  format, valst);
 	va_end(valst);
 	if (nCount < 0)

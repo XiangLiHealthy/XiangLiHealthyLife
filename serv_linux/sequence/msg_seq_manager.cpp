@@ -75,6 +75,8 @@ namespace msg_seq_manager
                 return -1;
         }
 
+        LOG_DEBUG("receive msg: %s", pbyData);
+        
             /*取得协议名称*/
             if (jData["protocol"].isNull()) 
             {

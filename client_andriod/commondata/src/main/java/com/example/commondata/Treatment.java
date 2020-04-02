@@ -43,6 +43,11 @@ public class Treatment implements Serializable,Cloneable{
         return null;
     }
 
+    public void setUserId(String user_id)
+    {
+        m_user_id = user_id;
+    }
+
     public enum_item m_eItem            = enum_item.SYMPTOM;
     public SymptomContainer m_symptomContainor = new SymptomContainer();
     public CauseContainer m_causeContainer = new CauseContainer();
@@ -53,4 +58,6 @@ public class Treatment implements Serializable,Cloneable{
     public String m_strCreateTime;
     public String   end_time;
     public int      status;
+    public String error = new String();
+    public String m_user_id;
 }

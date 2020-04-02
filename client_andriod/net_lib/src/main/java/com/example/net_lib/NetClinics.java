@@ -18,7 +18,8 @@ public class NetClinics {
 
         Net net = Net.getInstance();
 
-        JSONObject jData = m_jsonCoder.encodeSymptom(eItem, clinics, nPageNum);
+        JSONObject jData = m_jsonCoder.encodeClinicsRequest(eItem, clinics, nPageNum);
+        jData.put("user_id", clinics.m_user_id);
         jData = m_jsonCoder.setProtocol(jData, "Clinics");
 
         net.sendJson(jData);
@@ -42,7 +43,8 @@ public class NetClinics {
     }
 
     public DiagnosisContainer getDiagnosis(Treatment clinics, int nPageNum) {
-        try {
+        try
+        {
 
         }
         catch (Exception e) {

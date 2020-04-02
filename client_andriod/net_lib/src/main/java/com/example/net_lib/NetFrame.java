@@ -193,8 +193,9 @@ public class NetFrame {
     {
         try
         {
-            m_client = new Socket("10.0.2.2",8888);
+            //m_client = new Socket("10.0.2.2",8888);
             //m_client = new Socket("127.0.0.1",8888);
+            m_client = new Socket("192.168.43.246",8888);
             m_client.setSoTimeout(5*1000);
             m_sender = new DataOutputStream(m_client.getOutputStream());
             m_receiver = new DataInputStream(m_client.getInputStream());
@@ -337,7 +338,10 @@ public class NetFrame {
             return  FIND_STATE.FIND_CONTINUE;
         }
 
-        int nDataLen = m_recv_buff[m_header_pos + 4] * 256 + m_recv_buff[m_rcv_len + 5];
+        //服务器是小段序
+        int nDataLen = 0;
+        nDataLen = m_recv_buff[m_header_pos + 5] * 256 & 0xffff;
+        nDataLen +=  m_recv_buff[m_header_pos + 4] & 0xff;
 
         if (m_rcv_len < FRAME_FORMAT_LEN + nDataLen)
         {

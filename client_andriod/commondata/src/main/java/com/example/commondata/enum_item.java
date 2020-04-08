@@ -8,3 +8,4 @@ public enum enum_item {
     FINISH,
     UNKNOWN
 }
+

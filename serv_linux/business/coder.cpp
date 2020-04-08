@@ -2,92 +2,105 @@
 #include<memory.h>
 #include<stdlib.h>
 #include "../log/log.h"
+#include <sstream>
+using std::stringstream;
 
-int Coder::DecodeTreatment(const Json::Value& jSrc, treatment_t& dst) {
-	//1.解析protocol
-	if(jSrc["protocol"].isNull()) {
-		m_error = "clinic,没有protocol键值";
-		return -1;
-	}
-	dst.protocol = jSrc["protocol"].asString();
+int Coder::DecodeTreatment(const Json::Value& data, treatment_t& dst) {
+	//1.解析method
+	// if(jSrc["method"].isNull()) 
+	// {
+	// 	LOG_ERROR("clinic,没有method键值");
+	// 	return -1;
+	// }
+	// dst.method = jSrc["method"].asString();
 
 	//2.获得data
-	if(jSrc["data"].isNull()) {
-		m_error = "clinic, 没有data键值";
+	// if(jSrc["data"].isNull()) {
+	// 	LOG_ERROR("clinic, 没有data键值");
+	// 	return -1;
+	// }
+	// Json::Value data = jSrc["data"];
+
+	if (data["method"].isNull())
+	{
+		LOG_ERROR("there is not method");
 		return -1;
 	}
-	Json::Value data = jSrc["data"];
+	dst.method = data["method"].asString();
 	
+	if (!data["user_id"].isNull())
+	{
+		dst.user_id = atol(data["user_id"].asString().c_str());
+	}
+
 	//3.获取symptom_container
-	if(data["Symptom"].isNull()) {
-		m_error = "没有symptom键值";
+	if(data["Symptom"].isNull()) 
+	{
+		LOG_ERROR("没有symptom键值");
 		return -1;
 	}
 	Json::Value jDiagnosisElement = data["Symptom"];
 
-	if(Decode(jDiagnosisElement, dst.symptom) < 0) {
+	if(Decode(jDiagnosisElement, dst.symptom) < 0) 
+	{
+		LOG_ERROR("decode sysmptom failed");
 		return -1;
 	}
 
 	//4.获得cause_container
-	if(data["Cause"].isNull()) {
-		m_error = "没有键值Cause";
-		return -1;
+	if(!data["Cause"].isNull()) 
+	{
+		jDiagnosisElement = data["Cause"];
+		if(Decode(jDiagnosisElement, dst.cause) < 0) 
+		{
+			LOG_ERROR("decode cause failed");
+			return -1;
+		}
 	}
-	jDiagnosisElement = data["Cause"];
-
-	if(Decode(jDiagnosisElement, dst.cause) < 0) {
-		return -1;
-	}
+	
 
 	//5.获得diagnosis_container//不要容忍代码冗余,不然破窗户理论会很快把项目整烂
-	if(data["Diagnosis"].isNull()) {
-		m_error = "没有键值Diagnosis";
-		return -1;
+	if(!data["Diagnosis"].isNull()) 
+	{
+		jDiagnosisElement = data["Diagnosis"];
+		if(Decode(jDiagnosisElement, dst.diagnosis) < 0) 
+		{
+			LOG_ERROR("parser diagnosis faild");
+			return -1;
+		}
 	}
-	jDiagnosisElement = data["Diagnosis"];
-
-	if(Decode(jDiagnosisElement, dst.diagnosis) < 0) {
-		return -1;
-	}
+	
 
 	//6.获得solution_container
-	if(data["Solution"].isNull()) {
-		m_error = "没有Solution键值";
-		return -1;
+	if(!data["Solution"].isNull()) 
+	{
+		jDiagnosisElement = data["Diagnosis"];
+		if(Decode(jDiagnosisElement, dst.solution) < 0) 
+		{
+			LOG_ERROR("parser solution failed");
+			return -1;
+		}
 	}
-	jDiagnosisElement = data["Diagnosis"];
 
-	if(Decode(jDiagnosisElement, dst.solution) < 0) {
-		return -1;
-	}
 
 	//7.获得其它信息
-	if(data["create_time"].isNull()) {
-		m_error = "没有create_time键值";
-		return -1;
+	if(!data["create_time"].isNull()) 
+	{
+		dst.create_time = data["create_time"].asString();
+		if(data["end_time"].isNull()) 
+		{
+			LOG_ERROR("没有end_time键值");
+			return -1;
+		}
+		dst.end_time = data["end_time"].asString();
 	}
-	dst.create_time = data["create_time"].asString();
-
-	if(data["end_time"].isNull()) {
-		m_error = "没有end_time键值";
-		return -1;
-	}
-	dst.end_time = data["end_time"].asString();
-
-
-	if(data["status"].isNull()) {
-		m_error = "没有staus键值";
-		return -1;
-	}
-	dst.status = data["status"].asInt();
 
 	return 0;
 }
 
 int Coder::EncodeTreatment(const treatment_t& src, Json::Value& jDst) {
 	//1.编码ptotocol
-	jDst["ptotocol"] 	= src.protocol;
+	jDst["ptotocol"] 	= src.method;
 
 	//2.生成symptom_container json 
 	jDst["Symptom"]		= Encode(src.symptom);
@@ -110,23 +123,26 @@ int Coder::EncodeTreatment(const treatment_t& src, Json::Value& jDst) {
 }
 
 int Coder::Decode(const Json::Value jSrc, symptom_container_t& dst) {
-	if(jSrc["detail"].isNull()) {
-		m_error = "symptom没有键值detail";
+	if(jSrc["detail"].isNull()) 
+	{
+		LOG_ERROR("symptom没有键值detail");
 		return -1;
 	}
 	dst.detail = jSrc["detail"].asString();
 
 
-	if(jSrc["row"].isNull()) {
-		m_error = "symptom没row";
+	if(jSrc["row"].isNull()) 
+	{
+		LOG_ERROR("symptom没row");
 		return -1;
 	}
 	Json::Value row = jSrc["row"];
 
 	for(int i = 0; i < row.size(); i++) {
 		Json::Value element = row[i];
-		if(element["diagnosis_element_id"].isNull()) {
-			m_error = "clinic不存在diagnosis_element_id键值";
+		if(element["diagnosis_element_id"].isNull()) 
+		{
+			LOG_ERROR("clinic不存在diagnosis_element_id键值");
 			return -1;
 		}
 
@@ -141,15 +157,16 @@ int Coder::Decode(const Json::Value jSrc, symptom_container_t& dst) {
 }
 
 int Coder::Decode(const Json::Value jSrc, cause_container_t& dst) {
-	if(jSrc["detail"].isNull()) {
-		m_error = "symptom没有键值detail";
+	if(jSrc["detail"].isNull()) 
+	{
+		LOG_ERROR("cause没有键值detail");
 		return -1;
 	}
 	dst.detail = jSrc["detail"].asString();
 
 
 	if(jSrc["row"].isNull()) {
-		m_error = "symptom没row";
+		LOG_ERROR("symptom没row");
 		return -1;
 	}
 
@@ -158,7 +175,7 @@ int Coder::Decode(const Json::Value jSrc, cause_container_t& dst) {
 	for(int i = 0; i < row.size(); i++) {
 		Json::Value element = row[i];
 		if(element["diagnosis_element_id"].isNull()) {
-			m_error = "clinic不存在diagnosis_element_id键值";
+			LOG_ERROR("clinic不存在diagnosis_element_id键值");
 			return -1;
 		}
 
@@ -173,14 +190,14 @@ int Coder::Decode(const Json::Value jSrc, cause_container_t& dst) {
 }
 int Coder::Decode(const Json::Value jSrc, diagnosis_container_t& dst) {
 	if(jSrc["detail"].isNull()) {
-		m_error = "symptom没有键值detail";
+		LOG_ERROR("symptom没有键值detail");
 		return -1;
 	}
 	dst.detail = jSrc["detail"].asString();
 
 
 	if(jSrc["row"].isNull()) {
-		m_error = "symptom没row";
+		LOG_ERROR("symptom没row");
 		return -1;
 	}
 	Json::Value row = jSrc["row"];
@@ -188,7 +205,7 @@ int Coder::Decode(const Json::Value jSrc, diagnosis_container_t& dst) {
 	for(int i = 0; i < row.size(); i++) {
 		Json::Value element = row[i];
 		if(element["diagnosis_element_id"].isNull()) {
-			m_error = "clinic不存在diagnosis_element_id键值";
+			LOG_ERROR("clinic不存在diagnosis_element_id键值");
 			return -1;
 		}
 
@@ -204,14 +221,14 @@ int Coder::Decode(const Json::Value jSrc, diagnosis_container_t& dst) {
 
 int Coder::Decode(const Json::Value jSrc, solution_container_t& dst) {
 	if(jSrc["detail"].isNull()) {
-		m_error = "symptom没有键值detail";
+		LOG_ERROR("symptom没有键值detail");
 		return -1;
 	}
 	dst.detail = jSrc["detail"].asString();
 
 
 	if(jSrc["row"].isNull()) {
-		m_error = "symptom没row";
+		LOG_ERROR("symptom没row");
 		return -1;
 	}
 	Json::Value row = jSrc["row"];
@@ -219,7 +236,7 @@ int Coder::Decode(const Json::Value jSrc, solution_container_t& dst) {
 	for(int i = 0; i < row.size(); i++) {
 		Json::Value element = row[i];
 		if(element["diagnosis_element_id"].isNull()) {
-			m_error = "clinic不存在diagnosis_element_id键值";
+			LOG_ERROR("clinic不存在diagnosis_element_id键值");
 			return -1;
 		}
 
@@ -348,6 +365,139 @@ Json::Value Coder::Encode(const solution_container_t solution) {
 
 }
 
-std::string Coder::GetLastError() {
-	return m_error;
+int Coder::DecodeAccountLogin(const Json::Value& jData, account_t& account)
+{
+	//get account
+	if (jData["account"].isNull())
+	{
+		LOG_ERROR("there is not key:account");
+		return -1;
+	}
+
+	account.account = jData["account"].asString();
+
+	//get password
+	if (jData["password"].isNull() < 0)
+	{
+		LOG_ERROR("there is not key password");
+		return -1;
+	}
+
+	account.password = jData["password"].asString();
+
+	//get wat
+	if (jData["way"].isNull())
+	{
+		LOG_ERROR("there is not key way");
+		return -1;
+	}
+
+	account.way = jData["way"].asString();
+
+	return 0;
+}
+
+int Coder::DecodeAccountRegister(const Json::Value& jData, db_user_t& user_info)
+{
+	if (!jData["tel"].isNull())
+	{
+		user_info.tel = jData["tel"].asString();
+	}
+
+	if (!jData["password"].isNull())
+	{
+		user_info.password = jData["password"].asString();
+	}
+
+	if (!jData["name"].isNull())
+	{
+		user_info.name = jData["name"].asString();
+	}
+
+	if (!jData["sex"].isNull())
+	{
+		user_info.sex = jData["sex"].asString();
+	}
+
+	if (!jData["tall"].isNull())
+	{
+		user_info.tall = jData["tall"].asInt();
+	}
+
+	if (!jData["weight"].isNull())
+	{
+		user_info.weight = jData["weight"].asInt();
+	}
+
+	if (!jData["birthday"].isNull())
+	{
+		user_info.birthday = jData["birthday"].asString();
+	}
+
+	if (!jData["native_place"].isNull())
+	{
+		user_info.native_place = jData["native_place"].asString();
+	}
+
+	if (!jData["family"].isNull())
+	{
+		user_info.family = jData["family"].asString();
+	}
+
+	if (!jData["marital_status"].isNull())
+	{
+		user_info.marital_status = jData["marital_stattus"].asString();
+	}
+
+	if (!jData["blood_type"].isNull())
+	{
+		user_info.blood_type = jData["blood_type"].asString();
+	}
+
+	if (!jData["occupation"].isNull())
+	{
+		user_info.occupation = jData["occupation"].asString();
+	}
+
+	return 0;
+}
+
+int Coder::DecodeClinicsRecord(const Json::Value& jData, clinics_record_request_t& request)
+{
+	if (jData["user_id"].isNull())
+	{
+		LOG_ERROR("there isn't key user_id");
+		return -1;
+	}
+	request.user_id = jData["user_id"].asString();
+
+	if (jData["start_num"].isNull())
+	{
+		LOG_ERROR("there isn't key start_num");
+		return -1;
+	}
+	request.start_num = jData["start_num"].asString();
+
+	return 0;
+}
+
+int Coder::EncodeClinicsRecord(const list<clinics_record_response_t>& response, Json::Value& jData)
+{
+	Json::Value items;
+
+	for (auto itr : response)
+	{
+		Json::Value item;
+		item["disease"] = itr.disease;
+		item["cause"] = itr.cause;
+		item["start_date"] = itr.start_date;
+		item["time_long"] = itr.time_long;
+		item["feedback_count"] = itr.feedback_count;
+
+		items.append(item);
+	}
+
+	jData["datas"] = items;
+	
+	return 0;
 }

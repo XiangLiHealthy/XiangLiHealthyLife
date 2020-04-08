@@ -24,12 +24,11 @@ import com.example.net_lib.SeqData;
 import com.example.net_lib.NetSequence;
 
 public class Net extends Thread {
-    private Socket m_client;
-    private Writer m_sender;
-    private InputStreamReader m_receiver;
-    private boolean m_bConnet = false;
-    private boolean m_bShutDown = false;
+
     private  static Net m_singleton = new Net();
+    private NetSequence m_seq = NetSequence.getInstance();
+    public NetJson m_net_json = new NetJson(m_seq);
+
     public static Net getInstance()
     {
         return  m_singleton;
@@ -41,21 +40,7 @@ public class Net extends Thread {
         int port = 6666;
 
         try {
-//            Socket client = new Socket(host, port);
-//            Writer writer = new OutputStreamWriter(client.getOutputStream());
-//
-//            writer.write("Hellow from Client\n" +
-//                    "");
-//            writer.flush();
-//
-//            writer.close();
-//
-//
-//            client.close();
-
-//            JSONObject jData = new JSONObject();
-//            jData.put("proto", "test");
-            String msg = "{\"proto\":\"hellow world\"}";
+            String msg = "{\"proto\":\"hellow world杨洋\"}";
             byte[] byMsg = msg.getBytes();
 
             while(true)
@@ -67,10 +52,6 @@ public class Net extends Thread {
 
                 sleep(1000);
             }
-
-
-            //Net.getInstance().sendJson(jData);
-
         } catch (Exception e) {
             String msg = e.getMessage();
             e.printStackTrace();
@@ -78,11 +59,12 @@ public class Net extends Thread {
     }
 
     //send msg
-    public void sendJson(JSONObject jData) throws Exception {
-
+    public void sendJson(JSONObject jData) throws Exception
+    {
         NetSequence seq_manager = NetSequence.getInstance();
-        seq_manager.sendData(jData.toString().getBytes());
+        String test = new String(jData.toString().getBytes("UTF-8"));
 
+        seq_manager.sendDataOnce(jData.toString().getBytes("UTF-8"), DATA_TYPE.DATA_JONS);
     }
     public void sendPicture(String file_name)
     {
@@ -175,44 +157,15 @@ public class Net extends Thread {
         return  new String();
     }
 
-    public synchronized boolean connet() {
-        String host = "10.0.2.2";
-        int port = 6666;
 
-        if (m_bConnet) {
-            return true;
-        }
-
-        try {
-             //Socket client  = new Socket(host, 6666);
-             m_client       = new Socket(host, port);
-             m_sender       = new OutputStreamWriter(m_client.getOutputStream());
-             m_receiver     = new InputStreamReader(m_client.getInputStream());
-
-
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            return false;
-        }
-
-        m_bConnet = true;
-        return true;
-    }
 
     public int send(JSONObject jData)
     {
         try
         {
-            synchronized (m_client)
+            synchronized (m_seq)
             {
-                BufferedWriter bw = new BufferedWriter(m_sender);
-
-                //向服务器端发送一条消息
-                bw.write(jData.length());
-                bw.write(jData.toString());
-
-                bw.flush();
+                m_net_json.SengMsg(jData);
             }
         }catch (Exception e)
         {
@@ -229,36 +182,17 @@ public class Net extends Thread {
         JSONObject jData = null;
         try
         {
-            synchronized (m_client)
+            synchronized (m_seq)
             {
-                //读取服务器返回的消息
-                BufferedReader br = new BufferedReader(m_receiver);
-
-                //读取长度
-                char szLeng[] = new char[4];
-                int nLen = br.read(szLeng, 0, 4);
-                if (nLen < 1) {
-                    return null;
-                }
-
-                char[] szData = new char[nLen + 1];
-                int nNewLen = br.read(szData, 0, nLen);
-                if (nNewLen < nLen)
-                {
-                    return null;
-                }
-
-                String str = new String(szData);
-                jData = new JSONObject(str);
+                return m_net_json.rcvMsg();
             }
 
         }catch (Exception e)
         {
-
+            e.printStackTrace();
             return null;
         }
 
-        return  jData;
     }
 
 

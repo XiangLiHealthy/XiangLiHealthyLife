@@ -3,13 +3,13 @@ package com.example.commondata;
 import java.util.ArrayList;
 
 public class SymptomContainer {
-    private   String m_strDetail;
+    private   String m_strDetail = new String("");
     private   ArrayList<Symptom> m_lstItem = new ArrayList<Symptom>();
 
     public  SymptomContainer() {
         //测试数据
-        for(int i = 0; i < 13;i++)
-            m_lstItem.add(new Symptom());
+//        for(int i = 0; i < 13;i++)
+//            m_lstItem.add(new Symptom());
     }
 
     public  void clear() {

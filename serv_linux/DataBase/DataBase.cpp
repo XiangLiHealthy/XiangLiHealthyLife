@@ -1,5 +1,8 @@
 #include"DataBase.h"
 #include<string.h>
+#include <iostream>
+#include "../log/log.h"
+
 using namespace std;
 
 DataBase::DataBase() {
@@ -13,30 +16,40 @@ DataBase::~DataBase() {
 	Disconnect();
 }
 
-bool DataBase::Connect(const char* host, const char* db, const char* user, const char* password) {
-	if(NULL == host || NULL == db || NULL == user || NULL == password) {
-		m_lastError = "空指针!";
-		return false;
-	}
-
-	if(0 == host[0] || 0 == db[0] || 0 == user[0]) {
-		m_lastError = "host,DBName,user不许与为空!";
-		return false;
-	}
+bool DataBase::Connect(const string& host, const string& db, const string& user, const string& password) {
 
 	connection = mysql_init(NULL);
-	if(NULL == connection) {
+	if(NULL == connection) 
+	{
 		m_lastError = "初始化数据库失败!";
 		m_lastError += mysql_error(NULL);
 		return false;
 	}
 
 	
-	if(NULL == mysql_real_connect(connection, host, user, password, db, 0, NULL, 0)) {
+	if(NULL == mysql_real_connect(connection, host.c_str(), user.c_str(), password.c_str(), db.c_str(), 0, NULL, 0)) 
+	{
 		m_lastError = "数据库连接失败:";
 		m_lastError	+= mysql_error(connection);
 		Disconnect();
 		return false;
+	}
+
+	LOG_INFO("database charset:%s", mysql_character_set_name(connection));
+
+	if (mysql_query(connection, "set character_set_database=utf8;") != 0)
+	{
+		LOG_ERROR("set database charset utf-8 failed");
+	}
+
+	// if (mysql_query(connection, "set character_set_server=utf8;") != 0)
+	// {
+	// 	LOG_ERROR("set database charset-set server utf-8 failed");
+	// }
+
+	if (mysql_query(connection, "set names utf8;") != 0)
+	{
+		LOG_ERROR("set names utf8 failed");
 	}
 
 	return true;
@@ -49,36 +62,54 @@ void DataBase::Disconnect() {
 	}
 }
 
-LONG DataBase::Exec(const char* sql) {
-	if(NULL == sql || 0 == sql[0]) {
-		m_lastError = "无效的sql,NULL或为空!";
-		return -1;
+LONG DataBase::Exec(const string& sql) 
+{
+	LOG_DEBUG("perform sql:%s", sql.c_str());
+
+	if (result)
+	{
+		mysql_free_result(result);
+		result = NULL;
 	}
 
 	//执行查询
-	if(!mysql_query(connection, sql)) {
-		m_lastError = mysql_error(connection);
+	
+	if ( mysql_query(connection, sql.c_str()) != 0)
+	{
+		LOG_ERROR("perform sql error:%s", mysql_error(connection));
 		return -1;
 	}
 
-
 	//获取记录数,执行写操作应该没有结果集,不知道那是什么情况
 	LONG count = 0;
-	result = mysql_use_result(connection);
-	if(NULL != result) {
+	result = mysql_store_result(connection);
+	if(NULL != result) 
+	{
 		count = result->row_count;
 	}
 
 	return count;
 }
 
-const char* DataBase::GetLastError() {
-	return m_lastError.c_str();
+const string& DataBase::GetLastError() 
+{
+	return m_lastError;
 }
 
 bool DataBase::HasNext() {
-	//下一行 char** row
-	row =  mysql_fetch_row(result);
+	//下一行 string&* row
+	row = NULL;
+	if (result)
+	{
+		row =  mysql_fetch_row(result);
+	}
+	
+	if (nullptr == row )
+	{
+		mysql_free_result(result);
+		result = nullptr;
+	}
+
 	return (NULL == row) ? false : true;
 }
 
@@ -93,82 +124,65 @@ void DataBase::ReleaseResult() {
 
 
 
-bool DataBase::GetFieldValue(const char* name, int& value){
-	if(NULL == name || 0 == name[0]) {
-		m_lastError = "字段名为NULL或为空!";
-		return false;
-	}
+bool DataBase::GetFieldValue(const string& name, int& value){
 
-	
 	//获取对应的列值 
-	char* field = GetField(name, sizeof(value));
-	if(NULL == field) {
-		return false;
-	}
-
-	value = atoi(field);
+	const string field = GetField(name );
+	
+	value = atoi(field.c_str());
 
 	return true;
 }
 
-bool DataBase::GetFieldValue(const char* name, bool& value) {
-	char* field = GetField(name, sizeof(value));
-	if(NULL == field) {
-		return false;
-	}
-
-
-	value = atoi(field);
+bool DataBase::GetFieldValue(const string& name, bool& value) {
+	string field = GetField(name );
+	value = atoi(field.c_str());
 
 	return true;
 }
 
-bool DataBase::GetFieldValue(const char* name, short& value) {
-	char* field = GetField(name, sizeof(value));
-	if(NULL == field) {
+bool DataBase::GetFieldValue(const string& name, short& value) 
+{
+	const string& field = GetField(name );
+	if(field.empty()) {
 		return false;
 	}
 	
-	value = atoi(field);
+	value = atoi(field.c_str());
 	return true;
 }
 
-bool DataBase::GetFieldValue(const char* name, char* value) {
-
-	if(NULL == value) {
-		m_lastError = "非法参数NULL";
+bool DataBase::GetFieldValue(const string& name, string& value) {
+	value = GetField(name);
+	if(value.empty()) {
 		return false;
 	}
-
-	char* field = GetField(name, sizeof(value));
-	if(NULL == field) {
-		return false;
-	}
-
-	strcpy(value, field);
-	return true;
-}
-
-bool DataBase::GetFieldValue(const char* name, LONG& value) {
-	char* field = GetField(name, sizeof(value));
-	if(NULL == field) {
-		return false;
-	}
-
-	value = atol(field);
 
 	return true;
 }
 
-int DataBase::GetNameIndex(const char* name) {
+bool DataBase::GetFieldValue(const string& name, LONG& value) {
+	const string& field = GetField(name );
+	if(field.empty()) {
+		return false;
+	}
+
+	value = atol(field.c_str());
+
+	return true;
+}
+
+int DataBase::GetNameIndex(const string& name) {
 	MYSQL_FIELD* fields = mysql_fetch_fields(result);
 	if(NULL == fields) {
 		return -1;
 	}
 
 	int nCount = mysql_num_fields(result);
-	for(int nIndex = 0; nIndex < nCount; nIndex ++) {
-		if(0 == strcmp(name, fields[nIndex].name)) {
+	for(int nIndex = 0; nIndex < nCount; nIndex ++) 
+	{
+		if(0 == strcmp(name.c_str(), fields[nIndex].name)) 
+		{
 			return nIndex;
 		}
 	}
@@ -176,32 +190,26 @@ int DataBase::GetNameIndex(const char* name) {
 	return -1;
 }
 
-char* DataBase::GetField(const char* name, int len) {
-	if(NULL == name || 0 == name[0]) {
-		m_lastError = "字段名为NULL或为空!";
-		return NULL;
-	}
-
+string DataBase::GetField(const string& name) 
+{
 	//获取到字段名的索引
+	string tmp;
+
 	int nIndex = GetNameIndex(name);
 	if(nIndex < 0) {
 		m_lastError = "字段名不存在:";
 		m_lastError += name;
-		return NULL;
+		return tmp;
 	}
 
 	//获取对应的列值 
 	char* field = row[nIndex];
 	if(NULL == field) {
 		m_lastError = "无效值";
-		return NULL;
+		return tmp;
 	}
 
-	if(len > strlen(field)) {
-		m_lastError = """字段类型不匹配";
-		return NULL;
-	}
-
-	return field;
+	tmp = field;
+	return tmp;
 }
 

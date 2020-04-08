@@ -37,9 +37,10 @@ class FrameData
 
     public short getCheckSum()
     {
-        short nCheckSum = 0;
-        nCheckSum = (short) (m_frame_data[2] * 256 + m_frame_data[3] );
-        return  nCheckSum;
+        int nCheckSum = m_frame_data[2] * 256;
+        nCheckSum += m_frame_data[3] & 0xff;
+
+        return  (short) nCheckSum;
     }
 
     public  void setCheckSum(short sum)
@@ -50,7 +51,10 @@ class FrameData
 
     public  short getSeqLen()
     {
-        return (short) (m_frame_data[4] * 256 + m_frame_data[5]);
+        int len = m_frame_data[4] * 256;
+        len += m_frame_data[5] & 0xff;
+
+        return (short) len;
     }
 
     public void setSeqLen(short len)
@@ -181,6 +185,7 @@ enum FIND_STATE
 public class NetFrame {
     NetFrame()
     {
+
         initNet();
     }
 
@@ -188,7 +193,11 @@ public class NetFrame {
     {
         try
         {
-            m_client = new Socket("127.0.0.1",8888);
+            //m_client = new Socket("10.0.2.2",8888);
+            //m_client = new Socket("127.0.0.1",8888);
+            //m_client = new Socket("192.168.43.246",8888);
+            m_client = new Socket("122.51.38.230",8888);
+            m_client.setSoTimeout(5*1000);
             m_sender = new DataOutputStream(m_client.getOutputStream());
             m_receiver = new DataInputStream(m_client.getInputStream());
         }catch (Exception e)
@@ -259,36 +268,35 @@ public class NetFrame {
     {
         try{
             do {
-                //find header pos
-                FIND_STATE state = findHeader();
-                if (state == FIND_STATE.FIND_OK)
-                {
-                    //find tail pos
-                    state = findTail();
+                    //find header pos
+                    FIND_STATE state = findHeader();
                     if (state == FIND_STATE.FIND_OK)
                     {
-                        break;
-                    }
+                        //find tail pos
+                        state = findTail();
+                        if (state == FIND_STATE.FIND_OK)
+                        {
+                            break;
+                        }
 
-                    if (state == FIND_STATE.FIND_ERROR)
-                    {
+                        if (state == FIND_STATE.FIND_ERROR)
+                        {
+                            m_header_pos = 0;
+                            m_rcv_len = 0;
+                            throw new Exception("find tailf of fram error");
+                        }
+                    }
+                    else if (m_rcv_len > 0)
+                    {//save last byte, maybe it is a half of header
+                        int len = m_tail_pos + m_rcv_len > MAX_FRAME_SIZE ? MAX_FRAME_SIZE :  m_tail_pos + m_rcv_len;
+                        m_recv_buff[0] = m_recv_buff[len - 1];
                         m_header_pos = 0;
-                        m_rcv_len = 0;
-                        throw new Exception("find tailf of fram error");
+                        m_rcv_len = 1;
+                        m_tail_pos = 1;
                     }
-                }
 
-
-                //save last byte, maybe it is a half of header
-                if (m_rcv_len > 0)
-                {
-                    m_recv_buff[0] = m_recv_buff[m_tail_pos + m_rcv_len - 1];
-                    m_header_pos = 0;
-                    m_rcv_len = 1;
-                }
-
-                int nLen = m_receiver.read(m_recv_buff, m_header_pos + m_rcv_len, m_recv_buff.length - (m_header_pos + m_rcv_len) );
-                m_rcv_len += nLen;
+                    int nLen = m_receiver.read(m_recv_buff, m_header_pos + m_rcv_len, m_recv_buff.length - (m_header_pos + m_rcv_len) );
+                    m_rcv_len += nLen;
             }while (true);
 
             //parse frame
@@ -330,7 +338,10 @@ public class NetFrame {
             return  FIND_STATE.FIND_CONTINUE;
         }
 
-        int nDataLen = m_recv_buff[m_header_pos + 4] * 256 + m_recv_buff[m_rcv_len + 5];
+        //服务器是小段序
+        int nDataLen = 0;
+        nDataLen = m_recv_buff[m_header_pos + 5] * 256 & 0xffff;
+        nDataLen +=  m_recv_buff[m_header_pos + 4] & 0xff;
 
         if (m_rcv_len < FRAME_FORMAT_LEN + nDataLen)
         {

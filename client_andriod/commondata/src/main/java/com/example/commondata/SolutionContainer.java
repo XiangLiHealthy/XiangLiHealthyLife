@@ -3,7 +3,7 @@ package com.example.commondata;
 import java.util.ArrayList;
 
 public class SolutionContainer {
-    public String m_strDetail;
+    public String m_strDetail = new String("");
     public ArrayList<Solution> m_lstItem = new ArrayList<Solution>();
 
     private SymptomContainer m_symptoms;
@@ -11,9 +11,9 @@ public class SolutionContainer {
     private DiagnosisContainer m_diagnosises;
 
     public  SolutionContainer() {
-        for(int i = 0; i < 9; i++) {
-            m_lstItem.add(new Solution());
-        }
+//        for(int i = 0; i < 9; i++) {
+//            m_lstItem.add(new Solution());
+//        }
     }
 
     public void setDetail(String strDetail) {

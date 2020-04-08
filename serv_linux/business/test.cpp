@@ -4,12 +4,7 @@
 
 Test::Test()
 {
-    strcpy(m_szName, "test");
-}
-
-const char* Test::getName()
-{
-    return m_szName;
+    m_name = "test";
 }
 
 int Test::dispatch(const Json::Value& jData, Handle fd)

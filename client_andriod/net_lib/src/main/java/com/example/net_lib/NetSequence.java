@@ -81,7 +81,7 @@ public class NetSequence {
     }
 
     public int sendDataOnce(byte[] arrData, DATA_TYPE type) throws Exception {
-            sendSeq(createUID(), type, SEQ_STATE.SEQ_START_END,
+        sendSeq(createUID(), type, SEQ_STATE.SEQ_START_END,
                     (short) 0, arrData);
 
         return 0;
@@ -165,7 +165,7 @@ public class NetSequence {
                 return SEQ_STATE.SEQ_END;
 
             case 3:
-                return SEQ_STATE.SEQ_END;
+                return SEQ_STATE.SEQ_START_END;
 
             default:
                 return SEQ_STATE.SEQ_STATE_UNKNOW;
@@ -254,7 +254,7 @@ public class NetSequence {
 
         //data
         byte[] arrData = new byte[arrSeq.length - SEQ_HEADER_SIZE];
-        System.arraycopy(arrData, 0, arrSeq, SEQ_HEADER_SIZE, arrData.length);
+        System.arraycopy(arrSeq, SEQ_HEADER_SIZE, arrData, 0, arrData.length);
 
         return arrData;
     }

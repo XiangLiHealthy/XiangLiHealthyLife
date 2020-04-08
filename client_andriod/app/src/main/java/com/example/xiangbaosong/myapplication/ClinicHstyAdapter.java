@@ -9,21 +9,22 @@ import android.widget.TextView;
 
 
 import com.example.commondata.Cause;
+import com.example.commondata.ClinicsRecord;
 import com.example.model_lib.model_clinics;
 
 import java.util.ArrayList;
 
 public class ClinicHstyAdapter  extends BaseAdapter {
     private Context context;
-    private ArrayList<model_clinics> m_lstData;
+    private ArrayList<ClinicsRecord> m_lstData;
 
-    ClinicHstyAdapter(Context ctxt, ArrayList<model_clinics> lstData) {
+    ClinicHstyAdapter(Context ctxt, ArrayList<ClinicsRecord> lstData) {
         m_lstData = lstData;
         context = ctxt;
     }
 
 
-    public void add(ArrayList<model_clinics> lstData) {
+    public void add(ArrayList<ClinicsRecord> lstData) {
         m_lstData = lstData;
     }
 
@@ -50,21 +51,21 @@ public class ClinicHstyAdapter  extends BaseAdapter {
         convertView = mInflater.inflate(R.layout.clinics_history_item, null);
 
         //对控件赋值
-        final model_clinics data = m_lstData.get(i);
+        ClinicsRecord data = m_lstData.get(i);
         String strText;
 
         //主要描述
         TextView text = (TextView) convertView.findViewById(R.id.clinics_h_i_desc_v);
-        strText = data.GetSymptoms().getMain();
+        strText = data.disease;
         text.setText((strText)  );
         strText = "";
 
        //原因
         text = convertView.findViewById(R.id.clinics_h_i_cause_v);
 
-        ArrayList<Cause> causes= data.getCause(false).getData();
-        for (Cause cause: causes) {
-            strText += cause.strDesc + ",";
+        ArrayList<String> causes= data.cause;
+        for (String cause: causes) {
+            strText += cause + ",";
 
         }
         strText = strText.substring(0, strText.length() - 1);
@@ -74,18 +75,17 @@ public class ClinicHstyAdapter  extends BaseAdapter {
 
         //发作时间 病程
         text = convertView.findViewById(R.id.clinics_h_i_time_v);
-        strText = data.getDatetime();
+        strText = data.start_date;
         text.setText(strText);
 
         text = convertView.findViewById(R.id.clinics_h_i_time_l);
-        strText = "病程" + data.getDays() + "天";
+        strText = "病程" + data.time_long + "天";
         text.setText(strText);
         strText = "";
 
         //发作次数
-        // text = convertView.findViewById(R.id.clinics_h_i_times_v);
-        //strText = data.getDiagnosis(false).
-        //text.setText((String) data.GetSymptoms(false).getMain() );
+        text = convertView.findViewById(R.id.clinics_h_i_times_v);
+        text.setText(data.feedback_count );
 
 
 

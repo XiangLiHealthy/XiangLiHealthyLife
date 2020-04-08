@@ -1,5 +1,7 @@
 package com.example.model_lib;
 
+import android.accounts.AccountManager;
+
 import com.example.commondata.*;
 import com.example.net_lib.*;
 import com.example.threadlib.TaskQueue;
@@ -10,7 +12,7 @@ import java.util.ArrayList;
 /********************************************************************
 应该算是代理模式,不太像外观者模式;这个类主要提供唯一的访问接口,不做详细的业务实现
 
-
+应该只提供最简单的接口，管理对象即可；否则会导致该类无限制膨胀
 
  **************************************************************/
 
@@ -34,45 +36,10 @@ public class model_facade {
     /********************************************************************
      账户管理接口
      **************************************************************/
-    //登录
-    public int login(String strID, String strPasswd, String strResult) {
-        return 0;
+    public accont_manage getAccountManager()
+    {
+        return m_accont;
     }
-
-    //获取个人信息
-   public data_person getpersoninfo() {
-
-        return  m_accont.getPersonInfo();
-   }
-   //设置个人信息
-    public  int setPersonInfo(data_person st_person) {
-        return m_accont.setPersonInfo(st_person);
-    }
-
-    //获取账户信息
-    public data_accout getAccountInfo() {
-        return  m_accont.getAccountInfo();
-    }
-    //设置账户信息
-    public int setAccountInfo(data_accout st_account) {
-        return  m_accont.setAccoutInfo(st_account);
-    }
-
-    //获取注册校验码
-    public int getVerifacationCode() {
-        return  m_accont.get_verifacationCode();
-    }
-
-    //判断校验码是否正确
-    public boolean isVerirafacationCorrect(int nCode) {
-        return m_accont.isVerifacationCorrect(nCode);
-    }
-
-    //获取校验码
-    public int getVerafacationCode() {
-        return  m_accont.get_verifacationCode();
-    }
-
 
     /********************************************************************
      ai自诊断接口
@@ -81,11 +48,18 @@ public class model_facade {
         return m_clinics;
     }
 
-    public  SymptomContainer RequestDiagnosis(enum_item procedure ) {
+    public  SymptomContainer RequestDiagnosis(enum_item procedure)
+    {
         return m_clinics.RequestDiagnosis(procedure);
     }
     public  SymptomContainer GetSymptom() {
         return m_clinics.GetSymptoms();
+    }
+
+    //获取AI自诊的历史记录
+    public clinics_history getClninicsRecord()
+    {
+        return m_clinicsHistory;
     }
 
     public CauseContainer getCause(boolean bMore) {
@@ -96,9 +70,6 @@ public class model_facade {
     }
     public SolutionContainer getSolution(boolean bMore) {
         return m_clinics.getSolution(bMore);
-    }
-    public ArrayList<model_clinics> getClinicsHistory() {
-        return m_clinicsHistory.getData(true);
     }
 
 

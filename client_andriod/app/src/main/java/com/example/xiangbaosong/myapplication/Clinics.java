@@ -1,5 +1,6 @@
 package com.example.xiangbaosong.myapplication;
 
+import android.accounts.AccountManager;
 import android.content.Intent;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
@@ -39,7 +40,7 @@ public class Clinics extends AppCompatActivity {
     //private ListView listView;
     //private ArrayAdapter<String> adapter;
     //作为数据源来使用
-    private ArrayList<HashMap<String, Object>>  data        = null;
+    private ArrayList<HashMap<String, Object>>  data        = new ArrayList<HashMap<String, Object>>();
     private model_facade                        model       = model_facade.getinstance();
     private Button                              mButtonGetValue; // 获取数据按钮
     private ListView                            mListView;// 数据展示列表
@@ -63,8 +64,6 @@ public class Clinics extends AppCompatActivity {
 
         initView();
         registerListener();
-        //listData = new ArrayList<HashMap<String, Object>>();
-        //initListViewData(listData);
         loadData();
 
 
@@ -114,7 +113,19 @@ public class Clinics extends AppCompatActivity {
     }
 
 
-    public void button_click(View v){
+    public void button_click(View v)
+    {
+        //必须先登录
+        if (!model.getAccountManager().isLogin())
+        {
+            Intent intent = new Intent(this, activity_login.class);
+            startActivity(intent);
+
+            if (!model.getAccountManager().isLogin())
+            {
+                return;
+            }
+        }
 
         //1.获取到按钮id
         int nID = v.getId();
@@ -170,7 +181,10 @@ public class Clinics extends AppCompatActivity {
 
         try {
 
-            saveViewData(m_eItem);
+            if (0 != saveViewData(m_eItem))
+            {
+                return;
+            }
 
             //1.获取到按钮id
             int nID = v.getId();
@@ -203,11 +217,25 @@ public class Clinics extends AppCompatActivity {
                 //完成诊断
                 case R.id.button_cilinics_finish:
                 {
-                    m_eItem = enum_item.SYMPTOM;
+                    m_eItem = enum_item.FINISH;
                     strInput = "";
+
+
                 }
 
                 //更新界面显示
+            }
+
+            //必须先登录
+            if (enum_item .FINISH== m_eItem && !model.getAccountManager().isLogin())
+            {
+                Intent intent = new Intent(this, activity_login.class);
+                startActivity(intent);
+
+                if (!model.getAccountManager().isLogin())
+                {
+                    return;
+                }
             }
 
             model.RequestDiagnosis(m_eItem);
@@ -233,9 +261,9 @@ public class Clinics extends AppCompatActivity {
      */
     private void initView() {
         EditText editText1 =(EditText)findViewById(R.id.clinics_input);
-        editText1.setText("肚子不舒服;每天晚上凌晨会痛;不是很痛;侧身睡就会感觉舒服点;已经几年了!");
+        editText1.setHint("请输入症状描述");
 
-       mButtonGetValue = (Button) findViewById(R.id.button_symptom);
+        mButtonGetValue = (Button) findViewById(R.id.button_symptom);
         mListView = (ListView) findViewById(R.id.clinics_treatment_lst);
     }
 
@@ -247,7 +275,15 @@ public class Clinics extends AppCompatActivity {
      * 加载数据
      */
     private void loadData() {
+
         listItemAdapter = new CheckboxAdapter(this);
+
+
+        listData = new ArrayList<HashMap<String, Object>>();
+        initListViewData(model_facade.getinstance().getClinics().GetSymptoms(), listData);
+        listItemAdapter.addAll(listData);
+        listItemAdapter.notifyDataSetChanged();
+
         mListView.setAdapter(listItemAdapter);
     }
 
@@ -257,9 +293,6 @@ public class Clinics extends AppCompatActivity {
      * @param listData
      */
     private void initListViewData(SymptomContainer symptomContainer, ArrayList<HashMap<String, Object>> listData) {
-        if (listData == null)
-            listData = new ArrayList<HashMap<String, Object>>();
-
         for (Symptom symptom: symptomContainer.getData()) {
             HashMap<String, Object> map = new HashMap<String, Object>();
             map.put("friend_image", R.drawable.images);
@@ -273,9 +306,6 @@ public class Clinics extends AppCompatActivity {
     }
 
     private void initListViewData(CauseContainer causes, ArrayList<HashMap<String, Object>> listData) {
-        if (listData == null)
-            listData = new ArrayList<HashMap<String, Object>>();
-
         ArrayList<Cause> lcauses = causes.getData();
         for (Cause cause: lcauses) {
             HashMap<String, Object> map = new HashMap<String, Object>();
@@ -290,9 +320,6 @@ public class Clinics extends AppCompatActivity {
     }
 
     private void initListViewData(DiagnosisContainer dignosises, ArrayList<HashMap<String, Object>> listData) {
-        if (listData == null)
-            listData = new ArrayList<HashMap<String, Object>>();
-
         ArrayList<Diagnosis> lisDiagnosis = dignosises.getData();
         for (Diagnosis diagnosis: lisDiagnosis) {
             HashMap<String, Object> map = new HashMap<String, Object>();
@@ -307,9 +334,6 @@ public class Clinics extends AppCompatActivity {
     }
 
     private void initListViewData(SolutionContainer soltions, ArrayList<HashMap<String, Object>> listData) {
-        if (listData == null)
-            listData = new ArrayList<HashMap<String, Object>>();
-
         ArrayList<Solution> lstSolution = soltions.getData();
         for (Solution solution: lstSolution) {
             HashMap<String, Object> map = new HashMap<String, Object>();
@@ -414,9 +438,9 @@ public class Clinics extends AppCompatActivity {
         return  strText;
     }
 
-    void saveViewData(enum_item item) {
+    int saveViewData(enum_item item) {
         //保存文本输入
-        HashMap<Integer, HashMap<String, Object>> state = null;
+        HashMap<Integer, HashMap<String, Object>> states = listItemAdapter.state;;
 
         EditText editText1 =(EditText)findViewById(R.id.clinics_input);
         String strInput = editText1.getText().toString();
@@ -431,13 +455,19 @@ public class Clinics extends AppCompatActivity {
                 SymptomContainer symptomContainer = model.GetSymptom();
 
                 //添加详细描述
+                if (strInput.isEmpty())
+                {
+                    editText1.setHint("症状描述不能为空");
+                    return  -1;
+                }
+
                 symptomContainer.setDetail(strInput);
 
                 //标记选择的选项
                 ArrayList<Symptom> symptomsData = symptomContainer.getData();
-                state = listItemAdapter.state;
-                for (int j = 0; j < listItemAdapter.getCount(); j++) {
-                    symptomsData.get(j).bSelet = state.get(j) != null ? true : false;
+                for (int key : states.keySet())
+                {
+                    symptomsData.get(key).bSelet = true;
                 }
 
                 //提交请求
@@ -449,20 +479,20 @@ public class Clinics extends AppCompatActivity {
                 model.getCause(false).setDetail(strInput);
 
                 ArrayList<Cause> causes = model.getCause(false).getData();
-                state = listItemAdapter.state;
-                for (int j = 0; j < listItemAdapter.getCount(); j++) {
-                    causes.get(j).bSelet = state.get(j) != null ? true : false;
+                for (int key : states.keySet())
+                {
+                    causes.get(key).bSelet = true;
                 }
 
             }break;
             case DIAGNOSIS:{
 
-               // model.getDiagnosis(strInput);
+               model.getDiagnosis(false).setDetail(strInput);
 
                 ArrayList<Cause> causes = model.getCause(false).getData();
-                state = listItemAdapter.state;
-                for (int j = 0; j < listItemAdapter.getCount(); j++) {
-                    causes.get(j).bSelet = state.get(j) != null ? true : false;
+                for (int key : states.keySet())
+                {
+                    causes.get(key).bSelet = true;
                 }
             }break;
             case SOLUTION:{
@@ -470,9 +500,8 @@ public class Clinics extends AppCompatActivity {
                 model.getSolution(false).setDetail(strInput);
 
                 ArrayList<Diagnosis> diagnoses = model.getDiagnosis(false).getData();
-                state = listItemAdapter.state;
-                for (int j = 0; j < listItemAdapter.getCount(); j++) {
-                    diagnoses.get(j).bSelet = state.get(j) != null ? true : false;
+                for (int key : states.keySet()) {
+                    diagnoses.get(key).bSelet = true;
                 }
             }break;
             case FINISH:{
@@ -480,7 +509,7 @@ public class Clinics extends AppCompatActivity {
             }break;
         }
 
-
+        return  0;
     }
 
     class NetUpdate extends Notify {
@@ -494,7 +523,7 @@ public class Clinics extends AppCompatActivity {
                 switch (treatment.m_eItem) {
                     case SYMPTOM: {
                         //3.将数据封装成显示的格式
-                        initListViewData(model.GetSymptom(), data);
+                        initListViewData(treatment.m_symptomContainor, data);
                     }
                     break;
                     case CAUSE: {

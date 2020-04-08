@@ -4,25 +4,26 @@
 #include"coder.h"
 #include"../DataBase/DataBase.h"
 #include "../log/log.h"
+#include "../config/config_manager.h"
+#include "../DataBase/db_connector_container.h"
+#include <sstream>
+#include "../sequence/json_seq_strategy.h"
+
+static string FAILED = "failed";
+static string SUCCESS = "success";
 
 /**********************************************
  *这里指定协议的名称为类名
  *
  * *******************************************/ 
-Clinics::Clinics() {
-	strcpy(m_szName, "Clinics");
+Clinics::Clinics() 
+{
+	m_name =  "Clinics";
 }
 
-Clinics::~Clinics() {
+Clinics::~Clinics() 
+{
 
-}
-
-/********************************************
- *功能:获取协议的名称
- *
- * ******************************************/ 
-const char* Clinics::getName() {
-	return m_szName;
 }
 
 /************************************************
@@ -34,41 +35,56 @@ const char* Clinics::getName() {
 int Clinics::dispatch(const Json::Value& jData, Handle fd)
 //Json::Value Clinics::dispatch(const Json::Value jData) 
 {
+	LOG_INFO("perform self clinics");
+
 	Json::Value jRet;
 
 	//解析出treatment_t
 	treatment_t treatment;
-	Coder coder;
-	if(coder.DecodeTreatment(jData, treatment) < 0) {
-		jRet["code"] = -1;
-		jRet["error"]	= coder.GetLastError();
+	treatment.Clear();
+	if(Coder::DecodeTreatment(jData, treatment) < 0) 
+	{
+		LOG_ERROR("data parser failed");
 		return -1;
 	}
 
 	//使用合适的方法更细致的业务
-	DataBase* pDB = nullptr;
-	const char* method = treatment.protocol.c_str();
-	if(0 == strcmp("GetSymptom", method) ) {
-		jRet = GetSymptom(treatment,pDB);
+	const char* method = treatment.method.c_str();
+	if(0 == strcmp("GetSymptom", method) ) 
+	{
+		jRet = GetSymptom(treatment);
 	}
-	else if(0 == strcmp("GetCause", method)) {
-		jRet = GetCause(treatment, pDB);
+	else if(0 == strcmp("GetCause", method)) 
+	{
+		jRet = GetCause(treatment);
 	}
-	else if (0 == strcmp("GetDiagnosis", method)) {
-		jRet = GetDiagnosis(treatment, pDB);
+	else if (0 == strcmp("GetDiagnosis", method)) 
+	{
+		jRet = GetDiagnosis(treatment);
 	}
-	else if(0 == strcmp("GetSolution", method)) {
-		jRet = GetSolution(treatment, pDB);
+	else if(0 == strcmp("GetSolution", method)) 
+	{
+		jRet = GetSolution(treatment);
 	}
-	else if(0 == strcmp("Finish", method)) {
-		jRet = Finish(treatment, pDB);
+	else if(0 == strcmp("Finish", method)) 
+	{
+		jRet = Finish(treatment);
 	}
 	else{
-		jRet["code"] = -1;
-		string error 	= "不支持的协议:" +treatment.protocol;
-		jRet["error"]	= error;
+		jRet["result"] = FAILED;
+		string error 	= "不支持的协议:" +treatment.method;
+		jRet["desc"]	= error;
 	}
 	
+	jRet["method"] = treatment.method;
+
+	if (SendData( jRet, fd) < 0)
+	{
+		LOG_ERROR("send data failed");
+		return -1;
+	}
+
+	LOG_INFO("perform:%s self clinics ok", method);
 	return 0;
 }
 
@@ -78,7 +94,7 @@ int Clinics::dispatch(const Json::Value& jData, Handle fd)
  *参数: jData:携带请求数据的json对象,用引用可以减少内存的拷贝 
  *
  * **************************************************************************************/ 
-Json::Value Clinics::GetSymptom(treatment_t treatment, DataBase* pDB) {
+Json::Value Clinics::GetSymptom(treatment_t treatment ) {
 	pthread_t pid;
 	LOG_DEBUG("get symptom");
 
@@ -95,7 +111,7 @@ Json::Value Clinics::GetSymptom(treatment_t treatment, DataBase* pDB) {
 	
 
 	/*sql 根据描述表获取diagnosis_element_id */
-	std::vector<LONG> element_ids = GetSymptomID(details, pDB);
+	std::vector<LONG> element_ids = GetSymptomID(details);
 
 
 	/*合并element_id*/
@@ -105,10 +121,11 @@ Json::Value Clinics::GetSymptom(treatment_t treatment, DataBase* pDB) {
 	}
 
 	/*sql 从diagnosis表获取更多相关描述id*/
-	std::vector<symptom_t> symptoms = GetSymptomContent(merge_ids, pDB);
+	std::vector<symptom_t> symptoms = GetSymptomContent(merge_ids);
 	
 	/*sql 标记出来自于拆分的描述*/
-	for(int i = 0 ; i < element_ids.size(); i++) {
+	for(int i = 0 ; i < element_ids.size(); i++) 
+	{
 		int count = symptoms.size();
 		for(int j = 0; j < count; j++) {
 			if(element_ids[i] == symptoms[j].diagnosis_element_id) {
@@ -123,18 +140,16 @@ Json::Value Clinics::GetSymptom(treatment_t treatment, DataBase* pDB) {
 	treatment.symptom.elements = symptoms;
 
 	Json::Value jSymptom;
-	Coder coder;
-
 	treatment.Clear();
-	treatment.protocol = "GetSymptom";
-	coder.EncodeTreatment(treatment, jSymptom);
+	treatment.method = "GetSymptom";
+	Coder::EncodeTreatment(treatment, jSymptom);
 
 	jRet["ret"]  	= 0;
 	jRet["data"]	= jSymptom;
 	return jRet;
 }
 
-Json::Value Clinics::GetCause(treatment_t treatment, DataBase* pDB) {
+Json::Value Clinics::GetCause(treatment_t treatment ) {
 	LOG_DEBUG("get cause");
 
 	Json::Value jRet;
@@ -145,19 +160,18 @@ Json::Value Clinics::GetCause(treatment_t treatment, DataBase* pDB) {
 	/*3.将新获取的id合并起来*/
 
 	/*4. 从diagnosis+diagnosis_element_id连表查询diagnosis_element_id,content,feedback*/
-	vector<cause_t> causes = GetCauseContent(treatment,pDB);
+	vector<cause_t> causes = GetCauseContent(treatment);
 
 	/*考虑把自定义拆分的id标记出来,这个算是原创描述,值得特殊考虑*/
 	/*从数据库获取记录症状描述和统计结果*/
 	treatment.Clear();
-	treatment.protocol 		= "GetCause";
+	treatment.method 		= "GetCause";
 	treatment.cause.elements 	= causes;
 	
 	
 	/*将数据包装成json*/
-	Coder coder;
 	Json::Value jCause;
-	coder.EncodeTreatment(treatment, jCause);
+	Coder::EncodeTreatment(treatment, jCause);
 
 	jRet["data"] 	= jCause;
 	jRet["code"]	= 0;
@@ -167,7 +181,7 @@ Json::Value Clinics::GetCause(treatment_t treatment, DataBase* pDB) {
 
 }
 
-Json::Value Clinics::GetDiagnosis(treatment_t treatment, DataBase* pDB) {
+Json::Value Clinics::GetDiagnosis(treatment_t treatment ) {
 	LOG_DEBUG("get diagnosis");
 
 	Json::Value jRet;
@@ -180,23 +194,23 @@ Json::Value Clinics::GetDiagnosis(treatment_t treatment, DataBase* pDB) {
 	
 
 	/*从数据库获取记录症状描述和统计结果*/
-	vector<diagnosis_t> diagnosises = GetDiagnosisContent(treatment,pDB);
+	vector<diagnosis_t> diagnosises = GetDiagnosisContent(treatment);
 	
 	/*将数据包装成json*/
 	Json::Value jDiagnosis;
-	Coder coder;
 
 	treatment.Clear();
-	treatment.protocol = "GetDiagnosis";
-	coder.EncodeTreatment(treatment, jDiagnosis);
+	treatment.method = "GetDiagnosis";
+	Coder::EncodeTreatment(treatment, jDiagnosis);
 
 	jRet["data"] 	= jDiagnosis;
-	jRet["code"]	= 0;
-	
+	jRet["desc"]   = "";
+	jRet["result"] = FAILED;
+
 	return jRet;
 }
 
-Json::Value Clinics::GetSolution(treatment_t treatment, DataBase* pDB) {
+Json::Value Clinics::GetSolution(treatment_t treatment ) {
 	pthread_t pid;
 	LOG_DEBUG("get solution");
 
@@ -207,15 +221,14 @@ Json::Value Clinics::GetSolution(treatment_t treatment, DataBase* pDB) {
 	/*3.合并id到solution*/
 
 	/*4.从数据库获取记录症状描述和统计结果*/
-	vector<solution_t> solutions = GetSolutionContent(treatment,pDB);
+	vector<solution_t> solutions = GetSolutionContent(treatment);
 	
 	/*将数据包装成json*/
 	Json::Value jSolution;
-	Coder coder;
 
 	treatment.Clear();
-	treatment.protocol = "GetSolution";
-	coder.EncodeTreatment(treatment, jSolution);
+	treatment.method = "GetSolution";
+	Coder::EncodeTreatment(treatment, jSolution);
 
 	jRet["data"]	= jSolution;
 	jRet["code"]	= 0;
@@ -257,7 +270,7 @@ vector<string> Clinics:: SplitDetail(const string detail) {
 }
 
 
-vector<LONG> Clinics::GetSymptomID(const vector<string> details, DataBase* pDB) {
+vector<LONG> Clinics::GetSymptomID(const vector<string> details ) {
 	LOG_DEBUG("get symptom id");
 	vector<LONG> ids;
 	//sql 很久描述获取id
@@ -269,16 +282,16 @@ vector<LONG> Clinics::GetSymptomID(const vector<string> details, DataBase* pDB) 
 	sql = sql.substr(0, sql.size() - 1);
 	sql += ")";
 
-	
-	if(pDB->Exec(sql.c_str()) < 0) {
-		LOG_ERROR("perform db query failed: %s", pDB->GetLastError());
+	shared_ptr<DataBase> ptrDB = DBConnectorContainer::GetInstance().GetDB();
+	if(ptrDB->Exec(sql.c_str()) < 0) {
+		LOG_ERROR("perform db query failed: %s", ptrDB->GetLastError().c_str());
 		return ids;
 	}
 
 	/*提取结果集合*/
-	while(pDB->HasNext()) {
+	while(ptrDB->HasNext()) {
 		LONG id = -1;
-		pDB->GetFieldValue("diagnosis_element_id", id);
+		ptrDB->GetFieldValue("diagnosis_element_id", id);
 		ids.push_back(id);
 	}
 
@@ -292,14 +305,10 @@ vector<LONG> Clinics::GetSymptomID(const vector<string> details, DataBase* pDB) 
  *性别/地理位置/季节等进行综合分析;我们的优势是精准,而不是纯粹的搜索,比医生准;element_ids
  *
  ********************************************************************/
-vector<symptom_t> Clinics::GetSymptomContent(const vector<LONG> element_ids, DataBase* pDB) {
+vector<symptom_t> Clinics::GetSymptomContent(const vector<LONG> element_ids ) {
 	LOG_DEBUG("get symptom content");
 
 	vector<symptom_t> symptoms;
-	if(NULL == pDB) {
-		LOG_ERROR("空指针pDB;");
-		return symptoms;
-	}
 
 	/*获取相关元素的id集合,并连表查询取得内容,还要统计出病例中出现的次数*/
 	string sql = "select diagnosis_element_id, content from diagnosis f join diagnosis_element s on diagnosis.diagnosis_element_id = diagnosis.diagnosis_element_id where f.diagnosis_element_id in (select \
@@ -318,18 +327,18 @@ vector<symptom_t> Clinics::GetSymptomContent(const vector<LONG> element_ids, Dat
 
 	sql	+= "group by diagnosis_element_id count(*) as feedback order by feedback;";
 
-	if(pDB->Exec(sql.c_str()) < 0) {
-		LOG_ERROR("数据库查询失败:%s \n" , pDB->GetLastError());
+	shared_ptr<DataBase> ptrDB = DBConnectorContainer::GetInstance().GetDB();
+	if( ptrDB->Exec(sql.c_str()) < 0) {
+		LOG_ERROR("数据库查询失败:%s \n" ,  ptrDB->GetLastError().c_str());
 		return symptoms;
 	}
 
-	while(pDB->HasNext()){
+	while( ptrDB->HasNext()){
 		symptom_t symptom;
-		symptom.Clear();
 
-		pDB->GetFieldValue("diagnosis_element_id", symptom.diagnosis_element_id);
-		pDB->GetFieldValue("content", symptom.content);
-		pDB->GetFieldValue("feedback", symptom.feedback);
+		 ptrDB->GetFieldValue("diagnosis_element_id", symptom.diagnosis_element_id);
+		 ptrDB->GetFieldValue("content", symptom.content);
+		 ptrDB->GetFieldValue("feedback", symptom.feedback);
 
 		symptoms.push_back(symptom);
 	}
@@ -337,7 +346,7 @@ vector<symptom_t> Clinics::GetSymptomContent(const vector<LONG> element_ids, Dat
 	return symptoms;
 }
 
-vector<cause_t>	Clinics::GetCauseContent(treatment_t treatment, DataBase* pDB) {
+vector<cause_t>	Clinics::GetCauseContent(treatment_t treatment ) {
 	vector<cause_t> causes;
 	/*1.sql 连表查询diagnosis_element_id, content, feedback*/
 	string sql = "select diagnosis_element_id, content, feedback \
@@ -363,19 +372,19 @@ vector<cause_t>	Clinics::GetCauseContent(treatment_t treatment, DataBase* pDB) {
 	sql = sql.substr(0, sql.size() - 1);
 	sql += "))";
 
-	if(pDB->Exec(sql.c_str()) < 0) {
-		LOG_ERROR("执行数据库失败:%s \n" , pDB->GetLastError());
+	shared_ptr<DataBase> ptrDB = DBConnectorContainer::GetInstance().GetDB();
+	if( ptrDB->Exec(sql.c_str()) < 0) {
+		LOG_ERROR("执行数据库失败") ;
 		return causes;
 	}
 
 	/*2.提取结果集*/
-	while(pDB->HasNext()) {
+	while( ptrDB->HasNext()) {
 		cause_t cause;
-		cause.Clear();
 
-		pDB->GetFieldValue("diagnosis_element_id", cause.diagnosis_element_id);
-		pDB->GetFieldValue("content",	cause.content);
-		pDB->GetFieldValue("feedback", 	cause.feedback);
+		 ptrDB->GetFieldValue("diagnosis_element_id", cause.diagnosis_element_id);
+		 ptrDB->GetFieldValue("content",	cause.content);
+		 ptrDB->GetFieldValue("feedback", 	cause.feedback);
 		causes.push_back(cause);
 	}
 
@@ -386,7 +395,7 @@ vector<cause_t>	Clinics::GetCauseContent(treatment_t treatment, DataBase* pDB) {
 	return causes;
 }
 
-vector<diagnosis_t> Clinics::GetDiagnosisContent(treatment_t treatment, DataBase* pDB) {
+vector<diagnosis_t> Clinics::GetDiagnosisContent(treatment_t treatment ) {
 	vector<diagnosis_t> diagnosises;
 	/*1.sql 查询到diagnosis_id 集合*/
 	string sql = "select diagnosi_id from diagnosis where diagnosi_id in (select diagnosi_id from diagnosis where type = 1\
@@ -408,15 +417,16 @@ vector<diagnosis_t> Clinics::GetDiagnosisContent(treatment_t treatment, DataBase
 
 	sql += ")";
 	
-	if(pDB->Exec(sql.c_str()) < 0) {
-		LOG_ERROR("perform db query failed:%s \n" , pDB->GetLastError());
+	shared_ptr<DataBase> ptrDB = DBConnectorContainer::GetInstance().GetDB();
+	if( ptrDB->Exec(sql.c_str()) < 0) {
+		LOG_ERROR("perform db query failed:%s \n" ,  ptrDB->GetLastError());
 		return diagnosises;
 	}
 
 	diagnosis_t diagnosis;
-	while(pDB->HasNext()) {
-		diagnosis.Clear();
-		pDB->GetFieldValue("diagnosis_id", diagnosis.diagnosis_id);
+	while( ptrDB->HasNext()) 
+	{
+		 ptrDB->GetFieldValue("diagnosis_id", diagnosis.diagnosis_id);
 		diagnosises.push_back(diagnosis);
 	}
 
@@ -449,15 +459,181 @@ vector<diagnosis_t> Clinics::GetDiagnosisContent(treatment_t treatment, DataBase
 	return diagnosises;
 }
 
-vector<solution_t> Clinics::GetSolutionContent(treatment_t treatment,DataBase* pDB) {
+vector<solution_t> Clinics::GetSolutionContent(treatment_t treatment ) {
 	vector<solution_t> solutions;
 
 
 	return solutions;
 }
 
-Json::Value Clinics::Finish(treatment_t treatment, DataBase* pDB) {
+Json::Value Clinics::Finish(treatment_t treatment ) {
 	Json::Value jRet;
+	string result = FAILED;
+	stringstream desc;
+
+	//save data to mysql
+	stringstream sql;
+	shared_ptr<DataBase> ptrDB;
+
+	do
+	{
+		//insert into diagnosis ,then return diagnosis_Id
+		sql << "BEGIN;";
+
+		ptrDB = DBConnectorContainer::GetInstance().GetDB();
+		if (!ptrDB)
+		{
+			LOG_ERROR("get db failed");
+			break;
+		}
+
+		if (ptrDB->Exec(sql.str()) < 0)
+		{
+			desc << ("begin transcation failed");
+			break;
+		}
+
+		sql.str("");
+		sql << "insert into diagnosis (user_id, symptom_detail, \
+		cause_detail, diagnosis_detail, solution_detail, data_source,\
+		create_time, status) \
+		values ( "
+		<< treatment.user_id << ", "
+		<< " '" << treatment.symptom.detail << "', "
+		<< " '" << treatment.cause.detail << "', "
+		<< " '" << treatment.diagnosis.detail << "', "
+		<< " '" << treatment.solution.detail << "', "
+		<< " ' " << treatment.data_source << "', "
+		<< "NOW(), "
+		<< treatment.status
+		<< ");";
+		if (ptrDB->Exec(sql.str()) < 0)
+		{
+			desc << ("perfrom sql failed");
+			break;
+		}
+
+		sql.str("");
+		sql << "select max(diagnosis_id) as diagnosis_id from diagnosis ;";
+		if (ptrDB->Exec(sql.str()) < 0)
+		{
+			desc << ("perfrom sql failed");
+			break;
+		}
+		
+
+		if (!ptrDB->HasNext())
+		{
+			desc << "diagnosis_id get failed";
+			break;
+		}
+
+		long long diagnosis_id;
+		ptrDB->GetFieldValue("diagnosis_id", diagnosis_id);
+
+		//insert sysptom
+		sql.str("");
+		for (auto itr : treatment.symptom.elements)
+		{
+			sql << "insert into diagnosis_element_map (diagnosis_id, diagnosis_element_id)\
+			values ("
+			<< diagnosis_id << ", "
+			<< itr.diagnosis_element_id  << ""
+			<< ");";
+
+			if (ptrDB->Exec(sql.str()) < 0)
+			{
+				desc << "commit sql failed";
+				LOG_ERROR(desc.str().c_str());
+				result = FAILED;
+			}
+			sql.str("");
+		}
+
+		//insert cause
+		for (auto itr : treatment.cause.elements)
+		{
+			sql << "insert into diagnosis_element_map (diagnosis_id, diagnosis_element_id)\
+			values ("
+			<< diagnosis_id << ", "
+			<< itr.diagnosis_element_id  << ""
+			<< ");";
+
+			if (ptrDB->Exec(sql.str()) < 0)
+			{
+				desc << "commit sql failed";
+				LOG_ERROR(desc.str().c_str());
+				result = FAILED;
+			}
+			sql.str("");
+		}
+
+		//insert  diagnosis
+		for (auto itr : treatment.diagnosis.elements)
+		{
+			sql << "insert into diagnosis_element_map (diagnosis_id, diagnosis_element_id)\
+			values ("
+			<< diagnosis_id << ", "
+			<< itr.diagnosis_element_id  << ""
+			<< ");";
+
+			if (ptrDB->Exec(sql.str()) < 0)
+			{
+				desc << "commit sql failed";
+				LOG_ERROR(desc.str().c_str());
+				result = FAILED;
+			}
+			sql.str("");
+		}
+
+		//insert solution
+		for (auto itr : treatment.solution.elements)
+		{
+			sql << "insert into diagnosis_element_map (diagnosis_id, diagnosis_element_id)\
+			values ("
+			<< diagnosis_id << ", "
+			<< itr.diagnosis_element_id  << ""
+			<< ");";
+
+			if (ptrDB->Exec(sql.str()) < 0)
+			{
+				desc << "commit sql failed";
+				LOG_ERROR(desc.str().c_str());
+				result = FAILED;
+			}
+			sql.str("");
+		}
+
+		result = SUCCESS;
+	} while (0);
+	
+	//insert into diagnosis_element_map
+	sql.str("");
+	result.compare(SUCCESS) == 0 ? sql<< "COMMIT;" : sql << "ROLLBACK;";
+	if (ptrDB && ptrDB->Exec(sql.str()) < 0)
+	{
+		desc << "commit sql failed";
+		LOG_ERROR(desc.str().c_str());
+		result = FAILED;
+	}
+
+	jRet["result"] = result;
+	jRet["desc"] = desc.str();
 
 	return jRet;
+}
+
+int Clinics::SendData(const Json::Value& jData, Handle fd)
+{
+	Json::Value jSend;
+	jSend["method"] = m_name;
+	jSend["data"] = jData;
+
+	if (JsonSeqStrategy::SendSeq( fd, jSend) < 0)
+	{
+		LOG_ERROR("send json failed");
+		return -1;
+	}
+
+	return 0;
 }

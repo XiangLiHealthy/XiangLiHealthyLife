@@ -5,6 +5,7 @@ import com.example.commondata.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.time.chrono.JapaneseDate;
 import java.util.ArrayList;
 
 import static com.example.commondata.enum_item.CAUSE;
@@ -15,13 +16,21 @@ import static com.example.commondata.enum_item.SYMPTOM;
 import static com.example.commondata.enum_item.UNKNOWN;
 
 class JsonCoder {
+    public JSONObject setProtocol(JSONObject jData, String protocol) throws Exception{
+        JSONObject tmp = new JSONObject();
+        tmp.put("protocol", protocol);
+        tmp.put("data", jData);
+
+        return tmp;
+    }
+
     /**
      * 自诊
      */
-    public JSONObject encodeSymptom(enum_item eItem, Treatment clinics, int nPageNum)throws Exception {
+    public JSONObject encodeClinicsRequest(Treatment clinics, int nPageNum)throws Exception {
         JSONObject json = new JSONObject();
 
-        String strMethod = GetMethod(eItem);
+        String strMethod = GetMethod(clinics.m_eItem);
         if(null == strMethod) {
             throw new Exception("非法诊断步骤");
         }
@@ -46,7 +55,8 @@ class JsonCoder {
             }
 
             //添加诊断结论对象
-            if(null != clinics.m_diagnosis) {
+            if(null != clinics.m_diagnosis)
+            {
                 jData = encodeDianosis(clinics.m_diagnosis);
                 json.put("Diagnosis", jData);
             }
@@ -74,121 +84,148 @@ class JsonCoder {
     public Treatment decode(JSONObject jData) throws Exception{
         Treatment clinics = new Treatment();
         try {
-
-            int nRet = jData.getInt("return");
-            if (0 != nRet) {
-                String strErr = jData.getString("error");
-                throw new Exception(strErr);
-            }
-
             JSONObject data = jData.getJSONObject("data");
 
-            String method   = jData.getString("protocol");
+            String result = data.getString("result");
+            if (result != "success")
+            {
+                clinics.error = data.getString("desc");
+                return clinics;
+            }
+
+
+            String method   = jData.getString("method");
             clinics.m_eItem = GetMethod(method);
 
             //解析症状描述
-            JSONObject jDiagnosisElement = data.getJSONObject("Symptom");
-            if(null != jDiagnosisElement) {
-                SymptomContainer symptomContainer = new SymptomContainer();
+            JSONObject jDiagnosisElement;
+            if (data.has("Symptom"))
+            {
+                jDiagnosisElement = data.getJSONObject("Symptom");
+                if(null != jDiagnosisElement) {
+                    SymptomContainer symptomContainer = new SymptomContainer();
 
-                symptomContainer.setDetail(jDiagnosisElement.getString("detail"));
+                    symptomContainer.setDetail(jDiagnosisElement.getString("detail"));
 
-                JSONArray arr = jData.getJSONArray("row");
-                ArrayList<Symptom> symptoms = new ArrayList<Symptom>();
-                for (int i = 0; i < arr.length(); i++) {
-                    JSONObject Jsymptom = (JSONObject) arr.get(i);
+                    JSONArray arr = jData.getJSONArray("row");
+                    ArrayList<Symptom> symptoms = new ArrayList<Symptom>();
+                    for (int i = 0; i < arr.length(); i++) {
+                        JSONObject Jsymptom = (JSONObject) arr.get(i);
 
-                    Symptom symptom_t = new Symptom();
-                    symptom_t.nID       = Jsymptom          .getInt(    "dignosis_element_id");
-                    symptom_t.strDesc   = jDiagnosisElement .getString( "content");
-                    symptom_t.nType     = jDiagnosisElement .getInt(    "type");
-                    symptom_t.nFeedback = jDiagnosisElement .getInt(    "feedback");
+                        Symptom symptom_t = new Symptom();
+                        symptom_t.nID       = Jsymptom          .getInt(    "dignosis_element_id");
+                        symptom_t.strDesc   = jDiagnosisElement .getString( "content");
+                        symptom_t.nType     = jDiagnosisElement .getInt(    "type");
+                        symptom_t.nFeedback = jDiagnosisElement .getInt(    "feedback");
 
-                    symptoms.add(symptom_t);
+                        symptoms.add(symptom_t);
+                    }
+                    symptomContainer.add(symptoms);
+                    clinics.m_symptomContainor = symptomContainer;
                 }
-                symptomContainer.add(symptoms);
-                clinics.m_symptomContainor = symptomContainer;
             }
+
 
             //解析原因推测
-            jDiagnosisElement = data.getJSONObject("Cause");
-            if(null != jDiagnosisElement) {
-                CauseContainer causeContainer = new CauseContainer();
+            if (data.has("Cause"))
+            {
+                jDiagnosisElement = data.getJSONObject("Cause");
+                if(null != jDiagnosisElement) {
+                    CauseContainer causeContainer = new CauseContainer();
 
-                causeContainer.setDetail(jDiagnosisElement.getString("detail"));
+                    causeContainer.setDetail(jDiagnosisElement.getString("detail"));
 
-                JSONArray arr = jData.getJSONArray("row");
-                ArrayList<Cause> causes = new ArrayList<Cause>();
-                for (int i = 0; i < arr.length(); i++) {
-                    JSONObject Jsymptom = (JSONObject) arr.get(i);
+                    JSONArray arr = jData.getJSONArray("row");
+                    ArrayList<Cause> causes = new ArrayList<Cause>();
+                    for (int i = 0; i < arr.length(); i++) {
+                        JSONObject Jsymptom = (JSONObject) arr.get(i);
 
-                    Cause cause = new Cause();
-                    cause.nID       = Jsymptom              .getInt(    "dignosis_element_id");
-                    cause.strDesc   = jDiagnosisElement     .getString( "content");
-                    cause.nSuspect     = jDiagnosisElement  .getInt(    "suspect");
-                    cause.nFeedback = jDiagnosisElement     .getInt(    "feedback");
+                        Cause cause = new Cause();
+                        cause.nID       = Jsymptom              .getInt(    "dignosis_element_id");
+                        cause.strDesc   = jDiagnosisElement     .getString( "content");
+                        cause.nSuspect     = jDiagnosisElement  .getInt(    "suspect");
+                        cause.nFeedback = jDiagnosisElement     .getInt(    "feedback");
 
-                    causes.add(cause);
+                        causes.add(cause);
+                    }
+
+                    causeContainer.m_lstItem    = causes;
+                    clinics.m_causeContainer    = causeContainer;
                 }
-
-                causeContainer.m_lstItem    = causes;
-                clinics.m_causeContainer    = causeContainer;
             }
+
 
             //解析诊断结论
-            jDiagnosisElement = data.getJSONObject("Diagnosis");
-            if(null != jDiagnosisElement) {
-                DiagnosisContainer diagnosisContainer = new DiagnosisContainer();
+            if (data.has("Diagnosis"))
+            {
+                jDiagnosisElement = data.getJSONObject("Diagnosis");
+                if(null != jDiagnosisElement) {
+                    DiagnosisContainer diagnosisContainer = new DiagnosisContainer();
 
-                diagnosisContainer.setDetail(jDiagnosisElement.getString("detail"));
+                    diagnosisContainer.setDetail(jDiagnosisElement.getString("detail"));
 
-                JSONArray arr = jData.getJSONArray("row");
-                ArrayList<Diagnosis> diagnoses = new ArrayList<Diagnosis>();
-                for (int i = 0; i < arr.length(); i++) {
-                    JSONObject Jsymptom     = (JSONObject) arr.get(i);
-                    Diagnosis diagnosis     = new Diagnosis();
-                    diagnosis.nID           = Jsymptom          .getInt(    "dignosis_element_id");
-                    diagnosis.strDesc       = jDiagnosisElement .getString( "content");
-                    diagnosis.fProbility    = jDiagnosisElement .getInt(    "probilatity");
-                    diagnosis.nIndex        = jDiagnosisElement .getInt(    "degree");
+                    JSONArray arr = jData.getJSONArray("row");
+                    ArrayList<Diagnosis> diagnoses = new ArrayList<Diagnosis>();
+                    for (int i = 0; i < arr.length(); i++) {
+                        JSONObject Jsymptom     = (JSONObject) arr.get(i);
+                        Diagnosis diagnosis     = new Diagnosis();
+                        diagnosis.nID           = Jsymptom          .getInt(    "dignosis_element_id");
+                        diagnosis.strDesc       = jDiagnosisElement .getString( "content");
+                        diagnosis.fProbility    = jDiagnosisElement .getInt(    "probilatity");
+                        diagnosis.nIndex        = jDiagnosisElement .getInt(    "degree");
 
-                    diagnoses.add(diagnosis);
+                        diagnoses.add(diagnosis);
+                    }
+
+                    diagnosisContainer.add(diagnoses);
+                    clinics.m_diagnosis = diagnosisContainer;
                 }
-
-                diagnosisContainer.add(diagnoses);
-                clinics.m_diagnosis = diagnosisContainer;
             }
+
 
             //解析解决方法
-            jDiagnosisElement = data.getJSONObject("Solution");
-            if(null != jDiagnosisElement) {
-                SolutionContainer solutionContainer = new SolutionContainer();
+            if (data.has("Soulution"))
+            {
+                jDiagnosisElement = data.getJSONObject("Solution");
+                if(null != jDiagnosisElement) {
+                    SolutionContainer solutionContainer = new SolutionContainer();
 
-                solutionContainer.setDetail(jDiagnosisElement.getString("detail"));
+                    solutionContainer.setDetail(jDiagnosisElement.getString("detail"));
 
-                JSONArray arr = jData.getJSONArray("row");
-                ArrayList<Solution> solutions = new ArrayList<Solution>();
-                for (int i = 0; i < arr.length(); i++) {
-                    JSONObject Jsymptom = (JSONObject) arr.get(i);
+                    JSONArray arr = jData.getJSONArray("row");
+                    ArrayList<Solution> solutions = new ArrayList<Solution>();
+                    for (int i = 0; i < arr.length(); i++) {
+                        JSONObject Jsymptom = (JSONObject) arr.get(i);
 
-                    Solution solution   = new Solution();
-                    solution.nID        = Jsymptom          .getInt(    "dignosis_element_id");
-                    solution.strDesc    = jDiagnosisElement .getString( "content");
+                        Solution solution   = new Solution();
+                        solution.nID        = Jsymptom          .getInt(    "dignosis_element_id");
+                        solution.strDesc    = jDiagnosisElement .getString( "content");
 
-                    solutions.add(solution);
+                        solutions.add(solution);
+                    }
+
+                    solutionContainer.m_lstItem = solutions;
+                    clinics.m_solution          = solutionContainer;
                 }
-
-                solutionContainer.m_lstItem = solutions;
-                clinics.m_solution          = solutionContainer;
             }
 
+
             //解析生成时间
-            clinics.m_strCreateTime = data.getString("create_time");
+            if (data.has("create_time"))
+            {
+                clinics.m_strCreateTime = data.getString("create_time");
+            }
+
 
             //结束时间
-            clinics.end_time        = data.getString("end_time");
+            if (data.has("end_time"))
+            {
+                clinics.end_time        = data.getString("end_time");
+            }
+
 
             //执行状态
+            if (data.has("status"))
             clinics.status          = data.getInt("status");
 
         }catch (Exception e)
@@ -236,7 +273,7 @@ class JsonCoder {
             Symptom symptom = symptomContainer.getData().get(i);
 
             JSONObject jRow = new JSONObject();
-            jRow.put("dignosis_element_id", symptom.nID);
+            jRow.put("diagnosis_element_id", symptom.nID);
 
             ja.put(i, jRow);
         }
@@ -257,7 +294,7 @@ class JsonCoder {
              Cause symptom = cause.getData().get(i);
 
              JSONObject jRow = new JSONObject();
-             jRow.put("dignosis_element_id", symptom.nID);
+             jRow.put("diagnosis_element_id", symptom.nID);
 
              ja.put(i, jRow);
          }
@@ -277,7 +314,7 @@ class JsonCoder {
             Diagnosis symptom = diagnosisContainer.getData().get(i);
 
             JSONObject jRow = new JSONObject();
-            jRow.put("dignosis_element_id", symptom.nID);
+            jRow.put("diagnosis_element_id", symptom.nID);
 
             ja.put(i, jRow);
         }
@@ -297,7 +334,7 @@ class JsonCoder {
              Solution symptom = solutionContainer.getData().get(i);
 
              JSONObject jRow = new JSONObject();
-             jRow.put("dignosis_element_id", symptom.nID);
+             jRow.put("diagnosis_element_id", symptom.nID);
 
              ja.put(i, jRow);
          }

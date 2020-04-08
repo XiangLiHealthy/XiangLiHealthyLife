@@ -11,18 +11,25 @@ create table dignosis_element
 ;
 
 ----//2.诊断方案表
-create table dignosis 
+create table diagnosis 
 (
     diagnosis_id bigint auto_increament primary key,
-    dignosis_elemet_id bigint,
-    foreign key(dignosis) references
-    dignosis_element(dignosis_elemet_id),
+    user_id bigint,
+    symptom_detail varchar(1024),
+    cause_detail varchar(1024),
+    diagnosis_detail varchar(1024),
+    solution_detail varchar(1024),
     feedback int,
-    comment varchar(256),
-    data_source int,
-    data_source_id
-)engine = InnoDB, charset = utf8
-;
+    data_source varchar(64),
+    create_time datetime,
+    status int
+)engine = InnoDB, charset = utf8;
+
+create table diagnosis_element_map
+{
+    diagnosis_id bigint,
+    diagnosis_element_id bigint
+}engine = InnoDB, charset = utf8;
 
 ----//3.医学知识库表
 create table medical 
@@ -78,34 +85,46 @@ create table case_picture
 -----//7.用户表
 create table user 
 (
- user_id bigint auto_increament primary key,
- password varchar(256) not null,
- name varchar(64),
- sex varchar(8),
- tall int,
- weight int,
- birthday date,
- native_place varchar(256),
- family varchar(256),
- marital_status int,
- blood_type int,
- occupation varchar(128),
+    user_id bigint auto_increament primary key,
+    tel varchar(16),
+    password varchar(32) not null,
+    name varchar(64),
+    sex varchar(8),
+    tall int,
+    weight int,
+    birthday date,
+    native_place varchar(256),
+    family varchar(256),
+    marital_status int,
+    blood_type int,
+    occupation varchar(128),
 )engine = InnoDB, charset = utf8
 ;
 
 ----爬虫数据缓存表
-create table diagnosis_element_tmp 
+create table medical_tmp 
 (
-     disease varchar(64) primary key,
-      src_url varchar(1024),
-      state int,
-       import_time datetime  
+    knowledge_id bigint auto_increment primary key,
+    disease varchar(64) ,
+    src_url varchar(1024),
+    station varchar(128),
+    state int default 0,
+    import_time datetime ,
 )charset=utf8,engine = InnoDB;
 
 create table diagnosis_element_tmp 
 ( 
-    disease varchar(64), 
+    element_id bigint auto_increment primary key, 
+    knowledge_id bigint,
     title varchar(128), 
-    content varchar(8024), 
-    backup varchar(128) 
+    content varchar(4096), 
+    cleaning_state int default 0
 ) charset = utf8, engine = InnoDB;
+
+create table station 
+( 
+    station varchar(128), 
+    url varchar(1024), 
+    state int default 0,
+    add_time datetime
+ )charset = utf8, engine = InnoDB;

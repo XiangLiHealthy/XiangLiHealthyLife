@@ -46,6 +46,7 @@ public class CheckboxAdapter extends BaseAdapter {
             this.listData = listData;
         }else
         {
+            this.listData.clear();
             this.listData.addAll(listData);
         }
 
@@ -54,8 +55,10 @@ public class CheckboxAdapter extends BaseAdapter {
 
     public void initSelect() {
         int position = 0;
-        for (HashMap<String, Object> obj: listData) {
-            if (true == ((boolean)obj.get("selected"))) {
+        for (HashMap<String, Object> obj: listData)
+        {
+            if (true == ((boolean)obj.get("selected")))
+            {
                 state.put(position, listData.get(position));
             }
 

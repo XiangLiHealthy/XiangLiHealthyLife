@@ -1,44 +1,34 @@
 package com.example.net_lib;
 
 import com.example.commondata.*;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
+import com.example.net_lib.Net;
 
-import java.io.Writer;
 
 public class NetClinics {
     private JsonCoder m_jsonCoder;
-    private Net m_net;
 
-    public NetClinics(JsonCoder json, Net net) {
+    public NetClinics(JsonCoder json) {
         m_jsonCoder = json;
-        m_net = net;
     }
 
-    public Treatment request(enum_item eItem, Treatment clinics, int nPageNum) {
+    public Treatment request(Treatment clinics, int nPageNum) throws Exception {
         //将参数封装成json
-        try {
 
-            JSONObject jData = m_jsonCoder.encodeSymptom(eItem, clinics, nPageNum);
+        Net net = Net.getInstance();
 
-            //将长度+功能描述+data封装到字节流
-            if (0 != m_net.send(jData))
-            {
-                return  null;
-            }
+        JSONObject jData = m_jsonCoder.encodeClinicsRequest(clinics, nPageNum);
+        jData.put("user_id", clinics.m_user_id);
+        jData = m_jsonCoder.setProtocol(jData, "Clinics");
 
-            //等待结果返回
-            jData = m_net.receiv();
+        net.sendJson(jData);
 
-            //解析json数据
-            return m_jsonCoder.decode(jData);
-        }
-        catch (Exception e) {
+        //等待结果返回
+        jData = net.recvJson();
 
-        }
-
-        return  null;
+        //解析json数据
+        return m_jsonCoder.decode(jData);
     }
 
     public CauseContainer getCause(Treatment clinics, int nPageNum){
@@ -53,7 +43,8 @@ public class NetClinics {
     }
 
     public DiagnosisContainer getDiagnosis(Treatment clinics, int nPageNum) {
-        try {
+        try
+        {
 
         }
         catch (Exception e) {

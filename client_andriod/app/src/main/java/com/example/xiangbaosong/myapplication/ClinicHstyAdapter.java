@@ -84,9 +84,8 @@ public class ClinicHstyAdapter  extends BaseAdapter {
         strText = "";
 
         //发作次数
-        // text = convertView.findViewById(R.id.clinics_h_i_times_v);
-        //strText = data.getDiagnosis(false).
-        //text.setText((String) data.GetSymptoms(false).getMain() );
+        text = convertView.findViewById(R.id.clinics_h_i_times_v);
+        text.setText(data.feedback_count );
 
 
 

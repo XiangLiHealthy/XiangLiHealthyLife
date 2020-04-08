@@ -11,9 +11,9 @@ public class SolutionContainer {
     private DiagnosisContainer m_diagnosises;
 
     public  SolutionContainer() {
-        for(int i = 0; i < 9; i++) {
-            m_lstItem.add(new Solution());
-        }
+//        for(int i = 0; i < 9; i++) {
+//            m_lstItem.add(new Solution());
+//        }
     }
 
     public void setDetail(String strDetail) {

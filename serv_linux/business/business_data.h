@@ -186,4 +186,30 @@ struct account_t
 	string way;
 };
 
+struct  clinics_record_request_t
+{
+	string user_id;
+	string start_num;
+};
+
+struct clinics_record_response_t
+{
+	string disease;
+	string cause;
+	string start_date;
+	int time_long;
+	int feedback_count;
+	int status;
+
+	void clear()
+	{
+		status = 0;
+		disease = "";
+		cause = "";
+		start_date = "";
+		time_long = 0;
+		feedback_count = 0;
+	}
+};
+
 

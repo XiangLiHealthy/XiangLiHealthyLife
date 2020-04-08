@@ -2,6 +2,8 @@
 #include<memory.h>
 #include<stdlib.h>
 #include "../log/log.h"
+#include <sstream>
+using std::stringstream;
 
 int Coder::DecodeTreatment(const Json::Value& data, treatment_t& dst) {
 	//1.解析method
@@ -26,6 +28,11 @@ int Coder::DecodeTreatment(const Json::Value& data, treatment_t& dst) {
 	}
 	dst.method = data["method"].asString();
 	
+	if (!data["user_id"].isNull())
+	{
+		dst.user_id = atol(data["user_id"].asString().c_str());
+	}
+
 	//3.获取symptom_container
 	if(data["Symptom"].isNull()) 
 	{
@@ -452,5 +459,45 @@ int Coder::DecodeAccountRegister(const Json::Value& jData, db_user_t& user_info)
 		user_info.occupation = jData["occupation"].asString();
 	}
 
+	return 0;
+}
+
+int Coder::DecodeClinicsRecord(const Json::Value& jData, clinics_record_request_t& request)
+{
+	if (jData["user_id"].isNull())
+	{
+		LOG_ERROR("there isn't key user_id");
+		return -1;
+	}
+	request.user_id = jData["user_id"].asString();
+
+	if (jData["start_num"].isNull())
+	{
+		LOG_ERROR("there isn't key start_num");
+		return -1;
+	}
+	request.start_num = jData["start_num"].asString();
+
+	return 0;
+}
+
+int Coder::EncodeClinicsRecord(const list<clinics_record_response_t>& response, Json::Value& jData)
+{
+	Json::Value items;
+
+	for (auto itr : response)
+	{
+		Json::Value item;
+		item["disease"] = itr.disease;
+		item["cause"] = itr.cause;
+		item["start_date"] = itr.start_date;
+		item["time_long"] = itr.time_long;
+		item["feedback_count"] = itr.feedback_count;
+
+		items.append(item);
+	}
+
+	jData["datas"] = items;
+	
 	return 0;
 }

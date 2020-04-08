@@ -24,8 +24,8 @@ public class NetFacade {
     }
 
     //AI自诊
-    public Treatment request(enum_item eItem, Treatment clinics, int nPageNum) throws Exception {
-        return m_clinics.request(eItem, clinics, nPageNum);
+    public Treatment request(Treatment clinics, int nPageNum) throws Exception {
+        return m_clinics.request(clinics, nPageNum);
     }
 
     public CauseContainer getCause(Treatment clinics, int nPageNum){

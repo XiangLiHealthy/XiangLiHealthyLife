@@ -495,7 +495,7 @@ Json::Value Clinics::Finish(treatment_t treatment ) {
 
 		sql.str("");
 		sql << "insert into diagnosis (user_id, symptom_detail, \
-		cause_detail, diagnosis_detail, solution_detail, feedback, data_source,\
+		cause_detail, diagnosis_detail, solution_detail, data_source,\
 		create_time, status) \
 		values ( "
 		<< treatment.user_id << ", "
@@ -503,7 +503,6 @@ Json::Value Clinics::Finish(treatment_t treatment ) {
 		<< " '" << treatment.cause.detail << "', "
 		<< " '" << treatment.diagnosis.detail << "', "
 		<< " '" << treatment.solution.detail << "', "
-		<< treatment.feedback << ", "
 		<< " ' " << treatment.data_source << "', "
 		<< "NOW(), "
 		<< treatment.status

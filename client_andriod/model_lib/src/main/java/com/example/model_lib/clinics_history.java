@@ -41,7 +41,7 @@ public class clinics_history extends Notify{
         String user_id = model_facade.getinstance().getAccountManager().getAccountInfo().user_id;
 
         //get data
-        TaskQueue.taskQueue.put(new ClinicsRecordTask(user_id));
+        TaskQueue.taskQueue.put(new ClinicsRecordTask(this, user_id));
     }
 
     public ArrayList<ClinicsRecord> getDatas()
@@ -65,9 +65,10 @@ class ClinicsRecordTask extends Task
         }
     }
 
-    ClinicsRecordTask(String user_id)
+    ClinicsRecordTask(Notify notify, String user_id)
     {
         m_user_id = user_id;
+        m_notify = notify;
     }
 
     ArrayList<ClinicsRecord> getData()

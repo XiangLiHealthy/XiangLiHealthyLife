@@ -4,6 +4,7 @@
 #include "clinics.h"
 #include "test.h"
 #include "account_manager.h"
+#include "clinics_record.h"
 
 ProtoManager g_protoManagerObj;
 
@@ -22,6 +23,7 @@ ProtoManager::ProtoManager()
 	regist(new Clinics());
 	regist(new Test());
 	regist(new AccountManager());
+	regist(new ClinicsRecord());
 }
 
 ProtoManager::~ProtoManager() 

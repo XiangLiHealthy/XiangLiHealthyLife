@@ -27,10 +27,10 @@ class JsonCoder {
     /**
      * 自诊
      */
-    public JSONObject encodeClinicsRequest(enum_item eItem, Treatment clinics, int nPageNum)throws Exception {
+    public JSONObject encodeClinicsRequest(Treatment clinics, int nPageNum)throws Exception {
         JSONObject json = new JSONObject();
 
-        String strMethod = GetMethod(eItem);
+        String strMethod = GetMethod(clinics.m_eItem);
         if(null == strMethod) {
             throw new Exception("非法诊断步骤");
         }

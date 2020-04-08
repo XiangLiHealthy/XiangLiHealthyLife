@@ -48,9 +48,9 @@ public class model_facade {
         return m_clinics;
     }
 
-    public  SymptomContainer RequestDiagnosis(enum_item procedure, String user_id )
+    public  SymptomContainer RequestDiagnosis(enum_item procedure)
     {
-        return m_clinics.RequestDiagnosis(procedure, user_id);
+        return m_clinics.RequestDiagnosis(procedure);
     }
     public  SymptomContainer GetSymptom() {
         return m_clinics.GetSymptoms();

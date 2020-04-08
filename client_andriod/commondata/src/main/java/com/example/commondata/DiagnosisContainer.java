@@ -8,9 +8,9 @@ public class DiagnosisContainer {
     CauseContainer m_causes;
 
     public DiagnosisContainer () {
-        for (int i = 0; i < 9; i++) {
-            m_lstItem.add(new Diagnosis());
-        }
+//        for (int i = 0; i < 9; i++) {
+//            m_lstItem.add(new Diagnosis());
+//        }
     }
 
 

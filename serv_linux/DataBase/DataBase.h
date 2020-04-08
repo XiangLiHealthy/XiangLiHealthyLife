@@ -3,6 +3,7 @@
 
 #include<mysql/mysql.h>
 #include<string>
+
 using std::string;
 
 typedef long long LONG;

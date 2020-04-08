@@ -9,9 +9,9 @@ public class CauseContainer {
     //private SymptomContainer m_symptoms;
 
     public CauseContainer() {
-        for (int i = 0; i < 9; i++) {
-            m_lstItem.add(new Cause());
-        }
+//        for (int i = 0; i < 9; i++) {
+//            m_lstItem.add(new Cause());
+//        }
     }
     public void setDetail(String strDetail) {
         m_strDetail = strDetail;

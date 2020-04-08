@@ -26,6 +26,7 @@ public class ClinicsRecordHistory extends AppCompatActivity
 
         //get records
         try {
+            model_facade.getinstance().getClninicsRecord().setNotify(m_msg);
             ArrayList<ClinicsRecord> records = model_facade.getinstance().getClninicsRecord().getData(true);
 
             mListView = (ListView) findViewById(R.id.clinics_history_lst);
@@ -72,4 +73,6 @@ public class ClinicsRecordHistory extends AppCompatActivity
             });
         }
     }
+
+    private Msg m_msg = new Msg();
 }

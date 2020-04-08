@@ -8,6 +8,8 @@ import org.json.JSONObject;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
+import static java.lang.Thread.sleep;
+
 public class NetClinicsRecords {
     public ArrayList<ClinicsRecord> getRecords(String user_id) throws Exception
     {
@@ -28,6 +30,7 @@ public class NetClinicsRecords {
         JSONObject method = new JSONObject();
         method.put("method", PROTOCOL);
         method.put("user_id", user_id);
+        method.put("start_num", "0");
 
         JSONObject protocol = new JSONObject();
         protocol.put("protocol", "ClinicsRecord");
@@ -38,7 +41,8 @@ public class NetClinicsRecords {
 
     private ArrayList<ClinicsRecord> decode(JSONObject data) throws Exception
     {
-        if (data.getString("protocol") != PROTOCOL)
+        String protocol_name = data.getString("protocol");
+        if (protocol_name.compareTo(PROTOCOL) != 0)
         {
             throw new Exception("protocol is wrong");
         }
@@ -54,10 +58,22 @@ public class NetClinicsRecords {
             ClinicsRecord record = new ClinicsRecord();
 
             record.disease = item.getString("disease");
-            record.cause = item.getString("cause");
+            record.cause.add(item.getString("cause"));
             record.start_date = item.getString("start_date");
-            record.feedback_count = item.getString("feadback_count");
-            record.time_long = item.getString("time_long");
+
+            try
+            {
+                int time_long = item.getInt("time_long");
+                int feedback = item.getInt("feedback_count");
+
+                record.feedback_count = String.format("%d", feedback);
+                record.time_long = String.format("%d",  time_long);
+            }catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+
+
             arrayItems.add(record);
         }
 

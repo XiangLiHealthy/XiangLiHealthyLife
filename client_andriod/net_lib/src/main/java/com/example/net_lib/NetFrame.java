@@ -195,7 +195,8 @@ public class NetFrame {
         {
             //m_client = new Socket("10.0.2.2",8888);
             //m_client = new Socket("127.0.0.1",8888);
-            m_client = new Socket("192.168.43.246",8888);
+            //m_client = new Socket("192.168.43.246",8888);
+            m_client = new Socket("122.51.38.230",8888);
             m_client.setSoTimeout(5*1000);
             m_sender = new DataOutputStream(m_client.getOutputStream());
             m_receiver = new DataInputStream(m_client.getInputStream());
@@ -267,36 +268,35 @@ public class NetFrame {
     {
         try{
             do {
-                //find header pos
-                FIND_STATE state = findHeader();
-                if (state == FIND_STATE.FIND_OK)
-                {
-                    //find tail pos
-                    state = findTail();
+                    //find header pos
+                    FIND_STATE state = findHeader();
                     if (state == FIND_STATE.FIND_OK)
                     {
-                        break;
-                    }
+                        //find tail pos
+                        state = findTail();
+                        if (state == FIND_STATE.FIND_OK)
+                        {
+                            break;
+                        }
 
-                    if (state == FIND_STATE.FIND_ERROR)
-                    {
+                        if (state == FIND_STATE.FIND_ERROR)
+                        {
+                            m_header_pos = 0;
+                            m_rcv_len = 0;
+                            throw new Exception("find tailf of fram error");
+                        }
+                    }
+                    else if (m_rcv_len > 0)
+                    {//save last byte, maybe it is a half of header
+                        int len = m_tail_pos + m_rcv_len > MAX_FRAME_SIZE ? MAX_FRAME_SIZE :  m_tail_pos + m_rcv_len;
+                        m_recv_buff[0] = m_recv_buff[len - 1];
                         m_header_pos = 0;
-                        m_rcv_len = 0;
-                        throw new Exception("find tailf of fram error");
+                        m_rcv_len = 1;
+                        m_tail_pos = 1;
                     }
-                }
 
-
-                //save last byte, maybe it is a half of header
-                if (m_rcv_len > 0)
-                {
-                    m_recv_buff[0] = m_recv_buff[m_tail_pos + m_rcv_len - 1];
-                    m_header_pos = 0;
-                    m_rcv_len = 1;
-                }
-
-                int nLen = m_receiver.read(m_recv_buff, m_header_pos + m_rcv_len, m_recv_buff.length - (m_header_pos + m_rcv_len) );
-                m_rcv_len += nLen;
+                    int nLen = m_receiver.read(m_recv_buff, m_header_pos + m_rcv_len, m_recv_buff.length - (m_header_pos + m_rcv_len) );
+                    m_rcv_len += nLen;
             }while (true);
 
             //parse frame

@@ -13,12 +13,12 @@ public class NetClinics {
         m_jsonCoder = json;
     }
 
-    public Treatment request(enum_item eItem, Treatment clinics, int nPageNum) throws Exception {
+    public Treatment request(Treatment clinics, int nPageNum) throws Exception {
         //将参数封装成json
 
         Net net = Net.getInstance();
 
-        JSONObject jData = m_jsonCoder.encodeClinicsRequest(eItem, clinics, nPageNum);
+        JSONObject jData = m_jsonCoder.encodeClinicsRequest(clinics, nPageNum);
         jData.put("user_id", clinics.m_user_id);
         jData = m_jsonCoder.setProtocol(jData, "Clinics");
 

@@ -6,10 +6,13 @@ import com.example.threadlib.Notify;
 import com.example.threadlib.Task;
 import com.example.threadlib.TaskQueue;
 
+import java.util.ArrayList;
 import java.util.Date;
 //import java.util.Calendar;
 //import com.example.net_lib.*;
 import java.text.SimpleDateFormat;
+
+import javax.xml.transform.Source;
 
 public class model_clinics  extends Notify {
     public  int GetItemList(){
@@ -29,63 +32,76 @@ public class model_clinics  extends Notify {
     }
 
     public void notify(Notify task){
-        synchronized (m_treatment) {
+        synchronized (m_treatment)
+        {
             try{
-                GetDiagnosisElement getSymptoms = (GetDiagnosisElement) (task);
-                Treatment treatment = getSymptoms.getData();
+                    GetDiagnosisElement getSymptoms = (GetDiagnosisElement) (task);
+                    Treatment treatment = getSymptoms.getData();
 
-                //症状描述
-                if (enum_item.SYMPTOM == m_treatment.m_eItem) {
-                    m_treatment.m_symptomContainor.add(treatment.m_symptomContainor.getData());
-                } else if(enum_item.CAUSE == m_treatment.m_eItem) {//原因
-                    m_treatment.m_causeContainer.add(treatment.m_causeContainer.m_lstItem);
-                }else if(enum_item.DIAGNOSIS == m_treatment.m_eItem) {//诊断
-                    m_treatment.m_diagnosis.add(treatment.m_diagnosis.getData());
-                }else if(enum_item.SOLUTION == m_treatment.m_eItem) {//解决方法
-                    m_treatment.m_solution.m_lstItem.addAll(treatment.m_solution.m_lstItem);
-                }
-                else if(enum_item.FINISH == m_treatment.m_eItem) {
-
-                }
-                else {
-                    net_return = -1;
-                    lastErr = "错误的诊断步骤";
-                }
-
-            }catch (Exception e) {
+                    handleTask(treatment);
+            }catch (Exception e)
+            {
                 net_return = -1;
                 lastErr = e.toString();
             }
-            }
+        }
 
 
         m_notify.notify(this);
+    }
+
+    private void handleTask(Treatment treatment)
+    {
+        if (null == treatment)
+        {
+            return;
+        }
+
+        //症状描述
+        if (enum_item.SYMPTOM == m_treatment.m_eItem)
+        {
+            ArrayList<Symptom> tmp = treatment.m_symptomContainor.getData();
+            m_treatment.m_symptomContainor.add(tmp);
+        }
+        else if(enum_item.CAUSE == m_treatment.m_eItem)
+        {//原因
+            ArrayList<Cause> tmp = treatment.m_causeContainer.m_lstItem;
+            m_treatment.m_causeContainer.add(tmp);
+        }
+        else if(enum_item.DIAGNOSIS == m_treatment.m_eItem)
+        {//诊断
+            ArrayList<Diagnosis> tmp = treatment.m_diagnosis.getData();
+            m_treatment.m_diagnosis.add(tmp);
+        }else if(enum_item.SOLUTION == m_treatment.m_eItem)
+        {//解决方法
+            ArrayList<Solution> tmp = treatment.m_solution.m_lstItem;
+            m_treatment.m_solution.m_lstItem.addAll(tmp);
+        }
+        else if(enum_item.FINISH == m_treatment.m_eItem)
+        {
+
+        }
+        else {
+            net_return = -1;
+            lastErr = "错误的诊断步骤";
+        }
     }
 
     /**
      * 获取症状描述
      * @return 返回描述列表
      */
-    public SymptomContainer RequestDiagnosis(final enum_item eItem, String user_id) {
+    public SymptomContainer RequestDiagnosis(final enum_item eItem) {
         //从网络中获取一批数据
         try
         {
-            m_treatment.m_eItem = eItem;
-            m_treatment.m_user_id = user_id;
+            Treatment tmp = createTreatment();
+            String user_id = model_facade.getinstance().getAccountManager().getAccountInfo().user_id;
 
-            TaskQueue.taskQueue.put(new GetDiagnosisElement(this, m_treatment) {
-                @Override
-                public void run() throws Exception {
-                    try
-                    {
-                        newTreatment = NetFacade.getInstance().request(eItem, m_treatment,1);
-                    }catch (Exception e) {
-                        net_return = -1;
-                        lastErr = e.toString();
-                    }
+            tmp.m_eItem = eItem;
+            tmp.m_user_id = user_id;
 
-                }
-            });
+            TaskQueue.taskQueue.put(new GetDiagnosisElement(this, tmp));
         } catch (InterruptedException e)
         {
             e.printStackTrace();
@@ -144,6 +160,50 @@ public class model_clinics  extends Notify {
 
         return  0;
     }
+
+    private Treatment createTreatment()
+    {
+        Treatment treatment = new Treatment();
+
+
+        treatment.m_symptomContainor.setDetail(m_treatment.m_symptomContainor.getDetail());
+        for(Symptom symptom : m_treatment.m_symptomContainor.getData())
+        {
+            if (symptom.bSelet)
+            {
+                treatment.m_symptomContainor.getData().add(symptom);
+            }
+        }
+
+        treatment.m_causeContainer.setDetail(m_treatment.m_causeContainer.getDetail());
+        for (Cause cause : m_treatment.m_causeContainer.getData())
+        {
+            if (cause.bSelet)
+            {
+                treatment.m_causeContainer.getData().add(cause);
+            }
+        }
+
+        treatment.m_diagnosis.setDetail(m_treatment.m_diagnosis.getDetail());
+        for (Diagnosis diagnosis : m_treatment.m_diagnosis.getData())
+        {
+            if (diagnosis.bSelet)
+            {
+                treatment.m_diagnosis.getData().add(diagnosis);
+            }
+        }
+
+        treatment.m_solution.setDetail(m_treatment.m_solution.getDetail());
+        for (Solution solution : m_treatment.m_solution.getData())
+        {
+            if (solution.bSelet)
+            {
+                treatment.m_solution.getData().add(solution);
+            }
+        }
+
+        return treatment;
+    }
     /*******************************************************************
      *
      */
@@ -158,8 +218,8 @@ private int net_return;
 private String lastErr;
 }
 
-abstract class GetDiagnosisElement  extends Task{
-    final Treatment old;
+class GetDiagnosisElement  extends Task{
+    Treatment old;
     Treatment       newTreatment;
 
     public GetDiagnosisElement(Notify notify, Treatment treatment) {
@@ -169,5 +229,15 @@ abstract class GetDiagnosisElement  extends Task{
 
     public Treatment getData() {
         return newTreatment;
+    }
+
+    @Override
+    public void run()
+    {
+        try {
+            newTreatment = NetFacade.getInstance().request( old, 1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

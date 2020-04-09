@@ -73,7 +73,12 @@ LONG DataBase::Exec(const string& sql)
 	}
 
 	//执行查询
-	
+	if (NULL == connection)
+	{
+		LOG_ERROR("connection is null");
+		return -1;
+	}	
+
 	if ( mysql_query(connection, sql.c_str()) != 0)
 	{
 		LOG_ERROR("perform sql error:%s", mysql_error(connection));

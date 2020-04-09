@@ -2,11 +2,12 @@
 #include<pthread.h> 
 #include<time.h>
 #include<sys/time.h>
-#include<string>
+#include<string.h>
 #include<error.h>
 #include <syslog.h>
 #include <iostream>
 #include <map>
+#include <stdarg.h>
 
 #undef max
 #undef min

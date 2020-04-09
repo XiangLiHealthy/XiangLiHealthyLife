@@ -6,4 +6,3 @@ mysql -uroot -e "grant all privileges on *.* to 'root'@'%' identified WITH mysql
 mysql -uroot -e "grant all privileges on *.* to 'root'@'localhost' identified WITH mysql_native_password by '123456';" 
 service mysql restart
 /bin/bash
-

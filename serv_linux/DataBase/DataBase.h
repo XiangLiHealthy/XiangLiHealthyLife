@@ -1,7 +1,7 @@
 #ifndef DATABASE_
 #define DATABASE_
 
-#include<mysql/mysql.h>
+#include "../include/mysql/mysql.h"
 #include<string>
 
 using std::string;

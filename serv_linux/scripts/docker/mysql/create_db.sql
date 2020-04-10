@@ -1,21 +1,23 @@
----create db
+#1.create db
 create database if not exists HealthyLife character set utf8;
 
----create tables
----//1.描述字典表 诊断原理使用是的排列组合原理
-create table dignosis_element
-(
-    dignosis_element_id bigint auto_increament primary key,
-    content varchar(256),
-    flag varchar(32) ------ /* 1 症状描述 2 致病原因 3 诊断结论 4 解决方法 5 检查 ``` 6 并发症      7 预防 */
+#2.choose db
+use HealthyLife;
 
-)charset = utf8,egine = InnoDB
+#3.create tables
+create table if not exists dignosis_element
+(
+    dignosis_element_id bigint auto_increment primary key,
+    content varchar(256),
+    flag varchar(32) 
+    # 1 symptom 2 cause 3 diagnosis 4 solution 5 examination  6 complication      7 prevention 
+
+)charset = utf8,engine = InnoDB
 ;
 
-----//2.诊断方案表
-create table diagnosis
+create table if not exists diagnosis
 (
-    diagnosis_id bigint auto_increament primary key,
+    diagnosis_id bigint auto_increment primary key,
     user_id bigint,
     symptom_detail varchar(1024),
     cause_detail varchar(1024),
@@ -27,67 +29,60 @@ create table diagnosis
     status int
 )engine = InnoDB, charset = utf8;
 
-create table diagnosis_element_map
-{
-    diagnosis_id bigint,
-    diagnosis_element_id bigint
-}engine = InnoDB, charset = utf8;
+create table if not exists iagnosis_element_map
+(
+	diagnosis_id bigint,
+	diagnosis_element_id bigint
+)engine = InnoDB, charset = utf8;
 
-----//3.医学知识库表
-create table medical
+# medical knowledge
+create table if not exists edical
 (
     medical_id bigint auto_increment primary key,
     create_time datetime not null,
-    flag int not null default 0 ,----1 中医 ，2 西医
+    flag int not null default 0 ,#1 chinese medicine ，2 western medicine
     src_url varchar(1024),
     name varchar(64)
     )engine = InnoDB, charset = utf8;
 
-create table medical_dict
+create table if not exists medical_dict
 (
-    medical_id bigint foreign key(medical) references,
-    dignosis_element_id bigint foreign key(diagnosis_element) references,
+    medical_id bigint,
+    dignosis_element_id bigint
 )engine = InnoDB, charset = utf8;
 
-------//4.病例表
-create table case
+#diseas case
+create table  if not exists disease_case
 (
- case_id bigint auto_increament primary key,
+ case_id bigint auto_increment primary key,
  user_id bigint,
- foreign key(use_id) references use(user_id),
  create_time datetime,
  endtime datetime,
- status int,  --------- /* 0 生成 1 完成 -1 删除 */
+ status int # 0 creating 1 finish -1 delete 
 )engine = InnoDB, charset = utf8
 ;
 
-------//5.病例详细描述表
-create tabled case_detail
+create table  if not exists  case_detail
 (
- case_detail_id bigint auto_increament primary key,
+ case_detail_id bigint auto_increment primary key,
  case_id bigint,
- foreign key(case_id) references case(case_id),
  detail varchar(1024),
  type int
 )engine = InnoDB, charset = utf8
 ;
 
------//6.图片表
-create table case_picture
+create table  if not exists case_picture
 (
- case_picture_id bigint auto_increament primary key,
+ case_picture_id bigint auto_increment primary key,
  case_id bigint,
- foreign key(case_id) references case(case_id),
  type int,
- path varchar(260),
+ path varchar(260)
 
-)engine = InnoDB, charset = utf8
-;
+)engine = InnoDB, charset = utf8;
 
------//7.用户表
-create table user
+create table if not exists user
 (
-    user_id bigint auto_increament primary key,
+    user_id bigint auto_increment primary key,
     tel varchar(16),
     password varchar(32) not null,
     name varchar(64),
@@ -99,22 +94,20 @@ create table user
     family varchar(256),
     marital_status int,
     blood_type int,
-    occupation varchar(128),
-)engine = InnoDB, charset = utf8
-;
+    occupation varchar(128)
+)engine = InnoDB, charset = utf8;
 
-----爬虫数据缓存表
-create table medical_tmp
+create table  if not exists medical_tmp
 (
     knowledge_id bigint auto_increment primary key,
     disease varchar(64) ,
     src_url varchar(1024),
     station varchar(128),
     state int default 0,
-    import_time datetime ,
+    import_time datetime
 )charset=utf8,engine = InnoDB;
 
-create table diagnosis_element_tmp
+create table  if not exists diagnosis_element_tmp
 (
     element_id bigint auto_increment primary key,
     knowledge_id bigint,
@@ -123,7 +116,7 @@ create table diagnosis_element_tmp
     cleaning_state int default 0
 ) charset = utf8, engine = InnoDB;
 
-create table station
+create table  if not exists station
 (
     station varchar(128),
     url varchar(1024),

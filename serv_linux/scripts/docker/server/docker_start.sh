@@ -1,6 +1,8 @@
 CONTAINER=xiangli
 TAG=xiangli
 VER=v1.0.0
+LOG_DIR=/etc/xiangli/log
+CNF_DIR=/et/xiangli/config
 
 function parser_para()
 {
@@ -33,9 +35,36 @@ function stop_docker()
 	return 0
 }
 
+function create_dir()
+{
+	if [ -d "$LOG_DIR" ];then
+		sudo mkdir -p $LOG_DIR
+		if [ $? -ne 0 ]; then
+			echo "create $LOG_DIR failed"
+			return 1
+		fi
+	fi
+
+	if [ -d "$CNF_DIR" ]; then
+		sudo mkdir -p $CNF_DIR
+		if [ $? -ne 0 ];then
+			echo "crete $CNF_DIR failed"
+			return 1
+		fi
+	fi
+
+	return 0	
+}
+
 function start_docker()
 {
-	docker run -itd --privileged --name xiangli --rm --network=host -v /home/ubuntu/XiangLiHealthyLife/serv_linux/:/home/xiangli/src $TAG:$VER /bin/bash
+	create_dir
+	if [ $? -ne 0 ]; then
+		echo "create dir failed"
+		return 1
+	fi
+
+	docker run -itd --privileged --name xiangli --rm --network=host -v $LOG_DIR:$LOG_DIR -v $CNF_DIR:$CNF_DIR -v /home/ubuntu/XiangLiHealthyLife/serv_linux/:/home/xiangli/src $TAG:$VER /bin/bash
 	if [ $? -ne 0 ]; then
 		echo "run docker failed"
 		return 1

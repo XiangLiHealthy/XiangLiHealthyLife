@@ -16,6 +16,8 @@ RUN buildDev='mysql-server mysql-client vim' \
 	&& useradd -m xiangli -p 123456
 
 
+#编辑器支持中文
+ENV LANG C.UTF-8
 
 #声明mysql会使用的端口
 EXPOSE 3306

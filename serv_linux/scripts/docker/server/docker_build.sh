@@ -45,6 +45,14 @@ function copy_file()
 	if [ $? -ne 0 ];then
 		return 1
 	fi
+	
+	rm -r spider
+
+	cp -r ../../../../spider ./
+	if [ $? -ne 0 ]; then
+		echo "copy spider failed"
+		return 1
+	fi
 
 	return 0
 }

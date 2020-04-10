@@ -23,7 +23,7 @@ function start_container()
 
 	docker run -itd --name $CONTAINER --rm \
 		-v /etc/mysql:/etc/mysql \
-		-v /var/lib/mysql:/etc/lib/mysql \
+		-v /var/lib/mysql:/var/lib/mysql \
 		-p 3306:3306 \
 		--privileged=true \
 		$TAG:$VER bash
@@ -83,9 +83,31 @@ function parser_para()
 	echo "IMG=$TAG:$VER"
 }
 
+function dev_into_docker()
+{
+  xhost +local:root 1>/dev/null 2>&1
+  docker exec \
+    -i $CONTAINER \
+    /bin/bash
+  xhost -local:root 1>/dev/null 2>&1
+}
+
 function create_db()
 {
-	echo "test"	
+	docker cp create_db.sql mysql:/home
+	if [ $? -ne 0 ]; then
+        	echo "copy create_db.sql failed"
+        	return 1
+	fi
+
+	sleep 5s	
+	dev_into_docker < create_db.sh
+	if [ $? -ne 0 ]; then
+		echo "create database failed"
+		return 1
+	fi	
+
+	return 0
 }
 
 function main()

@@ -3,7 +3,7 @@
 
 #include "seq_strategy.h"
 #include "../net/lib/net_data.h"
-#include "../../include/json/json.h"
+#include "../include/json/json.h"
 #include <string>
 using std::string;
 

@@ -228,6 +228,7 @@ int AccountManager::GetAccountInfo(const account_t& log_info, db_user_t& user_in
     //perform sql
     if (ptrDB->Exec(sql) < 0)
     {
+	DBConnectorContainer::GetInstance().ReleaseDB(ptrDB);
         LOG_ERROR("perfor sql failed");
         return -1;
     }

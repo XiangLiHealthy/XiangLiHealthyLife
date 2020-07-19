@@ -54,6 +54,11 @@ function copy_file()
 		return 1
 	fi
 
+        cp ../../../lib/* ./
+	if [ -ne 0 ] ; then
+		echo "copy lib failed"
+	fi
+
 	return 0
 }
 
@@ -67,6 +72,14 @@ function push_img()
 	echo "push img ..."
 	
 	return 0
+}
+
+function clear_cache
+{
+	rm -rf server
+	rm -rf spider
+	rm -rf *.a
+	rm -rf *.so
 }
 
 function main()
@@ -100,6 +113,8 @@ function main()
 		echo "push image failed"
 		return 1
 	fi
+	
+	clear_cache
 
 	return 0
 }

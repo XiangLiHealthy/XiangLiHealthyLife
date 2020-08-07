@@ -3,7 +3,7 @@ import pymysql
 
 class DataStore:
     def __init__(self):
-        self.db = pymysql.connect(host='127.0.0.1', port=3306, user='xiangbaosong', passwd='Xl2016xl', db='HealthyLife',
+        self.db = pymysql.connect(host='122.51.38.230', port=3306, user='xiangli', passwd='123456', db='HealthyLife',
                               charset='utf8')
         self.db_cursor = self.db.cursor()
 

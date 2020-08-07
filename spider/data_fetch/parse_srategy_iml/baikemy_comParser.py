@@ -15,7 +15,7 @@ class baikemy_comParser(HtmlParserStrategy):
         if root_url is None or html is None:
             return
 
-        soup = BeautifulSoup(html, "html.parser", from_encoding="utf-8")
+        soup = BeautifulSoup(html, "html.parser")
         new_urls = []
         # 抽取符合要求的a 标记
         links = soup.find_all("div", "typeInfo_List")
@@ -39,7 +39,7 @@ class baikemy_comParser(HtmlParserStrategy):
         return new_urls
 
     def parser_content(self, html):
-        soup = BeautifulSoup(html, "html.parser", from_encoding="utf-8")
+        soup = BeautifulSoup(html, "html.parser")
         data = {}
 
         #data['url'] = page_url

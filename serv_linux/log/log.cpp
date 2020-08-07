@@ -2,11 +2,12 @@
 #include<pthread.h> 
 #include<time.h>
 #include<sys/time.h>
-#include<string>
+#include<string.h>
 #include<error.h>
 #include <syslog.h>
 #include <iostream>
 #include <map>
+#include <stdarg.h>
 
 #undef max
 #undef min
@@ -15,6 +16,7 @@
 #include <stdio.h>
 
 using namespace std;
+static string LOG_DIR = "/etc/xiangli/log";
 
 pthread_mutex_t lock;
 
@@ -32,7 +34,7 @@ Log::Log( )
 	pthread_mutex_init( &lock,NULL);
 
 	char szDir[256];
-	m_strDir = getwd( szDir);
+	m_strDir = LOG_DIR;
 	m_eLevel = XiangLi::LOG_DEBUG_E;
 }
 

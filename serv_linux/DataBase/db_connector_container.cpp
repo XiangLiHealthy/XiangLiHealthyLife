@@ -49,3 +49,21 @@ shared_ptr<DataBase> DBConnectorContainer::GetDB()
     return ptrDB;
 }
 
+void DBConnectorContainer::ReleaseDB(shared_ptr<DataBase> ptr_db)
+{
+    LOG_INFO ("release db :%p", ptr_db);
+
+    std::lock_guard<mutex> lock(m_lock);
+
+    std::vector<shared_ptr<DataBase>>::iterator itr = m_db_connectors.begin();
+    for (; itr != m_db_connectors.end(); itr ++)
+    {
+        if (*itr == ptr_db)	
+	{
+	    LOG_INFO ("erase itr");
+	    m_db_connectors.erase(itr);
+	    m_db_connectors.clear();
+	    break;
+	}
+    }
+}

@@ -25,8 +25,8 @@ ConfigManager::ConfigManager( )
 
 	m_config.tdb.strHost = "127.0.0.1";
 	m_config.tdb.strDBName = "HealthyLife";
-	m_config.tdb.strUsr = "xiangbaosong";
-	m_config.tdb.strPassword = "Xl2016xl";
+	m_config.tdb.strUsr = "xiangli";
+	m_config.tdb.strPassword = "123456";
 	m_config.tdb.limit_count = 10;
 }
 

@@ -20,6 +20,7 @@ public:
     }
 
     std::shared_ptr<DataBase> GetDB();
+    void ReleaseDB(std::shared_ptr<DataBase> ptr_db);
 private:
    mutex m_lock;
     vector<shared_ptr<DataBase>> m_db_connectors;

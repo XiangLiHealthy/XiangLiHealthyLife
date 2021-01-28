@@ -1,13 +1,16 @@
 package com.example.model_lib;
 
 import android.accounts.AccountManager;
+import android.graphics.Rect;
 
 import com.example.commondata.*;
 import com.example.net_lib.*;
 import com.example.threadlib.TaskQueue;
 import com.example.threadlib.ThreadManager;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.List;
 
 /********************************************************************
 应该算是代理模式,不太像外观者模式;这个类主要提供唯一的访问接口,不做详细的业务实现
@@ -72,6 +75,13 @@ public class model_facade {
         return m_clinics.getSolution(bMore);
     }
 
+    /**********************************************************************
+     *
+     *
+     */
+    public ArrayList<MemberInfo> getFamilyMembers(String family_id) {
+        return mFimalymManager.getMembersInfo();
+    }
 
     /********************************************************************
      成员变量
@@ -82,6 +92,7 @@ public class model_facade {
     accont_manage       m_accont            = new accont_manage();
     model_clinics       m_clinics           = new model_clinics();
     clinics_history     m_clinicsHistory    = new clinics_history();
+    MFimalymManager     mFimalymManager     = new MFimalymManager();
 };
 
 

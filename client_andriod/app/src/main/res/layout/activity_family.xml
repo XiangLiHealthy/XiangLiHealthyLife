@@ -7,9 +7,12 @@
     tools:context=".Family">
 
     <android.support.constraint.ConstraintLayout
+        android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".Family">
+        tools:context=".Family"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp">
 
         <android.support.constraint.Guideline
             android:id="@+id/guideline46"
@@ -24,24 +27,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_begin="279dp"
+            app:layout_constraintGuide_begin="246dp"
             app:layout_constraintGuide_percent="0.5" />
-
-        <android.support.constraint.Guideline
-            android:id="@+id/guideline48"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_begin="166dp"
-            app:layout_constraintGuide_percent="0.33" />
-
-        <android.support.constraint.Guideline
-            android:id="@+id/guideline49"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_begin="80dp"
-            app:layout_constraintGuide_percent="0.165" />
 
         <Button
             android:id="@+id/button36"
@@ -58,6 +45,7 @@
             android:id="@+id/button37"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:layout_marginTop="8dp"
             android:background="@android:color/holo_green_light"
             android:text="健康分析"
             app:layout_constraintBottom_toTopOf="@+id/button36"
@@ -65,157 +53,25 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/guideline47" />
 
-        <ImageView
-            android:id="@+id/imageView6"
+        <com.example.xiangbaosong.myapplication.FamilyMemberView
+            android:id="@+id/member_manager"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginStart="2dp"
-            android:layout_marginLeft="2dp"
-            android:layout_marginTop="2dp"
-            android:layout_marginEnd="2dp"
-            android:layout_marginRight="2dp"
-            android:layout_marginBottom="2dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:paddingLeft="60dp"
+            android:paddingTop="10dp"
+            android:paddingRight="20dp"
+            android:paddingBottom="40dp"
+            app:background_color="#00000000"
+
             app:layout_constraintBottom_toTopOf="@+id/guideline47"
-            app:layout_constraintEnd_toStartOf="@+id/guideline136"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toStartOf="@+id/guideline137"
-            app:layout_constraintTop_toTopOf="@+id/guideline48"
-            app:layout_constraintVertical_bias="1.0"
-            tools:srcCompat="@tools:sample/avatars" />
-
-        <android.support.constraint.Guideline
-            android:id="@+id/guideline136"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_begin="20dp"
-            app:layout_constraintGuide_percent="0.6" />
-
-        <ImageView
-            android:id="@+id/imageView11"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginStart="2dp"
-            android:layout_marginLeft="2dp"
-            android:layout_marginEnd="2dp"
-            android:layout_marginRight="2dp"
-            app:layout_constraintBottom_toTopOf="@+id/guideline48"
-            app:layout_constraintEnd_toStartOf="@+id/guideline136"
-            app:layout_constraintStart_toStartOf="@+id/guideline137"
-            app:layout_constraintTop_toTopOf="@+id/guideline49"
-            tools:srcCompat="@tools:sample/avatars" />
-
-        <ImageView
-            android:id="@+id/imageView12"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginStart="2dp"
-            android:layout_marginLeft="2dp"
-            android:layout_marginTop="2dp"
-            android:layout_marginEnd="2dp"
-            android:layout_marginRight="2dp"
-            app:layout_constraintBottom_toTopOf="@+id/guideline49"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/guideline136"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:srcCompat="@tools:sample/avatars" />
-
-        <ImageView
-            android:id="@+id/imageView13"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginStart="2dp"
-            android:layout_marginLeft="2dp"
-            android:layout_marginTop="2dp"
-            android:layout_marginEnd="2dp"
-            android:layout_marginRight="2dp"
-            app:layout_constraintBottom_toTopOf="@+id/guideline49"
-            app:layout_constraintEnd_toStartOf="@+id/guideline136"
-            app:layout_constraintStart_toStartOf="@+id/guideline137"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:srcCompat="@tools:sample/avatars" />
-
-        <android.support.constraint.Guideline
-            android:id="@+id/guideline137"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_begin="20dp"
-            app:layout_constraintGuide_percent="0.2" />
-
-        <Button
-            android:id="@+id/button38"
-            android:layout_width="73dp"
-            android:layout_height="80dp"
-            android:background="@android:color/background_light"
-            android:text="父辈"
-            tools:layout_editor_absoluteX="2dp"
-            tools:layout_editor_absoluteY="2dp" />
-
-        <Button
-            android:id="@+id/button39"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginStart="2dp"
-            android:layout_marginLeft="2dp"
-            android:layout_marginTop="2dp"
-            android:layout_marginEnd="2dp"
-            android:layout_marginRight="2dp"
-            android:layout_marginBottom="2dp"
-            android:background="@android:color/background_light"
-            android:text="我"
-            app:layout_constraintBottom_toTopOf="@+id/guideline48"
-            app:layout_constraintEnd_toStartOf="@+id/guideline137"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/guideline49" />
-
-        <Button
-            android:id="@+id/button40"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginStart="2dp"
-            android:layout_marginLeft="2dp"
-            android:layout_marginTop="2dp"
-            android:layout_marginEnd="2dp"
-            android:layout_marginRight="2dp"
-            android:layout_marginBottom="2dp"
-            android:background="@android:color/background_light"
-            android:text="子女"
-            app:layout_constraintBottom_toTopOf="@+id/guideline47"
-            app:layout_constraintEnd_toStartOf="@+id/guideline137"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/guideline48" />
-
-        <ImageView
-            android:id="@+id/imageView14"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginStart="2dp"
-            android:layout_marginLeft="2dp"
-            android:layout_marginTop="2dp"
-            android:layout_marginEnd="2dp"
-            android:layout_marginRight="2dp"
-            app:layout_constraintBottom_toTopOf="@+id/guideline47"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/guideline136"
-            app:layout_constraintTop_toTopOf="@+id/guideline48"
-            tools:srcCompat="@tools:sample/avatars" />
-
-        <ImageView
-            android:id="@+id/imageView18"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginStart="2dp"
-            android:layout_marginLeft="2dp"
-            android:layout_marginTop="2dp"
-            android:layout_marginEnd="2dp"
-            android:layout_marginRight="2dp"
-            android:layout_marginBottom="2dp"
-            app:layout_constraintBottom_toTopOf="@+id/guideline48"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/guideline136"
-            app:layout_constraintTop_toTopOf="@+id/guideline49"
-            tools:srcCompat="@tools:sample/avatars" />
+            app:layout_constraintTop_toTopOf="parent" />
 
     </android.support.constraint.ConstraintLayout>
+
+
+
 </android.support.constraint.ConstraintLayout>

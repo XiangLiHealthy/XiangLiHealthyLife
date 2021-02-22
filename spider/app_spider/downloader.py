@@ -13,8 +13,10 @@ class Downloader:
     def get(self, url, headers, var_stream = False):
         result = ''
 
+        proxy = {'http': '33.33.33.10:8118'}
+
         # 获取页面
-        r = requests.get(url, headers=headers)
+        r = requests.get(url, headers=headers, proxies=proxy)
         # 如果返回的响应码为200,即可成功连接服务器
         if r.status_code == 200:
             if True == var_stream :

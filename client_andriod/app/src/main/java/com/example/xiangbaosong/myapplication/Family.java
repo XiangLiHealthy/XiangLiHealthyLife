@@ -6,11 +6,15 @@ import android.os.Bundle;
 import android.view.View;
 
 public class Family extends AppCompatActivity {
+    private FamilyMemberView mMemberManager = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_family);
+
+        //获取重绘机会
+        mMemberManager = (FamilyMemberView) findViewById(R.id.member_manager);
     }
 
     public void button_click(View v){

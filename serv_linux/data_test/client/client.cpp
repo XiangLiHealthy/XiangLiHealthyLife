@@ -6,7 +6,7 @@
 #include <arpa/inet.h>
 #include <sys/select.h>
 #include <sys/epoll.h>
-#include "../../include/json/json.h"
+#include "../../../include/json/json.h"
 #include "../../sequence/msg_seq_manager.h"
 #include "../../sequence/json_seq_strategy.h"
 #include "../../log/log.h"

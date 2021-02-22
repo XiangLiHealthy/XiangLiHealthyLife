@@ -18,4 +18,6 @@ public class data_accout {
 
     public String result;
     public String desc;
+    public String family_id;
+    public String member_id;
 }

@@ -29,7 +29,7 @@ def test_spider(url) :
 
 if __name__ == '__main__':
  # 若存储路径为空，则在当前文件夹生成
- test_spider('https://wenku.baidu.com/view/a624821786868762caaedd3383c4bb4cf7ecb7ac.html?fr=search-4-incomeN')
+ test_spider('http://www.a-hospital.com/w/%E6%80%A5%E6%95%91%E5%B8%B8%E8%AF%86')
 
 
 

@@ -1,4 +1,4 @@
-import app_spider.downloader
+import downloader
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -31,6 +31,7 @@ class SpiderDisesea:
         username.send_keys('13883372441')
         password.send_keys('Xl2016xl')
         submit.click()
+        sleep(10)
 
         return
 
@@ -82,7 +83,7 @@ class SpiderDisesea:
             soup = BeautifulSoup(self.browser.page_source, 'html.parser')
             paginations = soup.find_all('li', attrs={'class' : 'ant-pagination-item'})
 
-            forward = ''
+            forward = '1'
             for pagination in paginations :
                 title = pagination.attrs['title']
                 if 'Next Page' == title :
@@ -166,18 +167,28 @@ class SpiderDisesea:
         try:
             self.login()
 
+            sleep(1)
             classifies = self.get_classify()
             print ('all classify count:{}'.format(len(classifies)))
             #self.reconnet_chrome()
 
+            index = 0
             for classify in classifies :
+                sleep(1)
                 count = self.get_pages_count(classify['url'])
+                print ('{} get page num:{}'.format(classify['child_classify'], count))
+
                 for num in range(1, int(count)) :
-                    url = 'http://drugs.dxy.cn/category/6FO9JRKee7oGjg4ueqcElw==?page={}'.format(num)
+                    url = '{}?page={}'.format(classify['url'], num)
+                    sleep(1)
                     drugs = self.get_drugs(url)
+                    print ('{}/{} drug count:{}'.format(num, count, len(drugs)))
+
                     for drug in drugs :
                         content = self.get_content(drug['name'], drug['url'])
                         self.save(classify, drug, content)
+                        index += 1
+                        print ('get count:{},type:{},drug:{}'.format(index,classify['main_classify'], drug['name'])    )
                         sleep(1)
         finally:
             self.browser.close()

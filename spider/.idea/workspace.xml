@@ -1,23 +1,89 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="c5ae1bce-1a1d-4995-81ea-4f011666a7aa" name="Default Changelist" comment="" />
+    <list default="true" id="c5ae1bce-1a1d-4995-81ea-4f011666a7aa" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/../action_recongition/pythonProject/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../action_recongition/pythonProject/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../action_recongition/pythonProject/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../action_recongition/pythonProject/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../action_recongition/pythonProject/.idea/pythonProject.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../action_recongition/pythonProject/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../action_recongition/pythonProject/main.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../action_recongition/pythonProject/static_image.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/spider.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/spider.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app_spider/dingxiangmama.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app_spider/downloader.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app_spider/hzhealth.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app_spider/wx_aiganlianmen.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_fetch/DataStore.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_fetch/HtmlDownloader.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_fetch/HtmlParserStrategy.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_fetch/ParserStrategyContainer.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_fetch/SpiderMan.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_fetch/UrlManager.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_fetch/monitor.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_fetch/parse_srategy_iml/baikemy_comParser.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_fetch/result.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_fetch/test" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/gaode.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/transCoordinateSystem.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ocr/baiduwenku.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ocr/ruizhen.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ocr/test2.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ocr/test_wenku.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/venv/bin/activate" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/venv/bin/activate.csh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/venv/bin/activate.fish" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/venv/bin/python" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/venv/bin/python3" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/venv/bin/python3.6" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/venv/lib64" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/venv/pyvenv.cfg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/www/a-hospital_com.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/www/a-hospital_com_baike.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/www/data_store.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/www/downloader.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/www/dxy.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/www/dxy_disease.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/www/dxy_drug.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/www/dxy_jijiu.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/www/dxy_survy.py" beforeDir="false" />
+    </list>
+    <ignored path="$PROJECT_DIR$/venv/" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/spider$ruizhen.coverage" NAME="ruizhen Coverage Results" MODIFIED="1611628470398" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ocr" />
     <SUITE FILE_PATH="coverage/spider$ParserStrategyContainer.coverage" NAME="ParserStrategyContainer Coverage Results" MODIFIED="1584605960866" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/data_fetch" />
-    <SUITE FILE_PATH="coverage/spider$gaode.coverage" NAME="gaode Coverage Results" MODIFIED="1584665341289" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/data_fetch" />
-    <SUITE FILE_PATH="coverage/spider$baiduwenku.coverage" NAME="baiduwenku Coverage Results" MODIFIED="1611655791047" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ocr" />
+    <SUITE FILE_PATH="coverage/spider$test_wenku.coverage" NAME="test_wenku Coverage Results" MODIFIED="1611813909305" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ocr" />
     <SUITE FILE_PATH="coverage/spider$monitor.coverage" NAME="monitor Coverage Results" MODIFIED="1584696431031" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/data_fetch" />
-    <SUITE FILE_PATH="coverage/spider$test2.coverage" NAME="test2 Coverage Results" MODIFIED="1611733951202" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ocr" />
+    <SUITE FILE_PATH="coverage/spider$dxy_drug.coverage" NAME="dxy_drug Coverage Results" MODIFIED="1615909697370" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/www" />
+    <SUITE FILE_PATH="coverage/spider$gaode.coverage" NAME="gaode Coverage Results" MODIFIED="1584665341289" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/data_fetch" />
+    <SUITE FILE_PATH="coverage/spider$main.coverage" NAME="main Coverage Results" MODIFIED="1615912001429" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/action_recongnition" />
     <SUITE FILE_PATH="coverage/spider$baikemy_comParser.coverage" NAME="baikemy_comParser Coverage Results" MODIFIED="1584606554757" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/data_fetch" />
+    <SUITE FILE_PATH="coverage/spider$ruizhen.coverage" NAME="ruizhen Coverage Results" MODIFIED="1611628470398" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ocr" />
+    <SUITE FILE_PATH="coverage/spider$baiduwenku.coverage" NAME="baiduwenku Coverage Results" MODIFIED="1611655791047" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ocr" />
     <SUITE FILE_PATH="coverage/spider$HtmlParserStrategy.coverage" NAME="HtmlParserStrategy Coverage Results" MODIFIED="1584605985756" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/data_fetch" />
     <SUITE FILE_PATH="coverage/spider$SpiderMan.coverage" NAME="SpiderMan Coverage Results" MODIFIED="1586510543133" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/data_fetch" />
-    <SUITE FILE_PATH="coverage/spider$test_wenku.coverage" NAME="test_wenku Coverage Results" MODIFIED="1611813909305" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ocr" />
+    <SUITE FILE_PATH="coverage/spider$test2.coverage" NAME="test2 Coverage Results" MODIFIED="1611733951202" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ocr" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file:///usr/lib/python3/dist-packages/apport_python_hook.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="157">
+              <caret line="46" selection-start-line="46" selection-end-line="46" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -58,13 +124,14 @@
         <option value="$PROJECT_DIR$/ocr/baiduwenku.py" />
         <option value="$PROJECT_DIR$/ocr/test2.py" />
         <option value="$PROJECT_DIR$/ocr/test_wenku.py" />
+        <option value="$PROJECT_DIR$/action_recongnition/main.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="67" />
-    <option name="y" value="27" />
-    <option name="width" value="1818" />
+    <option name="x" value="736" />
+    <option name="y" value="58" />
+    <option name="width" value="1268" />
     <option name="height" value="1050" />
   </component>
   <component name="ProjectId" id="1nuDAQaQtyLXrpQ2BdJFlUz7t5Z" />
@@ -83,21 +150,6 @@
               <item name="spider" type="b2602c69:ProjectViewProjectNode" />
               <item name="spider" type="462c0819:PsiDirectoryNode" />
             </path>
-            <path>
-              <item name="spider" type="b2602c69:ProjectViewProjectNode" />
-              <item name="spider" type="462c0819:PsiDirectoryNode" />
-              <item name="data_fetch" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="spider" type="b2602c69:ProjectViewProjectNode" />
-              <item name="spider" type="462c0819:PsiDirectoryNode" />
-              <item name="location" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="spider" type="b2602c69:ProjectViewProjectNode" />
-              <item name="spider" type="462c0819:PsiDirectoryNode" />
-              <item name="ocr" type="462c0819:PsiDirectoryNode" />
-            </path>
           </expand>
           <select />
         </subPane>
@@ -113,7 +165,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$USER_HOME$/AI/mediapipe/mediapipe/python" />
+    <property name="last_opened_file_path" value="$USER_HOME$/github/spider" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -134,28 +186,19 @@
       <recent name="$PROJECT_DIR$/data_fetch/modules" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.dxy_drug">
-    <configuration name="a-hospital_com" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="spider" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/www" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/www/a-hospital_com.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager" selected="Python.main">
     <configuration name="a-hospital_com_baike" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="spider" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -168,6 +211,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/www/a-hospital_com_baike.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
@@ -189,6 +233,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/www/dxy.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
@@ -210,6 +255,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/www/dxy_disease.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
@@ -231,7 +277,30 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/www/dxy_drug.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="spider" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/action_recongnition" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/action_recongnition/main.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -242,15 +311,15 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.main" />
         <item itemvalue="Python.dxy_drug" />
         <item itemvalue="Python.dxy" />
         <item itemvalue="Python.dxy_disease" />
         <item itemvalue="Python.a-hospital_com_baike" />
-        <item itemvalue="Python.a-hospital_com" />
       </list>
     </recent_temporary>
   </component>
-  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="SpellCheckerSettings" BundledDictionaries="0" Folders="0" CustomDictionaries="0" Dictionaries="0" CorrectionsLimit="5" DefaultDictionary="application-level" UseSingleDictionary="true" />
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -273,22 +342,23 @@
       <workItem from="1612331027421" duration="15394000" />
       <workItem from="1612352793344" duration="9306000" />
       <workItem from="1612400954621" duration="16661000" />
+      <workItem from="1615909565542" duration="2847000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="109292000" />
+    <option name="totallyTimeSpent" value="112139000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="67" y="27" width="1818" height="1050" extended-state="0" />
+    <frame x="736" y="58" width="1268" height="1050" extended-state="0" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.21049662" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.30851063" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32975295" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.32899022" />
-      <window_info active="true" anchor="bottom" id="Debug" order="3" sideWeight="0.49914238" visible="true" weight="0.4777416" />
+      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49914238" weight="0.4777416" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -298,6 +368,7 @@
       <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.50085765" side_tool="true" weight="0.39766082" />
       <window_info anchor="bottom" id="Terminal" order="11" weight="0.32975295" />
       <window_info anchor="bottom" id="Python Console" order="12" />
+      <window_info anchor="right" id="Word Book" side_tool="true" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -329,7 +400,7 @@
     </layout-to-restore>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
-    <option name="version" value="3" />
+    <option name="version" value="1" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -416,7 +487,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/ocr/test2.py</url>
-          <line>25</line>
+          <line>14</line>
           <option name="timeStamp" value="83" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -493,20 +564,7 @@
     </watches-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file:///usr/lib/python3/dist-packages/apport_python_hook.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="157">
-          <caret line="46" selection-start-line="46" selection-end-line="46" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///usr/lib/python3/dist-packages/bs4/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="93" selection-start-line="93" selection-end-line="93" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file:///usr/lib/python3/dist-packages/bs4/__init__.py" />
     <entry file="file://$PROJECT_DIR$/data_fetch/parse_srategy_iml/result.csv" />
     <entry file="file://$PROJECT_DIR$/data_fetch/ParserStrategyContainer.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -539,13 +597,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="jar:///usr/local/lib/python3.6/dist-packages/PyMySQL-0.9.3-py3.6.egg!/pymysql/cursors.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2385">
-          <caret line="164" selection-start-line="164" selection-end-line="164" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="jar:///usr/local/lib/python3.6/dist-packages/PyMySQL-0.9.3-py3.6.egg!/pymysql/cursors.py" />
     <entry file="file:///usr/lib/python3.6/codecs.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2895">
@@ -645,6 +697,23 @@
           <folding>
             <element signature="e#34#66#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/action_recongnition/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="360">
+          <caret line="24" lean-forward="true" selection-start-line="24" selection-end-line="24" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/lib/python3/dist-packages/apport_python_hook.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="157">
+          <caret line="46" selection-start-line="46" selection-end-line="46" />
         </state>
       </provider>
     </entry>
